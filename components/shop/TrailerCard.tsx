@@ -1,0 +1,160 @@
+"use client";
+
+import { motion } from "framer-motion";
+import Image from "next/image";
+import Link from "next/link";
+import { ArrowRight, CheckCircle2, Clock } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Trailer } from "@/types/trailer";
+
+interface TrailerCardProps {
+  trailer: Trailer;
+  index?: number;
+}
+
+export default function TrailerCard({
+  trailer,
+  index = 0,
+}: TrailerCardProps) {
+  const primaryImage = trailer.images.find((img) => img.isPrimary) || trailer.images[0];
+
+  // Count key features
+  const keyFeatures = [
+    trailer.features.refrigeration && "Refrigeration",
+    trailer.features.griddle24 && "24\" Griddle",
+    trailer.features.deepFryer && "Deep Fryer",
+    trailer.features.range && "Range",
+    trailer.features.ansulSystem && "Ansul System",
+  ].filter(Boolean);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, delay: index * 0.05 }}
+      className="group h-full"
+    >
+      <Card className="h-full overflow-hidden border-0 shadow-md hover:shadow-2xl transition-all duration-300 rounded-2xl bg-white flex flex-col">
+        {/* Image Section */}
+        <Link href={`/shop/${trailer.slug}`} className="relative block">
+          <div className="relative w-full h-64 bg-gray-100 overflow-hidden">
+            <Image
+              src={primaryImage.url}
+              alt={primaryImage.alt}
+              fill
+              className="object-cover group-hover:scale-105 transition-transform duration-500"
+              sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            />
+
+            {/* Badges Overlay */}
+            <div className="absolute top-4 left-4 flex flex-col gap-2">
+              {trailer.isFeatured && (
+                <Badge className="bg-blue-600 text-white border-0 shadow-lg">
+                  Featured
+                </Badge>
+              )}
+              {trailer.isAvailable ? (
+                <Badge className="bg-green-600 text-white border-0 shadow-lg">
+                  Available Now
+                </Badge>
+              ) : (
+                <Badge className="bg-orange-600 text-white border-0 shadow-lg">
+                  Build-to-Order
+                </Badge>
+              )}
+            </div>
+
+            {/* Hover Overlay */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-6">
+              <Button
+                size="lg"
+                className="bg-white text-gray-900 hover:bg-gray-100"
+                asChild
+              >
+                <Link href={`/shop/${trailer.slug}`}>
+                  View Details
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
+              </Button>
+            </div>
+          </div>
+        </Link>
+
+        {/* Content Section */}
+        <div className="p-6 flex-1 flex flex-col">
+          {/* Type & Size */}
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-xs font-medium text-blue-600 uppercase tracking-wide">
+              {trailer.type}
+            </span>
+            <span className="text-xs text-gray-400">•</span>
+            <span className="text-xs font-medium text-gray-500">
+              {trailer.size}
+            </span>
+          </div>
+
+          {/* Title */}
+          <Link href={`/shop/${trailer.slug}`}>
+            <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors line-clamp-1">
+              {trailer.name}
+            </h3>
+          </Link>
+
+          {/* Description */}
+          <p className="text-sm text-gray-600 mb-4 line-clamp-2 flex-1">
+            {trailer.shortDescription}
+          </p>
+
+          {/* Key Features */}
+          <div className="mb-4">
+            <div className="flex flex-wrap gap-2">
+              {keyFeatures.slice(0, 3).map((feature, idx) => (
+                <div
+                  key={idx}
+                  className="flex items-center gap-1 text-xs text-gray-600"
+                >
+                  <CheckCircle2 className="h-3 w-3 text-green-600" />
+                  <span>{feature}</span>
+                </div>
+              ))}
+              {keyFeatures.length > 3 && (
+                <span className="text-xs text-gray-500">
+                  +{keyFeatures.length - 3} more
+                </span>
+              )}
+            </div>
+          </div>
+
+          {/* Price & CTA */}
+          <div className="pt-4 border-t border-gray-100 flex items-center justify-between">
+            <div>
+              <p className="text-xs text-gray-500 mb-1">Starting at</p>
+              <p className="text-2xl font-bold text-gray-900">
+                ${trailer.price.toLocaleString()}
+              </p>
+            </div>
+            <div className="flex flex-col items-end gap-1">
+              <div className="flex items-center gap-1 text-xs text-gray-500">
+                <Clock className="h-3 w-3" />
+                <span>{trailer.buildLeadTime}</span>
+              </div>
+              <Button
+                size="sm"
+                variant="outline"
+                className="border-gray-300 hover:border-blue-600 hover:text-blue-600"
+                asChild
+              >
+                <Link href={`/shop/${trailer.slug}`}>
+                  Learn More
+                  <ArrowRight className="ml-1 h-3 w-3" />
+                </Link>
+              </Button>
+            </div>
+          </div>
+        </div>
+      </Card>
+    </motion.div>
+  );
+}
