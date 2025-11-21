@@ -39,7 +39,7 @@ export default function Home() {
       <Testimonials />
 
       {/* Financing Callout */}
-      <FinancingCallout />
+      {/* <FinancingCallout /> */}
 
       {/* Lead Magnet - Downloadable Guide & Consultation */}
       <LeadMagnet />

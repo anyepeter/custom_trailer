@@ -104,7 +104,7 @@ export default function TrailerDetailPage() {
       <Navbar />
 
       {/* Breadcrumb Navigation */}
-      <section className="bg-white border-b border-gray-200 py-2 sm:py-3">
+      <section className="bg-white border-b border-gray-200 pt-20 pb-2 sm:pt-20 sm:pb-3">
         <div className="container mx-auto px-4">
           <nav className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm overflow-x-auto scrollbar-hide">
             <Link

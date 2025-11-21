@@ -208,7 +208,7 @@ export default function LeadMagnet() {
           </div>
 
           {/* Additional Resources Links */}
-          <motion.div
+          {/* <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -240,7 +240,7 @@ export default function LeadMagnet() {
                 Success Stories
               </a>
             </div>
-          </motion.div>
+          </motion.div> */}
         </div>
       </div>
     </section>
