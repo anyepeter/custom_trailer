@@ -54,9 +54,9 @@ export default function ImageGallery({
   };
 
   return (
-    <div className="space-y-4" onKeyDown={handleKeyDown} tabIndex={0}>
+    <div className="space-y-3 sm:space-y-4" onKeyDown={handleKeyDown} tabIndex={0}>
       {/* Main Image */}
-      <div className="relative aspect-[4/3] bg-gray-100 rounded-2xl overflow-hidden group">
+      <div className="relative aspect-[4/3] bg-gray-100 rounded-xl sm:rounded-2xl overflow-hidden group">
         <Image
           src={images[selectedImage].url}
           alt={images[selectedImage].alt}
@@ -66,50 +66,50 @@ export default function ImageGallery({
           sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 800px"
         />
 
-        {/* Expand Button */}
+        {/* Expand Button - Always visible on mobile */}
         <button
           onClick={() => openLightbox(selectedImage)}
-          className="absolute top-4 right-4 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white"
+          className="absolute top-3 right-3 sm:top-4 sm:right-4 w-9 h-9 sm:w-10 sm:h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center sm:opacity-0 sm:group-hover:opacity-100 transition-opacity hover:bg-white"
           aria-label="Open full screen gallery"
         >
-          <Maximize2 className="h-5 w-5 text-gray-900" />
+          <Maximize2 className="h-4 w-4 sm:h-5 sm:w-5 text-gray-900" />
         </button>
 
-        {/* Navigation Arrows (for main image) */}
+        {/* Navigation Arrows (for main image) - Always visible on mobile */}
         {images.length > 1 && (
           <>
             <button
               onClick={prevImage}
-              className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:bg-white hover:scale-110"
+              className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 w-9 h-9 sm:w-10 sm:h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center sm:opacity-0 sm:group-hover:opacity-100 transition-all hover:bg-white hover:scale-110"
               aria-label="Previous image"
             >
-              <ChevronLeft className="h-5 w-5 text-gray-900" />
+              <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5 text-gray-900" />
             </button>
 
             <button
               onClick={nextImage}
-              className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:bg-white hover:scale-110"
+              className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 w-9 h-9 sm:w-10 sm:h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center sm:opacity-0 sm:group-hover:opacity-100 transition-all hover:bg-white hover:scale-110"
               aria-label="Next image"
             >
-              <ChevronRight className="h-5 w-5 text-gray-900" />
+              <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5 text-gray-900" />
             </button>
           </>
         )}
 
         {/* Image Counter */}
-        <div className="absolute bottom-4 right-4 px-3 py-1 bg-black/60 backdrop-blur-sm text-white text-sm rounded-full">
+        <div className="absolute bottom-3 right-3 sm:bottom-4 sm:right-4 px-2.5 py-1 sm:px-3 bg-black/60 backdrop-blur-sm text-white text-xs sm:text-sm rounded-full">
           {selectedImage + 1} / {images.length}
         </div>
       </div>
 
       {/* Thumbnail Grid */}
       {images.length > 1 && (
-        <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-2">
+        <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-1.5 sm:gap-2">
           {images.map((image, index) => (
             <button
               key={index}
               onClick={() => setSelectedImage(index)}
-              className={`relative aspect-[4/3] rounded-lg overflow-hidden transition-all ${
+              className={`relative aspect-[4/3] rounded-md sm:rounded-lg overflow-hidden transition-all ${
                 index === selectedImage
                   ? "ring-2 ring-blue-600 opacity-100"
                   : "opacity-60 hover:opacity-100"
