@@ -145,7 +145,7 @@ export default function ConfiguratorPage() {
               transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
               className="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-green-400 to-emerald-600 rounded-full flex items-center justify-center"
             >
-              <PartyPopper className="h-12 w-12 text-white" />
+              {/* <PartyPopper className="h-12 w-12 text-white" /> */}
             </motion.div>
 
             <h1 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">

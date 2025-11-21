@@ -25,7 +25,7 @@ const features = [
     icon: Layout,
     title: "100% Custom Layouts",
     description:
-      "Design your perfect kitchen layout with our 3D builder. From compact coffee trailers to full-service kitchens, we bring your vision to life.",
+      "Design your perfect kitchen layout with our truck design form. From compact coffee trailers to full-service kitchens, we bring your vision to life.",
     color: "text-green-600",
     bgColor: "bg-green-100",
   },

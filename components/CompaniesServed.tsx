@@ -104,7 +104,7 @@ const itemVariants = {
 export default function CompaniesServed() {
   return (
     <section
-      className="py-20 bg-gradient-to-b from-white to-gray-50"
+      className="py-4 bg-gradient-to-b from-white to-gray-50"
       aria-labelledby="companies-heading"
     >
       <div className="container mx-auto px-4">

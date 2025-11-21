@@ -181,25 +181,28 @@ export default function Testimonials() {
           transition={{ duration: 0.6 }}
           className="mt-12 text-center"
         >
-          <Card className="inline-block border-0 shadow-lg bg-gradient-to-br from-blue-600 to-blue-700 text-white">
-            <CardContent className="p-8">
-              <div className="flex items-center justify-center gap-8">
-                <div>
-                  <div className="text-5xl font-bold mb-2">4.9</div>
+          <Card className="inline-block border-0 shadow-lg bg-gradient-to-br from-blue-600 to-blue-700 text-white max-w-full">
+            <CardContent className="p-6 sm:p-8">
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-8">
+                <div className="text-center">
+                  <div className="text-4xl sm:text-5xl font-bold mb-2">4.9</div>
                   <StarRating rating={5} />
                 </div>
-                <div className="h-16 w-px bg-white/30" />
-                <div className="text-left">
-                  <div className="text-2xl font-bold">500+</div>
-                  <div className="text-sm text-blue-100">
-                    Happy Customers
+                <div className="hidden sm:block h-16 w-px bg-white/30" />
+                <div className="w-full sm:w-auto h-px sm:h-auto bg-white/30 sm:hidden" />
+                <div className="flex gap-8 sm:gap-8">
+                  <div className="text-center sm:text-left">
+                    <div className="text-xl sm:text-2xl font-bold">500+</div>
+                    <div className="text-xs sm:text-sm text-blue-100">
+                      Happy Customers
+                    </div>
                   </div>
-                </div>
-                <div className="h-16 w-px bg-white/30" />
-                <div className="text-left">
-                  <div className="text-2xl font-bold">250+</div>
-                  <div className="text-sm text-blue-100">
-                    5-Star Reviews
+                  <div className="h-auto w-px bg-white/30 sm:block" />
+                  <div className="text-center sm:text-left">
+                    <div className="text-xl sm:text-2xl font-bold">250+</div>
+                    <div className="text-xs sm:text-sm text-blue-100">
+                      5-Star Reviews
+                    </div>
                   </div>
                 </div>
               </div>

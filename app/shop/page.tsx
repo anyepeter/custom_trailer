@@ -55,7 +55,7 @@ export default function ShopPage() {
       <Navbar />
 
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-blue-600 to-blue-800 text-white pt-24 pb-16">
+      {/* <section className="bg-gradient-to-br from-blue-600 to-blue-800 text-white pt-24 pb-16">
         <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -83,10 +83,10 @@ export default function ShopPage() {
             </div>
           </motion.div>
         </div>
-      </section>
+      </section> */}
 
       {/* Main Content */}
-      <section className="py-12">
+      <section className="py-24">
         <div className="container mx-auto px-4">
           <div className="flex gap-8">
             {/* Sidebar - Desktop Filters */}

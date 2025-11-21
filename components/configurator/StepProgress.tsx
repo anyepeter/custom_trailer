@@ -28,7 +28,7 @@ export default function StepProgress({
   return (
     <div className="w-full">
       {/* Progress Bar */}
-      <div className="mb-4">
+      {/* <div className="mb-4">
         <div className="h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
           <motion.div
             className="h-full bg-gradient-to-r from-blue-600 to-cyan-600"
@@ -37,7 +37,7 @@ export default function StepProgress({
             transition={{ duration: 0.5 }}
           />
         </div>
-      </div>
+      </div> */}
 
       {/* Step Indicators */}
       <div className="flex items-center justify-between">
