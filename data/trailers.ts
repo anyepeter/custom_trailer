@@ -5,12 +5,14 @@ export const trailers: Trailer[] = [
   {
     id: "1",
     slug: "premium-bbq-smoker-8x20",
+    modelNumber: "BBQ-PRO-820",
     name: "Premium BBQ Smoker Trailer",
     type: "BBQ",
     size: "8.5x20",
     price: 45900,
     isFeatured: true,
     isAvailable: true,
+    isBestSeller: true,
     images: [
       {
         url: "/trailers/bbq-1.jpg",
@@ -75,6 +77,7 @@ export const trailers: Trailer[] = [
         description: "Add third 36\" offset smoker",
         price: 3500,
         category: "Equipment",
+        isPopular: true,
       },
       {
         id: "u2",
@@ -82,6 +85,7 @@ export const trailers: Trailer[] = [
         description: "100W solar panel with battery backup",
         price: 1200,
         category: "Equipment",
+        isNew: true,
       },
       {
         id: "u3",
@@ -89,20 +93,24 @@ export const trailers: Trailer[] = [
         description: "Full custom design and installation",
         price: 2500,
         category: "Aesthetic",
+        isPopular: true,
       },
     ],
     buildLeadTime: "6-8 weeks",
     createdAt: "2024-01-15",
+    relatedTrailerIds: ["3", "8"],
   },
   {
     id: "2",
     slug: "gourmet-coffee-trailer-7x14",
+    modelNumber: "CFE-GRM-714",
     name: "Gourmet Coffee Trailer",
     type: "Coffee",
     size: "7x14",
     price: 32500,
     isFeatured: true,
     isAvailable: true,
+    isNew: true,
     images: [
       {
         url: "/trailers/coffee-1.jpg",
@@ -177,6 +185,7 @@ export const trailers: Trailer[] = [
   {
     id: "3",
     slug: "hot-kitchen-deluxe-8x24",
+    modelNumber: "HK-DLX-824",
     name: "Hot Kitchen Deluxe",
     type: "Hot Kitchen",
     size: "8.5x24",
@@ -273,6 +282,7 @@ export const trailers: Trailer[] = [
   {
     id: "4",
     slug: "wood-fired-pizza-trailer-8x16",
+    modelNumber: "PIZ-WDF-816",
     name: "Wood-Fired Pizza Trailer",
     type: "Pizza",
     size: "8.5x16",
@@ -353,6 +363,7 @@ export const trailers: Trailer[] = [
   {
     id: "5",
     slug: "cold-kitchen-salad-bar-7x16",
+    modelNumber: "CK-SLD-716",
     name: "Cold Kitchen & Salad Bar",
     type: "Cold Kitchen",
     size: "7x16",
@@ -429,6 +440,7 @@ export const trailers: Trailer[] = [
   {
     id: "6",
     slug: "mobile-porch-catering-8x18",
+    modelNumber: "PRC-CTR-818",
     name: "Mobile Porch & Catering Trailer",
     type: "Porch",
     size: "8.5x18",
@@ -511,6 +523,7 @@ export const trailers: Trailer[] = [
   {
     id: "7",
     slug: "gooseneck-kitchen-8x28",
+    modelNumber: "GN-PRO-828",
     name: "Gooseneck Kitchen Trailer",
     type: "Gooseneck",
     size: "8.5x28",
@@ -596,6 +609,7 @@ export const trailers: Trailer[] = [
   {
     id: "8",
     slug: "starter-bbq-trailer-7x12",
+    modelNumber: "BBQ-STR-712",
     name: "Starter BBQ Trailer",
     type: "BBQ",
     size: "7x12",

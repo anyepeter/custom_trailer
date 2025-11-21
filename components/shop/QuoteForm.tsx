@@ -109,29 +109,29 @@ export default function QuoteForm({
 
   if (isSubmitted) {
     return (
-      <Card className="p-8 bg-gradient-to-br from-green-50 to-blue-50 border-green-200">
+      <Card className="p-5 sm:p-8 bg-gradient-to-br from-green-50 to-blue-50 border-green-200">
         <motion.div
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 0.5 }}
           className="text-center"
         >
-          <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
-            <CheckCircle2 className="h-8 w-8 text-white" />
+          <div className="w-12 h-12 sm:w-16 sm:h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+            <CheckCircle2 className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
           </div>
-          <h3 className="text-2xl font-bold text-gray-900 mb-2">
+          <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
             Quote Request Received!
           </h3>
-          <p className="text-gray-700 mb-6">
+          <p className="text-sm sm:text-base text-gray-700 mb-4 sm:mb-6">
             Thank you for your interest in the <strong>{trailerName}</strong>.
             Our team will review your request and get back to you within 24
             hours.
           </p>
-          <div className="bg-white rounded-lg p-4 border border-green-200">
-            <p className="text-sm text-gray-600 mb-2">
+          <div className="bg-white rounded-lg p-3 sm:p-4 border border-green-200">
+            <p className="text-xs sm:text-sm text-gray-600 mb-1 sm:mb-2">
               We've sent a confirmation to:
             </p>
-            <p className="text-sm font-medium text-gray-900">
+            <p className="text-xs sm:text-sm font-medium text-gray-900 break-all">
               {formData.email}
             </p>
           </div>
@@ -149,7 +149,7 @@ export default function QuoteForm({
               });
             }}
             variant="outline"
-            className="mt-6"
+            className="mt-4 sm:mt-6 text-sm"
           >
             Submit Another Request
           </Button>
@@ -159,23 +159,23 @@ export default function QuoteForm({
   }
 
   return (
-    <Card className="p-6 sm:p-8 bg-gradient-to-br from-blue-50 to-white border-blue-200">
-      <div className="mb-6">
-        <h3 className="text-2xl font-bold text-gray-900 mb-2">
+    <Card className="p-4 sm:p-6 md:p-8 bg-gradient-to-br from-blue-50 to-white border-blue-200">
+      <div className="mb-4 sm:mb-6">
+        <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-1 sm:mb-2">
           Request a Custom Quote
         </h3>
-        <p className="text-gray-600">
+        <p className="text-sm sm:text-base text-gray-600">
           Get personalized pricing for the <strong>{trailerName}</strong>.
           Starting at ${trailerPrice.toLocaleString()}.
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-5">
+      <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
         {/* Name */}
         <div>
           <label
             htmlFor="name"
-            className="block text-sm font-medium text-gray-700 mb-2"
+            className="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2"
           >
             Full Name <span className="text-red-500">*</span>
           </label>
@@ -195,11 +195,11 @@ export default function QuoteForm({
         </div>
 
         {/* Email & Phone */}
-        <div className="grid sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
           <div>
             <label
               htmlFor="email"
-              className="block text-sm font-medium text-gray-700 mb-2"
+              className="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2"
             >
               Email <span className="text-red-500">*</span>
             </label>
@@ -221,7 +221,7 @@ export default function QuoteForm({
           <div>
             <label
               htmlFor="phone"
-              className="block text-sm font-medium text-gray-700 mb-2"
+              className="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2"
             >
               Phone <span className="text-red-500">*</span>
             </label>
@@ -245,7 +245,7 @@ export default function QuoteForm({
         <div>
           <label
             htmlFor="message"
-            className="block text-sm font-medium text-gray-700 mb-2"
+            className="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2"
           >
             Tell us about your project <span className="text-red-500">*</span>
           </label>
@@ -270,7 +270,7 @@ export default function QuoteForm({
         <div>
           <label
             htmlFor="requestedChanges"
-            className="block text-sm font-medium text-gray-700 mb-2"
+            className="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2"
           >
             Requested Customizations <span className="text-gray-400">(Optional)</span>
           </label>
@@ -290,7 +290,7 @@ export default function QuoteForm({
         <div>
           <label
             htmlFor="estimatedStartDate"
-            className="block text-sm font-medium text-gray-700 mb-2"
+            className="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2"
           >
             Estimated Start Date <span className="text-gray-400">(Optional)</span>
           </label>
@@ -303,7 +303,7 @@ export default function QuoteForm({
             min={new Date().toISOString().split("T")[0]}
             disabled={isSubmitting}
           />
-          <p className="text-xs text-gray-500 mt-1">
+          <p className="text-[10px] sm:text-xs text-gray-500 mt-1">
             When would you like to start your build?
           </p>
         </div>
@@ -311,25 +311,25 @@ export default function QuoteForm({
         {/* Submit Button */}
         <Button
           type="submit"
-          size="lg"
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+          size="default"
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm sm:text-base py-2.5 sm:py-3"
           disabled={isSubmitting}
         >
           {isSubmitting ? (
             <>
-              <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+              <Loader2 className="mr-2 h-4 w-4 sm:h-5 sm:w-5 animate-spin" />
               Submitting...
             </>
           ) : (
             <>
-              <Send className="mr-2 h-5 w-5" />
+              <Send className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
               Request Quote
             </>
           )}
         </Button>
 
         {/* Privacy Notice */}
-        <p className="text-xs text-gray-500 text-center">
+        <p className="text-[10px] sm:text-xs text-gray-500 text-center">
           By submitting this form, you agree to our privacy policy. We'll never
           share your information with third parties.
         </p>

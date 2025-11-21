@@ -33,6 +33,67 @@ export interface TrailerFeatures {
   ansulSystem: boolean;
 }
 
+// Enhanced detailed specifications
+export interface DetailedSpecs {
+  // Physical Dimensions
+  physicalDimensions: {
+    kitchenLength: string;
+    porchDimensions?: string;
+    interiorHeight: string;
+    exteriorLength: string;
+    exteriorWidth: string;
+    exteriorHeight: string;
+  };
+  // Structural Components
+  structural: {
+    exteriorMaterial: string;
+    exteriorThickness: string;
+    frameSpecs: string;
+    tongueSpecs: string;
+    axleSpecs: string;
+    axleWeightRating: string;
+  };
+  // Exterior Features
+  exterior: {
+    colorOptions: string[];
+    trimPackage: string;
+    fenderSpecs: string;
+    wheelOptions: string;
+    tireSpecs: string;
+  };
+  // Safety & Utility
+  safetyUtility: {
+    propaneCage: string;
+    generatorBox?: string;
+    jacks: string;
+    jackQuantity: number;
+    spareTire: boolean;
+    ledFloodLights: number;
+    interiorLighting: string;
+    awning?: string;
+  };
+  // Interior Features
+  interior: {
+    wallFinish: string;
+    ceilingFinish: string;
+    flooringType: string;
+    insulationDetails: string;
+    interiorLighting: string;
+  };
+  // Kitchen Equipment
+  kitchenEquipment: {
+    rangeHoodSpecs?: string;
+    workTableDimensions: string;
+    cabinetDetails: string;
+    doorSpecs: string;
+    freshWaterCapacity: string;
+    greyWaterCapacity: string;
+    electricalOutlets: number;
+    fireSuppressionSystem?: string;
+  };
+}
+
+// Legacy specs interface for backward compatibility
 export interface TrailerSpecs {
   exteriorLength: string;
   exteriorWidth: string;
@@ -59,26 +120,34 @@ export interface TrailerUpgrade {
   description: string;
   price: number;
   category: "Safety" | "Equipment" | "Aesthetic" | "Structural";
+  isPopular?: boolean;
+  isNew?: boolean;
 }
 
 export interface Trailer {
   id: string;
   slug: string;
+  modelNumber: string;
   name: string;
   type: TrailerType;
   size: TrailerSize;
   price: number;
   isFeatured: boolean;
   isAvailable: boolean;
+  isBestSeller?: boolean;
+  isNew?: boolean;
   images: TrailerImage[];
+  virtualTourUrl?: string;
   shortDescription: string;
   fullDescription: string;
   features: TrailerFeatures;
   specs: TrailerSpecs;
+  detailedSpecs?: DetailedSpecs;
   equipmentList: string[];
   upgrades: TrailerUpgrade[];
   buildLeadTime: string;
   createdAt: string;
+  relatedTrailerIds?: string[];
 }
 
 export interface FilterOptions {
@@ -107,4 +176,23 @@ export interface QuoteRequest {
   message: string;
   requestedChanges?: string;
   estimatedStartDate?: string;
+  selectedUpgrades?: string[];
+}
+
+// Financing types
+export interface FinancingOption {
+  id: string;
+  type: "personal" | "commercial";
+  title: string;
+  features: string[];
+  ctaText: string;
+  ctaUrl: string;
+}
+
+// Compliance types
+export interface ComplianceInfo {
+  title: string;
+  description: string;
+  requirements: string[];
+  benefits: string[];
 }
