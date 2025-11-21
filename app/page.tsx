@@ -13,7 +13,7 @@ import Footer from "@/components/Footer";
 
 export default function Home() {
   return (
-    <main className="min-h-screen">
+    <main className="min-h-screen overflow-x-hidden">
       {/* Navigation */}
       <Navbar />
 
@@ -48,7 +48,7 @@ export default function Home() {
       <Footer />
 
       {/* Sticky CTA Button & Floating Contact Buttons */}
-      <StickyCTA />
+      {/* <StickyCTA /> */}
     </main>
   );
 }

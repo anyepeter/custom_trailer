@@ -9,7 +9,7 @@ const steps = [
     number: 1,
     title: "Design",
     description:
-      "Work with our design team to create your perfect layout. Use our 3D builder or schedule a consultation call.",
+      "Work with our design team to create your perfect layout. Use our truck design form",
     icon: Pencil,
     color: "text-blue-600",
     bgColor: "bg-blue-100",
@@ -70,7 +70,7 @@ export default function ProcessSteps() {
               How It Works
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              From initial concept to hitting the road — our proven 4-step process makes it simple
+              From initial concept to hitting the road. Our proven 4-step process makes it simple
             </p>
           </motion.div>
         </div>
