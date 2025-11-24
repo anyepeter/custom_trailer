@@ -3,7 +3,7 @@ const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
   images: {
-    domains: [], // Add your image domains here (e.g., CDN domains)
+    domains: ['res.cloudinary.com'], // Cloudinary CDN domain
     formats: ['image/avif', 'image/webp'],
     remotePatterns: [],
     unoptimized: false, // Set to true if having optimization issues

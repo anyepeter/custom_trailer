@@ -1,0 +1,58 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Truck {
+  id                    String   @id @default(cuid())
+  name                  String
+  modelCode             String?  @unique
+  actualPrice           Decimal? @db.Decimal(10, 2)
+  regularPrice          Decimal? @db.Decimal(10, 2)
+  description           String?
+  images                String[]
+  videoUrl              String?
+  concessionFeatures    Json?
+  specialSpecifications String[] @default([])
+  additionalOptions     Json?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  @@map("trucks")
+}
+
+model BuildRequest {
+  id                    String   @id @default(cuid())
+  trailerSize           String
+  porchConfiguration    String?
+  rangeHood             String
+  fireSuppressionSystem String
+  flatTopGriddle        String?
+  charbroiler           String?
+  deepFryer             String?
+  range                 String?
+  steamWell             String?
+  warmingCabinet        String?
+  refrigeration         String[]
+  additionalInfo        String?
+  exteriorColor         String
+  interiorFinish        String
+  budget                String
+  needFinancing         String
+  firstName             String
+  lastName              String
+  email                 String
+  phoneNumber           String
+  zipcode               String
+  totalPrice            Decimal? @db.Decimal(10, 2)
+  status                String   @default("pending")
+  notes                 String?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  @@map("build_requests")
+}

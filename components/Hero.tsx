@@ -211,39 +211,6 @@ export default function Hero() {
                   Shop Ready-Built Trucks
                 </Button>
               </motion.div>
-
-              {/* Quick Links */}
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.6, delay: 0.7 }}
-                className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-6 text-sm text-white/80"
-              >
-                <a
-                  href="#builder"
-                  className="flex items-center gap-2 hover:text-white transition-colors"
-                  data-analytics="hero-link-builder"
-                >
-                  <Play className="h-4 w-4" />
-                  Try 3D Design Builder
-                </a>
-                <span className="hidden sm:inline">•</span>
-                <a
-                  href="#inventory"
-                  className="flex items-center gap-2 hover:text-white transition-colors"
-                  data-analytics="hero-link-inventory"
-                >
-                  View Available Inventory
-                </a>
-                <span className="hidden sm:inline">•</span>
-                <a
-                  href="#financing"
-                  className="flex items-center gap-2 hover:text-white transition-colors"
-                  data-analytics="hero-link-financing"
-                >
-                  View Financing Options
-                </a>
-              </motion.div>
             </motion.div>
           </AnimatePresence>
         </div>
