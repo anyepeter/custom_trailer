@@ -7,21 +7,14 @@ import { Input } from "@/components/ui/input";
 
 const footerLinks = {
   products: [
-    { label: "Shop Inventory", href: "/inventory" },
-    { label: "Custom Builds", href: "/custom" },
-    { label: "Design Builder", href: "/builder" },
-    { label: "Trailers", href: "/trailers" },
+    { label: "Shop Inventory", href: "/shop" },
+    { label: "Custom Builds", href: "/configure" },
   ],
   company: [
     { label: "About Us", href: "/about" },
     { label: "Our Process", href: "/process" },
-    { label: "Gallery", href: "/gallery" },
-    { label: "Testimonials", href: "/testimonials" },
   ],
   resources: [
-    { label: "Blog", href: "/blog" },
-    { label: "How-To Guides", href: "/guides" },
-    { label: "Buyer's Guide", href: "/buyers-guide" },
     { label: "Financing", href: "/financing" },
   ],
   support: [
@@ -222,15 +215,6 @@ export default function Footer() {
                 <div className="text-sm text-gray-500">24-hour response time</div>
               </div>
             </div>
-
-            <div className="flex items-start gap-3">
-              <MapPin className="h-5 w-5 text-blue-500 flex-shrink-0 mt-1" />
-              <div>
-                <div className="text-white font-semibold mb-1">Visit Us</div>
-                <div>123 Food Truck Lane</div>
-                <div>Austin, TX 78701</div>
-              </div>
-            </div>
           </div>
         </div>
 
@@ -259,41 +243,6 @@ export default function Footer() {
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="text-sm text-gray-500">
               © {new Date().getFullYear()} FoodTrucksPro. All rights reserved.
-            </div>
-
-            <div className="flex flex-wrap items-center gap-6 text-sm">
-              <a
-                href="/privacy"
-                className="hover:text-white transition-colors"
-                data-analytics="footer-legal"
-                data-page="privacy"
-              >
-                Privacy Policy
-              </a>
-              <a
-                href="/terms"
-                className="hover:text-white transition-colors"
-                data-analytics="footer-legal"
-                data-page="terms"
-              >
-                Terms of Service
-              </a>
-              <a
-                href="/cookies"
-                className="hover:text-white transition-colors"
-                data-analytics="footer-legal"
-                data-page="cookies"
-              >
-                Cookie Policy
-              </a>
-              <a
-                href="/accessibility"
-                className="hover:text-white transition-colors"
-                data-analytics="footer-legal"
-                data-page="accessibility"
-              >
-                Accessibility
-              </a>
             </div>
           </div>
         </div>

@@ -178,7 +178,7 @@ export default function LeadMagnet() {
                   {/* Benefits */}
                   <div className="space-y-3 mb-8">
                     {[
-                      "Free 15-minute video call",
+                      "Free 15-minute call",
                       "Discuss your vision and budget",
                       "Get expert recommendations",
                       "No obligation or pressure",
@@ -199,9 +199,9 @@ export default function LeadMagnet() {
                     Schedule Your Call
                   </Button>
 
-                  <p className="text-xs text-gray-500 text-center mt-4">
+                  {/* <p className="text-xs text-gray-500 text-center mt-4">
                     Available slots: Mon-Fri, 9am-6pm EST
-                  </p>
+                  </p> */}
                 </CardContent>
               </Card>
             </motion.div>

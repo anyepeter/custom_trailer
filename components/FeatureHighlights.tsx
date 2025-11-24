@@ -124,7 +124,7 @@ export default function FeatureHighlights() {
         >
           <div className="flex flex-wrap items-center justify-center gap-8 sm:gap-12">
             <div className="text-center">
-              <div className="text-3xl sm:text-4xl font-bold text-gray-900 mb-1">500+</div>
+              <div className="text-3xl sm:text-4xl font-bold text-gray-900 mb-1">300+</div>
               <div className="text-sm text-gray-600">Trucks Built</div>
             </div>
             <div className="hidden sm:block w-px h-12 bg-gray-300" />
@@ -134,7 +134,7 @@ export default function FeatureHighlights() {
             </div>
             <div className="hidden sm:block w-px h-12 bg-gray-300" />
             <div className="text-center">
-              <div className="text-3xl sm:text-4xl font-bold text-gray-900 mb-1">6-8 Weeks</div>
+              <div className="text-3xl sm:text-4xl font-bold text-gray-900 mb-1">2-8 Weeks</div>
               <div className="text-sm text-gray-600">Build Time</div>
             </div>
             <div className="hidden sm:block w-px h-12 bg-gray-300" />
