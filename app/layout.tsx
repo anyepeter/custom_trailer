@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { CartProvider } from "@/contexts/CartContext";
 import { Toaster } from "@/components/ui/toaster";
+import ReduxProvider from "@/components/ReduxProvider";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -98,10 +99,12 @@ export default function RootLayout({
         <meta name="mobile-web-app-capable" content="yes" />
       </head>
       <body className={`${inter.className} antialiased`}>
-        <CartProvider>
-          {children}
-          <Toaster />
-        </CartProvider>
+        <ReduxProvider>
+          <CartProvider>
+            {children}
+            <Toaster />
+          </CartProvider>
+        </ReduxProvider>
       </body>
     </html>
   );

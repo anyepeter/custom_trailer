@@ -11,6 +11,8 @@ model Truck {
   id                    String   @id @default(cuid())
   name                  String
   modelCode             String?  @unique
+  type                  String?
+  size                  String?
   actualPrice           Decimal? @db.Decimal(10, 2)
   regularPrice          Decimal? @db.Decimal(10, 2)
   description           String?

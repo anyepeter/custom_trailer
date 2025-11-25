@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { motion } from "framer-motion";
 import Link from "next/link";
@@ -35,20 +35,49 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { trailers } from "@/data/trailers";
 import { useCart } from "@/contexts/CartContext";
+import { useAppSelector } from "@/store/hooks";
+import { getTruckById } from "@/app/actions/getTruckById";
+import { mapTruckToTrailer } from "@/lib/truckMapper";
+import type { Trailer } from "@/types/trailer";
 
 export default function TrailerDetailPage() {
   const params = useParams();
-  const slug = params.slug as string;
+  const slug = params.slug as string; // This is actually the truck ID
   const { addToCart } = useCart();
 
+  const [trailer, setTrailer] = useState<Trailer | null>(null);
+  const [loading, setLoading] = useState(true);
   const [selectedUpgrades, setSelectedUpgrades] = useState<string[]>([]);
   const [addedToCart, setAddedToCart] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
 
-  // Find the trailer by slug
-  const trailer = trailers.find((t) => t.slug === slug);
+  // Get trucks from Redux store
+  const { trucks } = useAppSelector((state) => state.trucks);
+
+  // Load truck data
+  useEffect(() => {
+    const loadTruck = async () => {
+      setLoading(true);
+
+      // First try to find in Redux store
+      const truckInStore = trucks.find((t) => t.id === slug);
+
+      if (truckInStore) {
+        setTrailer(mapTruckToTrailer(truckInStore));
+        setLoading(false);
+      } else {
+        // If not in store, fetch from database
+        const result = await getTruckById(slug);
+        if (result.success && result.data) {
+          setTrailer(mapTruckToTrailer(result.data));
+        }
+        setLoading(false);
+      }
+    };
+
+    loadTruck();
+  }, [slug, trucks]);
 
   const handleAddToCart = () => {
     if (trailer) {
@@ -57,6 +86,8 @@ export default function TrailerDetailPage() {
       setTimeout(() => setAddedToCart(false), 3000);
     }
   };
+
+  console.log(trailer)
 
   const toggleUpgrade = (upgradeId: string) => {
     setSelectedUpgrades((prev) =>
@@ -73,6 +104,20 @@ export default function TrailerDetailPage() {
   }, 0);
   const totalPrice = (trailer?.price || 0) + upgradesTotal;
 
+  // Loading state
+  if (loading) {
+    return (
+      <main className="min-h-screen bg-gray-50">
+        <Navbar />
+        <div className="container mx-auto px-4 py-20 text-center">
+          <div className="animate-spin h-12 w-12 border-4 border-blue-600 border-t-transparent rounded-full mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading truck details...</p>
+        </div>
+        <Footer />
+      </main>
+    );
+  }
+
   // 404 if trailer not found
   if (!trailer) {
     return (
@@ -80,10 +125,10 @@ export default function TrailerDetailPage() {
         <Navbar />
         <div className="container mx-auto px-4 py-20 text-center">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            Trailer Not Found
+            Truck Not Found
           </h1>
           <p className="text-gray-600 mb-8">
-            The trailer you're looking for doesn't exist.
+            The truck you're looking for doesn't exist.
           </p>
           <Button asChild>
             <Link href="/shop">
@@ -187,15 +232,6 @@ export default function TrailerDetailPage() {
                 <Badge className="bg-blue-600 text-white border-0 text-xs">
                   {trailer.type}
                 </Badge>
-                <Badge
-                  className={`text-xs ${
-                    trailer.isAvailable
-                      ? "bg-green-600 text-white border-0"
-                      : "bg-orange-600 text-white border-0"
-                  }`}
-                >
-                  {trailer.isAvailable ? "In Stock" : "Build-to-Order"}
-                </Badge>
                 {trailer.isFeatured && (
                   <Badge className="bg-purple-600 text-white border-0 text-xs">
                     <Star className="h-3 w-3 mr-1" />
@@ -203,11 +239,6 @@ export default function TrailerDetailPage() {
                   </Badge>
                 )}
               </div>
-
-              {/* Short Description */}
-              <p className="text-base sm:text-lg text-gray-600 mb-4 sm:mb-6">
-                {trailer.shortDescription}
-              </p>
 
               {/* Price Card */}
               <Card className="p-4 sm:p-6 bg-gradient-to-br from-blue-50 to-white border-blue-200 mb-4 sm:mb-6">
@@ -319,10 +350,6 @@ export default function TrailerDetailPage() {
                 </div>
                 <div className="flex items-center gap-1.5 sm:gap-2">
                   <CheckCircle2 className="h-4 w-4 sm:h-5 sm:w-5 text-green-600 flex-shrink-0" />
-                  <span>Free Delivery</span>
-                </div>
-                <div className="flex items-center gap-1.5 sm:gap-2">
-                  <CheckCircle2 className="h-4 w-4 sm:h-5 sm:w-5 text-green-600 flex-shrink-0" />
                   <span>Financing</span>
                 </div>
               </div>
@@ -334,9 +361,6 @@ export default function TrailerDetailPage() {
             <TabsList className="mb-0 overflow-x-auto flex-nowrap">
               <TabsTrigger value="overview" icon={<FileText className="h-4 w-4" />}>
                 Overview
-              </TabsTrigger>
-              <TabsTrigger value="specifications" icon={<Ruler className="h-4 w-4" />}>
-                Specifications
               </TabsTrigger>
               <TabsTrigger value="upgrades" icon={<Sparkles className="h-4 w-4" />}>
                 Options & Upgrades
@@ -351,7 +375,7 @@ export default function TrailerDetailPage() {
 
             {/* Overview Tab */}
             <TabsContent value="overview">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-8">
+              <div className="grid grid-cols-1  gap-4 sm:gap-8">
                 {/* Description */}
                 <Card className="p-4 sm:p-6 bg-white">
                   <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3 sm:mb-4">
@@ -360,22 +384,34 @@ export default function TrailerDetailPage() {
                   <p className="text-sm sm:text-base text-gray-700 leading-relaxed mb-4 sm:mb-6">
                     {trailer.fullDescription}
                   </p>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                    {Object.entries(trailer.features).map(([key, value]) => (
-                      <div
-                        key={key}
-                        className={`flex items-center gap-2 ${
-                          value ? "text-gray-900" : "text-gray-400"
-                        }`}
-                      >
-                        <CheckCircle2
-                          className={`h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0 ${
-                            value ? "text-green-600" : "text-gray-300"
+                  <div className="grid grid-cols-2 lg:grid-cols-3  gap-3 sm:gap-4">
+                    {getAllFeatureKeys().map((key) => {
+                      const value = trailer.features[key as keyof typeof trailer.features];
+                      const hasValue = value && String(value).trim() !== '';
+
+                      return (
+                        <div
+                          key={key}
+                          className={`flex items-start gap-2 ${
+                            hasValue ? "text-gray-700" : "text-gray-400"
                           }`}
-                        />
-                        <span className="text-xs sm:text-sm">{formatFeatureName(key)}</span>
-                      </div>
-                    ))}
+                        >
+                          <CheckCircle2
+                            className={`h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0 mt-0.5 ${
+                              hasValue ? "text-green-600" : "text-gray-300"
+                            }`}
+                          />
+                          <div className="flex-1">
+                            <span className="text-xs sm:text-sm font-semibold">
+                              {formatFeatureName(key)}:
+                            </span>{" "}
+                            <span className="text-xs sm:text-sm">
+                              {hasValue ? value : "Not specified"}
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 </Card>
 
@@ -385,7 +421,7 @@ export default function TrailerDetailPage() {
                     Included Equipment
                   </h2>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
-                    {trailer.equipmentList.map((item, index) => (
+                    {trailer.equipmentList?.map((item, index) => (
                       <div key={index} className="flex items-start gap-2">
                         <CheckCircle2 className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600 flex-shrink-0 mt-0.5" />
                         <span className="text-xs sm:text-sm text-gray-700">{item}</span>
@@ -394,11 +430,6 @@ export default function TrailerDetailPage() {
                   </div>
                 </Card>
               </div>
-            </TabsContent>
-
-            {/* Specifications Tab */}
-            <TabsContent value="specifications">
-              <SpecificationsTab trailer={trailer} />
             </TabsContent>
 
             {/* Upgrades Tab */}
@@ -429,20 +460,6 @@ export default function TrailerDetailPage() {
                             : "bg-white border-gray-200 hover:border-blue-400 hover:shadow-md"
                         }`}
                       >
-                        {/* Popular/New Badge */}
-                        {(upgrade.isPopular || upgrade.isNew) && (
-                          <div className="absolute top-0 right-0">
-                            <Badge
-                              className={`rounded-none rounded-bl-lg text-xs ${
-                                upgrade.isNew
-                                  ? "bg-green-500 text-white"
-                                  : "bg-amber-500 text-white"
-                              }`}
-                            >
-                              {upgrade.isNew ? "New" : "Popular"}
-                            </Badge>
-                          </div>
-                        )}
 
                         <div className="flex items-start justify-between mb-2 sm:mb-3">
                           <div className="flex items-start gap-2 sm:gap-3">
@@ -456,18 +473,10 @@ export default function TrailerDetailPage() {
                               <h3 className="font-semibold text-sm sm:text-base text-gray-900">
                                 {upgrade.name}
                               </h3>
-                              <Badge
-                                variant="outline"
-                                className="text-[10px] sm:text-xs mt-1 bg-gray-50"
-                              >
-                                {upgrade.category}
-                              </Badge>
                             </div>
                           </div>
                         </div>
-                        <p className="text-xs sm:text-sm text-gray-600 mb-3 sm:mb-4 ml-6 sm:ml-8">
-                          {upgrade.description}
-                        </p>
+
                         <div className="ml-6 sm:ml-8 flex items-center justify-between">
                           <p className="text-lg sm:text-xl font-bold text-blue-600">
                             +${upgrade.price.toLocaleString()}
@@ -533,7 +542,7 @@ export default function TrailerDetailPage() {
           {/* Related Products */}
           <RelatedProducts
             currentTrailerId={trailer.id}
-            trailers={trailers}
+            trailers={trucks.map(mapTruckToTrailer)}
             relatedIds={trailer.relatedTrailerIds}
           />
         </div>
@@ -547,9 +556,54 @@ export default function TrailerDetailPage() {
   );
 }
 
+// Helper function to get all feature keys in the correct order
+function getAllFeatureKeys(): string[] {
+  return [
+    "range_hood_size",
+    "griddle_size",
+    "fryer_size",
+    "range_type",
+    "charbroiler_size",
+    "warming",
+    "other_equipment",
+    "smoker",
+    "reach_in_fridge",
+    "reach_in_freezer",
+    "refrigerated_prep_table",
+    "gas_lines",
+    "fire_suppression",
+    "serving_window",
+    "plumbing",
+    "bathroom_option",
+    "additional_sinks",
+    "electrical",
+    "air_conditioning",
+  ];
+}
+
 // Helper function to format feature names
 function formatFeatureName(key: string): string {
   const map: Record<string, string> = {
+    range_hood_size: "Range Hood Size",
+    griddle_size: "Griddle Size",
+    fryer_size: "Fryer Size",
+    range_type: "Range Type",
+    charbroiler_size: "Charbroiler Size",
+    warming: "Warming Equipment",
+    other_equipment: "Other Equipment",
+    smoker: "Smoker",
+    reach_in_fridge: "Reach-In Fridge",
+    reach_in_freezer: "Reach-In Freezer",
+    refrigerated_prep_table: "Refrigerated Prep Table",
+    gas_lines: "Gas Lines",
+    fire_suppression: "Fire Suppression",
+    serving_window: "Serving Window",
+    plumbing: "Plumbing",
+    bathroom_option: "Bathroom Option",
+    additional_sinks: "Additional Sinks",
+    electrical: "Electrical",
+    air_conditioning: "Air Conditioning",
+    // Legacy keys for backwards compatibility
     refrigeration: "Refrigeration",
     rangeHood: "Range Hood",
     griddle24: '24" Griddle',
@@ -562,5 +616,5 @@ function formatFeatureName(key: string): string {
     fireSuppressionSystem: "Fire Suppression System",
     ansulSystem: "Ansul System",
   };
-  return map[key] || key;
+  return map[key] || key.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
 }

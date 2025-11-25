@@ -70,6 +70,8 @@ export default function TruckForm({ truck, mode }: TruckFormProps) {
   const defaultValues = {
     name: truck?.name || "",
     modelCode: truck?.modelCode || "",
+    type: truck?.type || "",
+    size: truck?.size || "",
     actualPrice: truck?.actualPrice ? Number(truck.actualPrice) : undefined,
     regularPrice: truck?.regularPrice ? Number(truck.regularPrice) : undefined,
     description: truck?.description || "",
@@ -154,6 +156,8 @@ export default function TruckForm({ truck, mode }: TruckFormProps) {
       // Add other fields
       formData.append("name", data.name);
       if (data.modelCode) formData.append("modelCode", data.modelCode);
+      if (data.type) formData.append("type", data.type);
+      if (data.size) formData.append("size", data.size);
       if (data.actualPrice) formData.append("actualPrice", data.actualPrice.toString());
       if (data.regularPrice) formData.append("regularPrice", data.regularPrice.toString());
       if (data.description) formData.append("description", data.description);
@@ -232,6 +236,32 @@ export default function TruckForm({ truck, mode }: TruckFormProps) {
               />
               {errors.modelCode && (
                 <p className="text-sm text-red-500">{errors.modelCode.message as string}</p>
+              )}
+            </div>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="type">Type</Label>
+              <Input
+                id="type"
+                {...register("type")}
+                placeholder="e.g., Hot Kitchen, BBQ, Coffee, etc."
+              />
+              {errors.type && (
+                <p className="text-sm text-red-500">{errors.type.message as string}</p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="size">Size</Label>
+              <Input
+                id="size"
+                {...register("size")}
+                placeholder="e.g., 8.5x16, 7x14, etc."
+              />
+              {errors.size && (
+                <p className="text-sm text-red-500">{errors.size.message as string}</p>
               )}
             </div>
           </div>

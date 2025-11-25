@@ -110,11 +110,6 @@ export default function ComplianceSection({ trailerName }: ComplianceSectionProp
               ))}
             </ul>
           </div>
-
-          <Button className="w-full bg-blue-600 hover:bg-blue-700 text-sm">
-            <FileText className="h-4 w-4 mr-2" />
-            Request Spec Sheets
-          </Button>
         </Card>
 
         {/* Requirements Checklist */}
@@ -154,35 +149,8 @@ export default function ComplianceSection({ trailerName }: ComplianceSectionProp
             * Requirements vary by state, county, and city. Contact your local
             health department for specific requirements.
           </p>
-
-          <Button variant="outline" className="w-full text-sm">
-            <Download className="h-4 w-4 mr-2" />
-            Download Compliance Guide
-          </Button>
         </Card>
       </div>
-
-      {/* Contact Box */}
-      <Card className="p-4 sm:p-6 bg-gradient-to-r from-gray-900 to-gray-800 text-white">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4 sm:gap-6 text-center md:text-left">
-          <div>
-            <h3 className="text-lg sm:text-xl font-bold mb-1 sm:mb-2">Need Help with Compliance?</h3>
-            <p className="text-sm sm:text-base text-gray-300">
-              Our team has helped hundreds of customers navigate health department
-              requirements. Let us help you too.
-            </p>
-          </div>
-          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full md:w-auto">
-            <Button className="bg-white text-gray-900 hover:bg-gray-100 text-sm w-full sm:w-auto">
-              <Phone className="h-4 w-4 mr-2" />
-              Call Us
-            </Button>
-            <Button variant="outline" className="border-white text-white hover:bg-white/10 text-sm w-full sm:w-auto">
-              Schedule Consultation
-            </Button>
-          </div>
-        </div>
-      </Card>
     </div>
   );
 }

@@ -31,6 +31,8 @@ export async function createTruckAction(formData: FormData) {
     const data = {
       name: formData.get("name") as string,
       modelCode: formData.get("modelCode") as string || undefined,
+      type: formData.get("type") as string || undefined,
+      size: formData.get("size") as string || undefined,
       actualPrice: formData.get("actualPrice") ? Number(formData.get("actualPrice")) : undefined,
       regularPrice: formData.get("regularPrice") ? Number(formData.get("regularPrice")) : undefined,
       description: formData.get("description") as string || undefined,
@@ -54,6 +56,8 @@ export async function createTruckAction(formData: FormData) {
     const truckData: Prisma.TruckCreateInput = {
       name: validated.name,
       modelCode: validated.modelCode || null,
+      type: validated.type || null,
+      size: validated.size || null,
       actualPrice: validated.actualPrice ? new Prisma.Decimal(validated.actualPrice) : null,
       regularPrice: validated.regularPrice ? new Prisma.Decimal(validated.regularPrice) : null,
       description: validated.description || null,
@@ -116,6 +120,8 @@ export async function updateTruckAction(id: string, formData: FormData) {
     const data = {
       name: formData.get("name") as string,
       modelCode: formData.get("modelCode") as string || undefined,
+      type: formData.get("type") as string || undefined,
+      size: formData.get("size") as string || undefined,
       actualPrice: formData.get("actualPrice") ? Number(formData.get("actualPrice")) : undefined,
       regularPrice: formData.get("regularPrice") ? Number(formData.get("regularPrice")) : undefined,
       description: formData.get("description") as string || undefined,
@@ -139,6 +145,8 @@ export async function updateTruckAction(id: string, formData: FormData) {
     const truckData: Prisma.TruckUpdateInput = {
       name: validated.name,
       modelCode: validated.modelCode || null,
+      type: validated.type || null,
+      size: validated.size || null,
       actualPrice: validated.actualPrice ? new Prisma.Decimal(validated.actualPrice) : null,
       regularPrice: validated.regularPrice ? new Prisma.Decimal(validated.regularPrice) : null,
       description: validated.description || null,

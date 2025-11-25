@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, CheckCircle2, Clock } from "lucide-react";
+import { ArrowRight, CheckCircle2, Clock, Gauge } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -48,23 +48,6 @@ export default function TrailerCard({
               sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
             />
 
-            {/* Badges Overlay */}
-            <div className="absolute top-4 left-4 flex flex-col gap-2">
-              {trailer.isFeatured && (
-                <Badge className="bg-blue-600 text-white border-0 shadow-lg">
-                  Featured
-                </Badge>
-              )}
-              {trailer.isAvailable ? (
-                <Badge className="bg-green-600 text-white border-0 shadow-lg">
-                  Available Now
-                </Badge>
-              ) : (
-                <Badge className="bg-orange-600 text-white border-0 shadow-lg">
-                  Build-to-Order
-                </Badge>
-              )}
-            </div>
 
             {/* Hover Overlay */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-6">
@@ -102,10 +85,21 @@ export default function TrailerCard({
             </h3>
           </Link>
 
-          {/* Description */}
-          <p className="text-sm text-gray-600 mb-4 line-clamp-2 flex-1">
-            {trailer.shortDescription}
-          </p>
+          <div className="flex items-start gap-3">
+            <div>
+              <div className="font-semibold text-gray-900">Specifications</div>
+              <div className="text-gray-600 grid grid-cols-2">
+                {
+                  trailer.equipmentList.slice(0, 4).map((item, idx) => (
+                    <div key={idx} className="flex items-center gap-1 text-sm">
+                      <CheckCircle2 className="h-3 w-3 text-green-600" />
+                      <span>{item}</span>
+                    </div>
+                  ))
+                }
+              </div>
+            </div>
+          </div>
 
           {/* Key Features */}
           <div className="mb-4">
@@ -136,10 +130,6 @@ export default function TrailerCard({
               </p>
             </div>
             <div className="flex flex-col items-end gap-1">
-              <div className="flex items-center gap-1 text-xs text-gray-500">
-                <Clock className="h-3 w-3" />
-                <span>{trailer.buildLeadTime}</span>
-              </div>
               <Button
                 size="sm"
                 variant="outline"
