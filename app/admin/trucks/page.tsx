@@ -6,10 +6,19 @@ import { getAllTrucksAction } from "@/lib/admin/actions";
 import type { Truck } from "@prisma/client";
 
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export default async function TrucksListPage() {
-  const result = await getAllTrucksAction();
-  const trucksRaw: Truck[] = result.data || [];
+  // Safely fetch trucks with fallback for build time
+  let trucksRaw: Truck[] = [];
+
+  try {
+    const result = await getAllTrucksAction();
+    trucksRaw = result.data || [];
+  } catch (error) {
+    // During build time, database might not be available
+    console.log('Trucks unavailable during build');
+  }
 
   // Convert Decimal fields to numbers for Client Components
   const trucks = trucksRaw.map((truck) => ({

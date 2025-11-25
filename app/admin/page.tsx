@@ -5,9 +5,26 @@ import { Button } from "@/components/ui/button";
 import { getDashboardStatsAction } from "@/lib/admin/actions";
 
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export default async function AdminDashboard() {
-  const { data } = await getDashboardStatsAction();
+  // Safely fetch dashboard stats with fallback for build time
+  let data = {
+    truckCount: 0,
+    buildRequestCount: 0,
+    pendingRequests: 0,
+    completedRequests: 0,
+  };
+
+  try {
+    const result = await getDashboardStatsAction();
+    if (result.success && result.data) {
+      data = result.data;
+    }
+  } catch (error) {
+    // During build time, database might not be available
+    console.log('Dashboard stats unavailable during build');
+  }
 
   const stats = [
     {

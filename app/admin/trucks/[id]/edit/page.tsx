@@ -7,6 +7,7 @@ import { getTruckByIdAction } from "@/lib/admin/actions";
 
 export const dynamic = 'force-dynamic';
 export const dynamicParams = true;
+export const revalidate = 0;
 
 // Prevent static generation of any paths at build time
 export async function generateStaticParams() {
@@ -20,9 +21,17 @@ interface EditTruckPageProps {
 }
 
 export default async function EditTruckPage({ params }: EditTruckPageProps) {
-  const result = await getTruckByIdAction(params.id);
+  let result;
 
-  if (!result.success || !result.data) {
+  try {
+    result = await getTruckByIdAction(params.id);
+  } catch (error) {
+    // During build time, database might not be available
+    console.log('Truck data unavailable during build');
+    notFound();
+  }
+
+  if (!result || !result.success || !result.data) {
     notFound();
   }
 
