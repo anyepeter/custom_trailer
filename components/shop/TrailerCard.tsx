@@ -19,7 +19,7 @@ export default function TrailerCard({
   index = 0,
 }: TrailerCardProps) {
   const primaryImage = trailer.images.find((img) => img.isPrimary) || trailer.images[0];
-
+ console.log(primaryImage)
   // Count key features
   const keyFeatures = [
     trailer.features.refrigeration && "Refrigeration",
@@ -44,6 +44,8 @@ export default function TrailerCard({
               src={primaryImage.url}
               alt={primaryImage.alt}
               fill
+              quality={95}
+              priority={index < 4}
               className="object-cover group-hover:scale-105 transition-transform duration-500"
               sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
             />

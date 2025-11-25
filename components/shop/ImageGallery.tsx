@@ -61,6 +61,7 @@ export default function ImageGallery({
           src={images[selectedImage].url}
           alt={images[selectedImage].alt}
           fill
+          quality={95}
           className="object-cover"
           priority
           sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 800px"
@@ -120,6 +121,7 @@ export default function ImageGallery({
                 src={image.url}
                 alt={image.alt}
                 fill
+                quality={90}
                 className="object-cover"
                 sizes="(max-width: 768px) 25vw, 150px"
               />
@@ -170,6 +172,7 @@ export default function ImageGallery({
                   src={images[selectedImage].url}
                   alt={images[selectedImage].alt}
                   fill
+                  quality={95}
                   className="object-contain"
                   sizes="100vw"
                   priority
@@ -225,6 +228,7 @@ export default function ImageGallery({
                       src={image.url}
                       alt={image.alt}
                       fill
+                      quality={85}
                       className="object-cover"
                       sizes="80px"
                     />
