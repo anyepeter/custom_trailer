@@ -172,7 +172,7 @@ export default function ConfiguratorLayout({
                 Previous
               </Button>
 
-              <div className="flex items-center gap-2 text-sm text-slate-500">
+              {/* <div className="flex items-center gap-2 text-sm text-slate-500">
                 <span className="hidden sm:inline">Step {currentStep} of {CONFIGURATOR_STEPS.length}</span>
                 <div className="w-24 h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
                   <motion.div
@@ -182,7 +182,7 @@ export default function ConfiguratorLayout({
                     transition={{ duration: 0.3 }}
                   />
                 </div>
-              </div>
+              </div> */}
 
               <Button
                 onClick={onNext}
