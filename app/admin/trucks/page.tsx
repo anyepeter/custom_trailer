@@ -5,6 +5,8 @@ import TruckCard from "@/components/admin/TruckCard";
 import { getAllTrucksAction } from "@/lib/admin/actions";
 import type { Truck } from "@prisma/client";
 
+export const dynamic = 'force-dynamic';
+
 export default async function TrucksListPage() {
   const result = await getAllTrucksAction();
   const trucksRaw: Truck[] = result.data || [];

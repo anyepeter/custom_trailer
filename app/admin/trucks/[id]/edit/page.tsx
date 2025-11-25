@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import TruckForm from "@/components/admin/TruckForm";
 import { getTruckByIdAction } from "@/lib/admin/actions";
 
+export const dynamic = 'force-dynamic';
+
 interface EditTruckPageProps {
   params: {
     id: string;
