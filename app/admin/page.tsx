@@ -1,30 +1,36 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Truck, FileText, Clock, CheckCircle, ArrowRight } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { getDashboardStatsAction } from "@/lib/admin/actions";
 
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
-export default async function AdminDashboard() {
-  // Safely fetch dashboard stats with fallback for build time
-  let data = {
+export default function AdminDashboard() {
+  const [data, setData] = useState({
     truckCount: 0,
     buildRequestCount: 0,
     pendingRequests: 0,
     completedRequests: 0,
-  };
+  });
+  const [loading, setLoading] = useState(true);
 
-  try {
-    const result = await getDashboardStatsAction();
-    if (result.success && result.data) {
-      data = result.data;
+  useEffect(() => {
+    async function loadStats() {
+      try {
+        const result = await getDashboardStatsAction();
+        if (result.success && result.data) {
+          setData(result.data);
+        }
+      } catch (error) {
+        console.error('Failed to load dashboard stats:', error);
+      } finally {
+        setLoading(false);
+      }
     }
-  } catch (error) {
-    // During build time, database might not be available
-    console.log('Dashboard stats unavailable during build');
-  }
+    loadStats();
+  }, []);
 
   const stats = [
     {
@@ -60,6 +66,17 @@ export default async function AdminDashboard() {
       color: "text-green-600 bg-green-100",
     },
   ];
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin h-12 w-12 border-4 border-blue-600 border-t-transparent rounded-full mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading dashboard...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4 sm:space-y-6">

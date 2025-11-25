@@ -1,46 +1,65 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useParams, notFound, useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
-import { notFound } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import TruckForm from "@/components/admin/TruckForm";
 import { getTruckByIdAction } from "@/lib/admin/actions";
 
-export const dynamic = 'force-dynamic';
-export const dynamicParams = true;
-export const revalidate = 0;
+export default function EditTruckPage() {
+  const params = useParams();
+  const router = useRouter();
+  const id = params.id as string;
 
-// Prevent static generation of any paths at build time
-export async function generateStaticParams() {
-  return [];
-}
+  const [truckData, setTruckData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [notFoundError, setNotFoundError] = useState(false);
 
-interface EditTruckPageProps {
-  params: {
-    id: string;
-  };
-}
+  useEffect(() => {
+    async function loadTruck() {
+      try {
+        const result = await getTruckByIdAction(id);
 
-export default async function EditTruckPage({ params }: EditTruckPageProps) {
-  let result;
+        if (!result || !result.success || !result.data) {
+          setNotFoundError(true);
+          return;
+        }
 
-  try {
-    result = await getTruckByIdAction(params.id);
-  } catch (error) {
-    // During build time, database might not be available
-    console.log('Truck data unavailable during build');
-    notFound();
+        // Convert Decimal fields to numbers for Client Component
+        const converted = {
+          ...result.data,
+          actualPrice: result.data.actualPrice ? Number(result.data.actualPrice) : undefined,
+          regularPrice: result.data.regularPrice ? Number(result.data.regularPrice) : undefined,
+        };
+
+        setTruckData(converted);
+      } catch (error) {
+        console.error('Failed to load truck:', error);
+        setNotFoundError(true);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadTruck();
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin h-12 w-12 border-4 border-blue-600 border-t-transparent rounded-full mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading truck data...</p>
+        </div>
+      </div>
+    );
   }
 
-  if (!result || !result.success || !result.data) {
+  if (notFoundError || !truckData) {
     notFound();
   }
-
-  // Convert Decimal fields to numbers for Client Component
-  const truckData = {
-    ...result.data,
-    actualPrice: result.data.actualPrice ? Number(result.data.actualPrice) : undefined,
-    regularPrice: result.data.regularPrice ? Number(result.data.regularPrice) : undefined,
-  };
 
   return (
     <div className="space-y-6">

@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Plus, Truck as TruckIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -5,27 +8,48 @@ import TruckCard from "@/components/admin/TruckCard";
 import { getAllTrucksAction } from "@/lib/admin/actions";
 import type { Truck } from "@prisma/client";
 
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+type TruckWithNumbers = Omit<Truck, 'actualPrice' | 'regularPrice'> & {
+  actualPrice: number | null;
+  regularPrice: number | null;
+};
 
-export default async function TrucksListPage() {
-  // Safely fetch trucks with fallback for build time
-  let trucksRaw: Truck[] = [];
+export default function TrucksListPage() {
+  const [trucks, setTrucks] = useState<TruckWithNumbers[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  try {
-    const result = await getAllTrucksAction();
-    trucksRaw = result.data || [];
-  } catch (error) {
-    // During build time, database might not be available
-    console.log('Trucks unavailable during build');
+  useEffect(() => {
+    async function loadTrucks() {
+      try {
+        const result = await getAllTrucksAction();
+        const trucksRaw: Truck[] = result.data || [];
+
+        // Convert Decimal fields to numbers for Client Components
+        const convertedTrucks = trucksRaw.map((truck) => ({
+          ...truck,
+          actualPrice: truck.actualPrice ? Number(truck.actualPrice) : null,
+          regularPrice: truck.regularPrice ? Number(truck.regularPrice) : null,
+        }));
+
+        setTrucks(convertedTrucks);
+      } catch (error) {
+        console.error('Failed to load trucks:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadTrucks();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin h-12 w-12 border-4 border-blue-600 border-t-transparent rounded-full mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading trucks...</p>
+        </div>
+      </div>
+    );
   }
-
-  // Convert Decimal fields to numbers for Client Components
-  const trucks = trucksRaw.map((truck) => ({
-    ...truck,
-    actualPrice: truck.actualPrice ? Number(truck.actualPrice) : null,
-    regularPrice: truck.regularPrice ? Number(truck.regularPrice) : null,
-  }));
 
   return (
     <div className="space-y-4 sm:space-y-6">
