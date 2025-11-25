@@ -88,12 +88,12 @@ export default function TrailerCard({
           <div className="flex items-start gap-3">
             <div>
               <div className="font-semibold text-gray-900">Specifications</div>
-              <div className="text-gray-600 grid grid-cols-2">
+              <div className="text-gray-600 grid grid-cols-1 gap-2">
                 {
-                  trailer.equipmentList.slice(0, 4).map((item, idx) => (
+                  trailer.equipmentList.slice(0, 3).map((item, idx) => (
                     <div key={idx} className="flex items-center gap-1 text-sm">
                       <CheckCircle2 className="h-3 w-3 text-green-600" />
-                      <span>{item}</span>
+                      <span className="truncate">{item}</span>
                     </div>
                   ))
                 }
