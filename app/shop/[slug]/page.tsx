@@ -41,6 +41,22 @@ import { getTruckById } from "@/app/actions/getTruckById";
 import { mapTruckToTrailer } from "@/lib/truckMapper";
 import type { Trailer } from "@/types/trailer";
 
+// Standard upgrade options available for all trailers
+const STANDARD_UPGRADES = [
+  { id: "upgrade-1", name: "Additional electrical outlets", price: 30 },
+  { id: "upgrade-2", name: "Additional interior height", price: 324 },
+  { id: "upgrade-3", name: "Any exterior color", price: 0 },
+  { id: "upgrade-4", name: "Black-Out Trim Package", price: 200 },
+  { id: "upgrade-5", name: "Electric Awning", price: 800 },
+  { id: "upgrade-6", name: "Fire suppression system", price: 3500 },
+  { id: "upgrade-7", name: "Flood lights", price: 200 },
+  { id: "upgrade-8", name: "Generator", price: 2000 },
+  { id: "upgrade-9", name: "Hundreds of pieces of cooking equipment", price: 4000 },
+  { id: "upgrade-10", name: "Spare tire", price: 125 },
+  { id: "upgrade-11", name: "Storage Cabinets", price: 700 },
+  { id: "upgrade-12", name: "Scissor Jacks", price: 175 },
+];
+
 export default function TrailerDetailPage() {
   const params = useParams();
   const slug = params.slug as string; // This is actually the truck ID
@@ -99,7 +115,7 @@ export default function TrailerDetailPage() {
 
   // Calculate total price with upgrades
   const upgradesTotal = selectedUpgrades.reduce((total, id) => {
-    const upgrade = trailer?.upgrades.find((u) => u.id === id);
+    const upgrade = STANDARD_UPGRADES.find((u) => u.id === id);
     return total + (upgrade?.price || 0);
   }, 0);
   const totalPrice = (trailer?.price || 0) + upgradesTotal;
@@ -444,9 +460,9 @@ export default function TrailerDetailPage() {
                 </p>
               </div>
 
-              {trailer.upgrades.length > 0 ? (
+              {STANDARD_UPGRADES.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-                  {trailer.upgrades.map((upgrade) => {
+                  {STANDARD_UPGRADES.map((upgrade) => {
                     const isSelected = selectedUpgrades.includes(upgrade.id);
                     return (
                       <motion.button
