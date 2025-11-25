@@ -6,6 +6,12 @@ import TruckForm from "@/components/admin/TruckForm";
 import { getTruckByIdAction } from "@/lib/admin/actions";
 
 export const dynamic = 'force-dynamic';
+export const dynamicParams = true;
+
+// Prevent static generation of any paths at build time
+export async function generateStaticParams() {
+  return [];
+}
 
 interface EditTruckPageProps {
   params: {
