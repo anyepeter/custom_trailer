@@ -288,7 +288,7 @@ export default function QuoteForm({
 
         {/* Start Date */}
         <div>
-          <label
+          {/* <label
             htmlFor="estimatedStartDate"
             className="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2"
           >
@@ -302,10 +302,10 @@ export default function QuoteForm({
             onChange={handleChange}
             min={new Date().toISOString().split("T")[0]}
             disabled={isSubmitting}
-          />
-          <p className="text-[10px] sm:text-xs text-gray-500 mt-1">
+          /> */}
+          {/* <p className="text-[10px] sm:text-xs text-gray-500 mt-1">
             When would you like to start your build?
-          </p>
+          </p> */}
         </div>
 
         {/* Submit Button */}

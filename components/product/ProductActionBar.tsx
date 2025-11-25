@@ -13,7 +13,6 @@ import {
   Linkedin,
   Link2,
   CheckCircle2,
-  MoreHorizontal,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -27,7 +26,6 @@ interface ProductActionBarProps {
 export default function ProductActionBar({
   productName,
   productUrl,
-  virtualTourUrl,
   onDesignYourOwn,
 }: ProductActionBarProps) {
   const [showShareMenu, setShowShareMenu] = useState(false);
@@ -76,7 +74,9 @@ export default function ProductActionBar({
 
   return (
     <div className="flex items-center gap-1 sm:gap-2">
-      {/* Design Your Own - Always visible */}
+
+      {/* Desktop: Individual buttons */}
+      <div className="flex items-center flex-wrap gap-1">
       <Button
         variant="outline"
         size="sm"
@@ -86,24 +86,6 @@ export default function ProductActionBar({
         <Pencil className="h-4 w-4 sm:mr-2" />
         <span className="hidden sm:inline">Design Your Own</span>
       </Button>
-
-      {/* Virtual Tour - Always visible if available */}
-      {virtualTourUrl && (
-        <Button
-          variant="outline"
-          size="sm"
-          asChild
-          className="text-purple-600 border-purple-600 hover:bg-purple-50 text-xs sm:text-sm"
-        >
-          <a href={virtualTourUrl} target="_blank" rel="noopener noreferrer">
-            <Video className="h-4 w-4 sm:mr-2" />
-            <span className="hidden sm:inline">Virtual Tour</span>
-          </a>
-        </Button>
-      )}
-
-      {/* Desktop: Individual buttons */}
-      <div className="hidden md:flex items-center gap-1">
         <Button
           variant="ghost"
           size="sm"
@@ -154,64 +136,6 @@ export default function ProductActionBar({
             )}
           </AnimatePresence>
         </div>
-      </div>
-
-      {/* Mobile: More menu with all options */}
-      <div className="relative md:hidden">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => setShowMoreMenu(!showMoreMenu)}
-          className="text-gray-600 hover:text-gray-900 p-2"
-        >
-          <MoreHorizontal className="h-5 w-5" />
-        </Button>
-
-        <AnimatePresence>
-          {showMoreMenu && (
-            <>
-              {/* Backdrop */}
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="fixed inset-0 z-40"
-                onClick={() => setShowMoreMenu(false)}
-              />
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95, y: -10 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.95, y: -10 }}
-                transition={{ duration: 0.15 }}
-                className="absolute right-0 top-full mt-2 w-56 bg-white rounded-lg shadow-xl border border-gray-200 py-2 z-50"
-              >
-                <button
-                  onClick={handlePrint}
-                  className="w-full px-4 py-3 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-3"
-                >
-                  <Printer className="h-4 w-4 text-gray-500" />
-                  Print Trailer
-                </button>
-                <button
-                  onClick={handleEmail}
-                  className="w-full px-4 py-3 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-3"
-                >
-                  <Mail className="h-4 w-4 text-gray-500" />
-                  Email to Friend
-                </button>
-                <div className="border-t border-gray-100 my-1" />
-                <p className="px-4 py-2 text-xs font-medium text-gray-500 uppercase">
-                  Share
-                </p>
-                <ShareMenuItems
-                  onShare={handleShare}
-                  onCopyLink={handleCopyLink}
-                  copied={copied}
-                />
-              </motion.div>
-            </>
-          )}
-        </AnimatePresence>
       </div>
     </div>
   );

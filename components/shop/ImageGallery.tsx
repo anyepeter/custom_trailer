@@ -56,7 +56,7 @@ export default function ImageGallery({
   return (
     <div className="space-y-3 sm:space-y-4" onKeyDown={handleKeyDown} tabIndex={0}>
       {/* Main Image */}
-      <div className="relative aspect-[4/3] bg-gray-100 rounded-xl sm:rounded-2xl overflow-hidden group">
+      <div className="relative aspect-[4/3] bg-gray-100 overflow-hidden group">
         <Image
           src={images[selectedImage].url}
           alt={images[selectedImage].alt}

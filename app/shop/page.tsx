@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
 import { SlidersHorizontal, Grid3x3, Grid2x2 } from "lucide-react";
 import Navbar from "@/components/Navbar";
@@ -11,11 +11,16 @@ import FilterPanel, {
 import TrailerCard from "@/components/shop/TrailerCard";
 import CartBar from "@/components/shop/CartBar";
 import { Button } from "@/components/ui/button";
-import { trailers } from "@/data/trailers";
 import { filterTrailers, sortTrailers } from "@/data/trailers";
 import { Trailer, SortOption } from "@/types/trailer";
+import TrucksLoader from "@/components/shop/TrucksLoader";
+import { useAppSelector } from "@/store/hooks";
+import { mapTruckToTrailer } from "@/lib/truckMapper";
 
 export default function ShopPage() {
+  // Load trucks from database into Redux
+  const { trucks, loading, error } = useAppSelector((state) => state.trucks);
+
   const [filters, setFilters] = useState<FilterState>({
     types: [],
     sizes: [],
@@ -25,9 +30,14 @@ export default function ShopPage() {
   });
 
   const [sortBy, setSortBy] = useState<SortOption>("featured");
-  const [filteredTrailers, setFilteredTrailers] = useState<Trailer[]>(trailers);
+  const [filteredTrailers, setFilteredTrailers] = useState<Trailer[]>([]);
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const [viewMode, setViewMode] = useState<"grid-3" | "grid-2">("grid-3");
+
+  // Map trucks to trailer format for UI compatibility
+  const trailers = useMemo(() => {
+    return trucks.map(mapTruckToTrailer);
+  }, [trucks]);
 
   // Apply filters and sorting
   useEffect(() => {
@@ -44,7 +54,7 @@ export default function ShopPage() {
 
     result = sortTrailers(result, sortBy);
     setFilteredTrailers(result);
-  }, [filters, sortBy]);
+  }, [filters, sortBy, trailers]);
 
   const handleFilterChange = (newFilters: FilterState) => {
     setFilters(newFilters);
@@ -52,38 +62,10 @@ export default function ShopPage() {
 
   return (
     <main className="min-h-screen bg-gray-50">
-      <Navbar />
+      {/* Load trucks from database on mount */}
+      <TrucksLoader />
 
-      {/* Hero Section */}
-      {/* <section className="bg-gradient-to-br from-blue-600 to-blue-800 text-white pt-24 pb-16">
-        <div className="container mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="max-w-3xl mx-auto text-center"
-          >
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6">
-              Browse Our Trailer Inventory
-            </h1>
-            <p className="text-xl text-blue-100 mb-8">
-              From compact coffee trailers to full commercial kitchens. Find the
-              perfect mobile kitchen for your business.
-            </p>
-            <div className="flex items-center justify-center gap-4 text-sm">
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                <span>{trailers.filter((t) => t.isAvailable).length} Available Now</span>
-              </div>
-              <span>•</span>
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-orange-400 rounded-full"></div>
-                <span>{trailers.filter((t) => !t.isAvailable).length} Build-to-Order</span>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      </section> */}
+      <Navbar />
 
       {/* Main Content */}
       <section className="py-24">
@@ -171,8 +153,33 @@ export default function ShopPage() {
                 </div>
               )}
 
+              {/* Loading State */}
+              {loading && (
+                <div className="text-center py-20">
+                  <div className="animate-spin h-12 w-12 border-4 border-blue-600 border-t-transparent rounded-full mx-auto mb-4"></div>
+                  <p className="text-gray-600">Loading trucks...</p>
+                </div>
+              )}
+
+              {/* Error State */}
+              {error && !loading && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="text-center py-20"
+                >
+                  <div className="text-red-500 mb-4">
+                    <SlidersHorizontal className="h-16 w-16 mx-auto" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                    Error Loading Trucks
+                  </h3>
+                  <p className="text-gray-600 mb-6">{error}</p>
+                </motion.div>
+              )}
+
               {/* Trailer Grid */}
-              {filteredTrailers.length > 0 ? (
+              {!loading && !error && filteredTrailers.length > 0 && (
                 <div
                   className={`grid gap-6 ${
                     viewMode === "grid-3"
@@ -188,7 +195,10 @@ export default function ShopPage() {
                     />
                   ))}
                 </div>
-              ) : (
+              )}
+
+              {/* No Results */}
+              {!loading && !error && filteredTrailers.length === 0 && trailers.length > 0 && (
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -216,6 +226,25 @@ export default function ShopPage() {
                   >
                     Clear All Filters
                   </Button>
+                </motion.div>
+              )}
+
+              {/* Empty State (no trucks in database) */}
+              {!loading && !error && trailers.length === 0 && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="text-center py-20"
+                >
+                  <div className="text-gray-400 mb-4">
+                    <SlidersHorizontal className="h-16 w-16 mx-auto" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                    No trucks available
+                  </h3>
+                  <p className="text-gray-600 mb-6">
+                    Check back soon for new inventory
+                  </p>
                 </motion.div>
               )}
             </div>

@@ -27,19 +27,17 @@ export default function FinancingSection({ trailerPrice }: FinancingSectionProps
   const monthlyPayment84 = Math.round(trailerPrice / 84);
 
   const personalBenefits = [
-    { icon: <Building className="h-5 w-5" />, text: "Personal relationships with lenders" },
-    { icon: <Percent className="h-5 w-5" />, text: "Competitive interest rates" },
-    { icon: <TrendingUp className="h-5 w-5" />, text: "Borrow against existing assets" },
-    { icon: <DollarSign className="h-5 w-5" />, text: "Lower cost loans available" },
-    { icon: <FileText className="h-5 w-5" />, text: "Multiple loan structures" },
+    { icon: <Building className="h-5 w-5" />, text: "Loan options from $5k-$25M" },
+    { icon: <Percent className="h-5 w-5" />, text: "640 minimum FICO for start-up businesses" },
+    { icon: <TrendingUp className="h-5 w-5" />, text: "Flexible terms (24-60) months" },
+    { icon: <FileText className="h-5 w-5" />, text: "Same-day decisions up to $100k" },
   ];
 
   const commercialBenefits = [
-    { icon: <Landmark className="h-5 w-5" />, text: "Commercial lease options" },
-    { icon: <Shield className="h-5 w-5" />, text: "Potential tax benefits (Section 179)" },
-    { icon: <Calendar className="h-5 w-5" />, text: "Lease-to-own programs" },
-    { icon: <CheckCircle2 className="h-5 w-5" />, text: "Quick & easy application" },
-    { icon: <TrendingUp className="h-5 w-5" />, text: "No set maximum limits" },
+    { icon: <Landmark className="h-5 w-5" />, text: "Funding up to $30,000" },
+    { icon: <Shield className="h-5 w-5" />, text: "Highest Approval Rating" },
+    { icon: <Calendar className="h-5 w-5" />, text: "Easy Application" },
+    { icon: <TrendingUp className="h-5 w-5" />, text: "Financing options for low credit scores" },
   ];
 
   return (
@@ -55,7 +53,7 @@ export default function FinancingSection({ trailerPrice }: FinancingSectionProps
       </div>
 
       {/* Payment Calculator Preview */}
-      <Card className="p-4 sm:p-6 bg-gradient-to-br from-blue-50 to-white border-blue-200 mb-6 sm:mb-8">
+      {/* <Card className="p-4 sm:p-6 bg-gradient-to-br from-blue-50 to-white border-blue-200 mb-6 sm:mb-8">
         <div className="flex flex-col md:flex-row items-center justify-between gap-4 sm:gap-6">
           <div className="text-center md:text-left">
             <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-1 sm:mb-2">
@@ -83,7 +81,7 @@ export default function FinancingSection({ trailerPrice }: FinancingSectionProps
         <p className="text-xs text-gray-500 mt-3 sm:mt-4 text-center md:text-left">
           * Estimated payments. Actual rates depend on credit approval and terms.
         </p>
-      </Card>
+      </Card> */}
 
       {/* Two Column Layout */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
@@ -100,11 +98,8 @@ export default function FinancingSection({ trailerPrice }: FinancingSectionProps
               </div>
               <div className="min-w-0">
                 <h3 className="text-lg sm:text-xl font-bold text-gray-900 truncate">
-                  Personal Bank Financing
+                  Business Loan
                 </h3>
-                <Badge variant="outline" className="text-blue-600 border-blue-200 text-xs">
-                  Recommended
-                </Badge>
               </div>
             </div>
 
@@ -118,10 +113,6 @@ export default function FinancingSection({ trailerPrice }: FinancingSectionProps
             </ul>
 
             <div className="pt-3 sm:pt-4 border-t border-gray-100">
-              <p className="text-xs sm:text-sm text-gray-600 mb-3 sm:mb-4">
-                Work with your local bank or credit union for personalized service
-                and potentially lower rates.
-              </p>
               <Button variant="outline" className="w-full text-sm">
                 Learn More
                 <ArrowRight className="h-4 w-4 ml-2" />
@@ -143,11 +134,8 @@ export default function FinancingSection({ trailerPrice }: FinancingSectionProps
               </div>
               <div className="min-w-0">
                 <h3 className="text-lg sm:text-xl font-bold text-gray-900 truncate">
-                  Commercial Leasing
+                 Lease To Own
                 </h3>
-                <Badge variant="outline" className="text-green-600 border-green-200 text-xs">
-                  Tax Benefits
-                </Badge>
               </div>
             </div>
 
@@ -161,10 +149,6 @@ export default function FinancingSection({ trailerPrice }: FinancingSectionProps
             </ul>
 
             <div className="pt-3 sm:pt-4 border-t border-gray-100">
-              <p className="text-xs sm:text-sm text-gray-600 mb-3 sm:mb-4">
-                Perfect for businesses looking to maximize tax deductions and
-                preserve capital.
-              </p>
               <Button variant="outline" className="w-full text-sm">
                 Learn More
                 <ArrowRight className="h-4 w-4 ml-2" />
@@ -185,13 +169,6 @@ export default function FinancingSection({ trailerPrice }: FinancingSectionProps
           <Button size="default" className="bg-white text-blue-600 hover:bg-blue-50 w-full sm:w-auto">
             Apply Now
             <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5 ml-2" />
-          </Button>
-          <Button
-            size="default"
-            variant="outline"
-            className="border-white text-white hover:bg-white/10 w-full sm:w-auto"
-          >
-            Call (555) 123-4567
           </Button>
         </div>
       </Card>

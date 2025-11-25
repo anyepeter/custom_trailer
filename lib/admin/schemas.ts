@@ -33,6 +33,8 @@ export const additionalOptionSchema = z.object({
 export const truckFormSchema = z.object({
   name: z.string().min(1, "Truck name is required").max(200),
   modelCode: z.string().optional(),
+  type: z.string().optional(),
+  size: z.string().optional(),
   actualPrice: z.number().min(0, "Price must be positive").optional(),
   regularPrice: z.number().min(0, "Price must be positive").optional(),
   description: z.string().optional(),
