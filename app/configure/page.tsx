@@ -16,12 +16,14 @@ import { useConfigurator } from "@/lib/hooks/useConfigurator";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import confetti from "canvas-confetti";
+import { submitCustomTruckDesign } from "@/app/actions/submitCustomTruckDesign";
 
 export default function ConfiguratorPage() {
   const router = useRouter();
   const {
     config,
     updateConfig,
+    resetConfig,
     currentStep,
     setCurrentStep,
     pricing,
@@ -58,17 +60,24 @@ export default function ConfiguratorPage() {
     } else if (!/^\d{5}(-\d{4})?$/.test(config.zipcode)) {
       newErrors.zipcode = "Please enter a valid zip code";
     }
+    if (!config.paymentMethods?.trim()) {
+      newErrors.paymentMethods = "Payment method is required";
+    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleNext = async () => {
+    console.log("handleNext called, currentStep:", currentStep);
     if (currentStep === 5) {
       // Final step - submit
+      console.log("Step 5 detected, validating contact info...");
       if (!validateContactStep()) {
+        console.log("Validation failed, not submitting");
         return;
       }
+      console.log("Validation passed, calling handleSubmit...");
       await handleSubmit();
     } else {
       setCurrentStep(currentStep + 1);
@@ -89,23 +98,35 @@ export default function ConfiguratorPage() {
   };
 
   const handleSubmit = async () => {
+    console.log("handleSubmit called!");
     setIsSubmitting(true);
     setSubmitError(null);
 
     try {
-      const response = await fetch("/api/configure/submit", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          ...config,
-          totalPrice: pricing.total,
-        }),
+      console.log("Preparing data for submission...", config);
+      // Submit using server action
+      const result = await submitCustomTruckDesign({
+        ...config,
+        totalPrice: pricing.total,
+        firstName: config.firstName || '',
+        lastName: config.lastName || '',
+        email: config.email || '',
+        phoneNumber: config.phoneNumber || '',
+        zipcode: config.zipcode || '',
+        trailerSize: config.trailerSize || '',
+        rangeHood: config.rangeHood || '',
+        fireSuppressionSystem: config.fireSuppressionSystem || '',
+        exteriorColor: config.exteriorColor || '',
+        interiorFinish: config.interiorFinish || '',
+        budget: config.budget || '',
+        needFinancing: config.needFinancing || '',
+        refrigeration: config.refrigeration || [],
       });
 
-      if (!response.ok) {
-        throw new Error("Failed to submit configuration");
+      console.log("Server action result:", result);
+
+      if (!result.success) {
+        throw new Error(result.error || "Failed to submit configuration");
       }
 
       // Success - trigger confetti
@@ -116,12 +137,9 @@ export default function ConfiguratorPage() {
       });
 
       setIsSubmitted(true);
-
-      // Clear localStorage
-      localStorage.removeItem("trailer-configurator");
     } catch (error) {
       console.error("Submit error:", error);
-      setSubmitError("There was an error submitting your configuration. Please try again.");
+      setSubmitError(error instanceof Error ? error.message : "There was an error submitting your configuration. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -182,8 +200,9 @@ export default function ConfiguratorPage() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button
                 onClick={() => {
+                  resetConfig();
                   setIsSubmitted(false);
-                  setCurrentStep(1);
+                  setErrors({});
                 }}
                 variant="outline"
                 className="gap-2"

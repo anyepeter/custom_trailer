@@ -12,11 +12,13 @@ import { Trailer } from "@/types/trailer";
 interface TrailerCardProps {
   trailer: Trailer;
   index?: number;
+  layout?: "vertical" | "horizontal";
 }
 
 export default function TrailerCard({
   trailer,
   index = 0,
+  layout = "vertical",
 }: TrailerCardProps) {
   const primaryImage = trailer.images.find((img) => img.isPrimary) || trailer.images[0];
  console.log(primaryImage)
@@ -36,10 +38,10 @@ export default function TrailerCard({
       transition={{ duration: 0.4, delay: index * 0.05 }}
       className="group h-full"
     >
-      <Card className="h-full overflow-hidden border-0 shadow-md hover:shadow-2xl transition-all duration-300 rounded-2xl bg-white flex flex-col">
+      <Card className={`h-full overflow-hidden border-0 shadow-md hover:shadow-2xl transition-all duration-300 rounded-2xl bg-white flex flex-col ${layout === "horizontal" ? "md:flex-row" : ""}`}>
         {/* Image Section */}
-        <Link href={`/shop/${trailer.slug}`} className="relative block">
-          <div className="relative w-full h-64 bg-gray-100 overflow-hidden">
+        <Link href={`/shop/${trailer.slug}`} className={`relative flex-1 block ${layout === "horizontal" ? "md:flex-shrink-0" : ""}`}>
+          <div className={`relative bg-gray-100 overflow-hidden ${layout === "horizontal" ? "w-full h-64  md:h-full md:min-h-[400px]" : "w-full h-64"}`}>
             <Image
               src={primaryImage.url}
               alt={primaryImage.alt}
@@ -68,7 +70,7 @@ export default function TrailerCard({
         </Link>
 
         {/* Content Section */}
-        <div className="p-6 flex-1 flex flex-col">
+        <div className="p-6 flex flex-1 justify-between flex-col">
           {/* Type & Size */}
           <div className="flex items-center gap-2 mb-2">
             <span className="text-xs font-medium text-blue-600 uppercase tracking-wide">
@@ -92,7 +94,7 @@ export default function TrailerCard({
               <div className="font-semibold text-gray-900">Specifications</div>
               <div className="text-gray-600 grid grid-cols-1 gap-2">
                 {
-                  trailer.equipmentList.slice(0, 3).map((item, idx) => (
+                  trailer.equipmentList.slice(0, 5).map((item, idx) => (
                     <div key={idx} className="flex items-center gap-1 text-sm">
                       <CheckCircle2 className="h-3 w-3 text-green-600" />
                       <span className="truncate">{item}</span>
@@ -106,7 +108,7 @@ export default function TrailerCard({
           {/* Key Features */}
           <div className="mb-4">
             <div className="flex flex-wrap gap-2">
-              {keyFeatures.slice(0, 3).map((feature, idx) => (
+              {keyFeatures.slice(0, 5).map((feature, idx) => (
                 <div
                   key={idx}
                   className="flex items-center gap-1 text-xs text-gray-600"

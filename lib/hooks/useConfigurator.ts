@@ -38,6 +38,7 @@ const initialConfig: TrailerConfiguration = {
   email: "",
   phoneNumber: "",
   zipcode: "",
+  paymentMethods: "",
 };
 
 export function useConfigurator() {

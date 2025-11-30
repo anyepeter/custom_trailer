@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { X, ChevronLeft, ChevronRight, Maximize2 } from "lucide-react";
@@ -18,6 +18,28 @@ export default function ImageGallery({
 }: ImageGalleryProps) {
   const [selectedImage, setSelectedImage] = useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+  const thumbnailRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Scroll selected thumbnail into center view (Apple-style)
+  useEffect(() => {
+    if (thumbnailRefs.current[selectedImage] && containerRef.current) {
+      const thumbnail = thumbnailRefs.current[selectedImage];
+      const container = containerRef.current;
+
+      // Calculate the scroll position to center the thumbnail
+      const thumbnailLeft = thumbnail.offsetLeft;
+      const thumbnailWidth = thumbnail.offsetWidth;
+      const containerWidth = container.offsetWidth;
+
+      const scrollPosition = thumbnailLeft - (containerWidth / 2) + (thumbnailWidth / 2);
+
+      container.scrollTo({
+        left: scrollPosition,
+        behavior: 'smooth'
+      });
+    }
+  }, [selectedImage]);
 
   const nextImage = () => {
     setSelectedImage((prev) => (prev + 1) % images.length);
@@ -56,16 +78,27 @@ export default function ImageGallery({
   return (
     <div className="space-y-3 sm:space-y-4" onKeyDown={handleKeyDown} tabIndex={0}>
       {/* Main Image */}
-      <div className="relative aspect-[4/3] bg-gray-100 overflow-hidden group">
-        <Image
-          src={images[selectedImage].url}
-          alt={images[selectedImage].alt}
-          fill
-          quality={95}
-          className="object-cover"
-          priority
-          sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 800px"
-        />
+      <div className="relative aspect-[4/3] bg-gray-100 overflow-hidden group rounded-lg">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={selectedImage}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.4, ease: "easeInOut" }}
+            className="relative w-full h-full"
+          >
+            <Image
+              src={images[selectedImage].url}
+              alt={images[selectedImage].alt}
+              fill
+              quality={95}
+              className="object-cover"
+              priority
+              sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 800px"
+            />
+          </motion.div>
+        </AnimatePresence>
 
         {/* Expand Button - Always visible on mobile */}
         <button
@@ -103,30 +136,53 @@ export default function ImageGallery({
         </div>
       </div>
 
-      {/* Thumbnail Grid */}
+      {/* Thumbnail Slider - Apple Style */}
       {images.length > 1 && (
-        <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-1.5 sm:gap-2">
-          {images.map((image, index) => (
-            <button
-              key={index}
-              onClick={() => setSelectedImage(index)}
-              className={`relative aspect-[4/3] rounded-md sm:rounded-lg overflow-hidden transition-all ${
-                index === selectedImage
-                  ? "ring-2 ring-blue-600 opacity-100"
-                  : "opacity-60 hover:opacity-100"
-              }`}
-              aria-label={`View image ${index + 1}`}
-            >
-              <Image
-                src={image.url}
-                alt={image.alt}
-                fill
-                quality={90}
-                className="object-cover"
-                sizes="(max-width: 768px) 25vw, 150px"
-              />
-            </button>
-          ))}
+        <div className="relative">
+          <div
+            ref={containerRef}
+            className="flex gap-2 sm:gap-3 overflow-x-auto scroll-smooth px-4"
+            style={{
+              scrollbarWidth: 'none',
+              msOverflowStyle: 'none',
+              WebkitOverflowScrolling: 'touch'
+            }}
+          >
+            {images.map((image, index) => (
+              <motion.button
+                key={index}
+                ref={(el) => {
+                  thumbnailRefs.current[index] = el;
+                }}
+                onClick={() => setSelectedImage(index)}
+                className={`relative flex-shrink-0 w-20 h-16 sm:w-24 sm:h-20 md:w-28 md:h-24 rounded-md sm:rounded-lg overflow-hidden transition-all duration-300 ${
+                  index === selectedImage
+                    ? "ring-2 sm:ring-3 ring-blue-600 opacity-100 scale-105 shadow-lg"
+                    : "opacity-60 hover:opacity-100 hover:scale-105"
+                }`}
+                animate={{
+                  scale: index === selectedImage ? 1.05 : 1,
+                  opacity: index === selectedImage ? 1 : 0.6
+                }}
+                transition={{ duration: 0.3, ease: "easeInOut" }}
+                aria-label={`View image ${index + 1}`}
+              >
+                <Image
+                  src={image.url}
+                  alt={image.alt}
+                  fill
+                  quality={90}
+                  className="object-cover"
+                  sizes="(max-width: 640px) 80px, (max-width: 768px) 96px, 112px"
+                />
+              </motion.button>
+            ))}
+          </div>
+          <style jsx>{`
+            div::-webkit-scrollbar {
+              display: none;
+            }
+          `}</style>
         </div>
       )}
 

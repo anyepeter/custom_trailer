@@ -50,6 +50,7 @@ model BuildRequest {
   email                 String
   phoneNumber           String
   zipcode               String
+  paymentMethods        String   @default("financing")
   totalPrice            Decimal? @db.Decimal(10, 2)
   status                String   @default("pending")
   notes                 String?

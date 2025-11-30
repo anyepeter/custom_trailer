@@ -30,6 +30,7 @@ export interface TrailerConfiguration {
   email: string;
   phoneNumber: string;
   zipcode: string;
+  paymentMethods: string;
 }
 
 export interface PricingBreakdown {
@@ -200,4 +201,15 @@ export const FINANCING_OPTIONS = [
   { value: "yes", label: "Yes - I need financing" },
   { value: "no", label: "No - I don't need financing" },
   { value: "maybe", label: "Maybe - Tell me more" },
+] as const;
+
+// Payment Method Options
+export const PAYMENT_METHOD_OPTIONS = [
+  { value: "cash", label: "Cash" },
+  { value: "financing", label: "Financing" },
+  { value: "bank-loan", label: "Bank Loan" },
+  { value: "credit-card", label: "Credit Card" },
+  { value: "check", label: "Check" },
+  { value: "wire-transfer", label: "Wire Transfer" },
+  { value: "other", label: "Other" },
 ] as const;

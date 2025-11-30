@@ -85,10 +85,11 @@ export default function ProductCarousel() {
                   transition={{ duration: 0.5 }}
                   className="px-12"
                 >
-                  <div className="max-w-sm mx-auto">
+                  <div className="max-w-4xl mx-auto">
                     <TrailerCard
                       trailer={featuredTrailers[currentIndex]}
                       index={0}
+                      layout="horizontal"
                     />
                   </div>
                 </motion.div>

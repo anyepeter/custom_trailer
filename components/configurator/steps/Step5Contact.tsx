@@ -1,8 +1,8 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { User, Check, Mail, Phone, MapPin, MessageSquare, Shield, Clock, Sparkles } from "lucide-react";
-import { TrailerConfiguration, PricingBreakdown } from "@/types/configurator";
+import { User, Check, Mail, Phone, MapPin, MessageSquare, Shield, Clock, Sparkles, CreditCard } from "lucide-react";
+import { TrailerConfiguration, PricingBreakdown, PAYMENT_METHOD_OPTIONS } from "@/types/configurator";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
@@ -201,6 +201,34 @@ export default function Step5Contact({ config, updateConfig, pricing, errors }: 
                   <p className="text-red-500 text-xs mt-1">{errors.zipcode}</p>
                 )}
               </div>
+            </div>
+
+            {/* Payment Methods */}
+            <div>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                Preferred Payment Method <span className="text-red-500">*</span>
+              </label>
+              <div className="relative">
+                <CreditCard className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none z-10" />
+                <select
+                  value={config.paymentMethods}
+                  onChange={(e) => updateConfig({ paymentMethods: e.target.value })}
+                  className={cn(
+                    "w-full pl-10 pr-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none cursor-pointer",
+                    errors.paymentMethods && "border-red-500 focus:ring-red-500"
+                  )}
+                >
+                  <option value="">Select payment method...</option>
+                  {PAYMENT_METHOD_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              {errors.paymentMethods && (
+                <p className="text-red-500 text-xs mt-1">{errors.paymentMethods}</p>
+              )}
             </div>
 
             {/* Additional Notes */}

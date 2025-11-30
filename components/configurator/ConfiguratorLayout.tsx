@@ -186,10 +186,8 @@ export default function ConfiguratorLayout({
 
               <Button
                 onClick={onNext}
-                disabled={!canGoNext}
                 className={cn(
                   "gap-2 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white transition-all",
-                  !canGoNext && "opacity-50 cursor-not-allowed"
                 )}
               >
                 {isLastStep ? "Submit Quote" : "Next"}
