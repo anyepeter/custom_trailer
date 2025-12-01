@@ -38,7 +38,7 @@ export default function ContactPage() {
 
                 {/* Phone */}
                 <a
-                  href="tel:800-859-5405"
+                  href="tel:+15012162500"
                   className="block p-4 rounded-lg bg-white border border-gray-200 hover:border-blue-500 hover:shadow-md transition-all"
                 >
                   <div className="flex items-center gap-3">
@@ -50,7 +50,7 @@ export default function ContactPage() {
                         Phone
                       </h3>
                       <p className="text-lg font-semibold text-gray-900">
-                        800-859-5405
+                      +1 501 216-2500
                       </p>
                     </div>
                   </div>
