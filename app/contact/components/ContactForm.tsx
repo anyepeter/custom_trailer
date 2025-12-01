@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { submitContactForm } from '@/app/actions/submitContactForm';
 
 interface FormData {
   fullName: string;
@@ -74,22 +75,32 @@ export default function ContactForm() {
     setIsSubmitting(true);
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      console.log('Form submitted:', formData);
-
-      setSubmitSuccess(true);
-      setFormData({
-        fullName: '',
-        email: '',
-        phone: '',
-        message: '',
-        preferredContact: '',
+      const result = await submitContactForm({
+        fullName: formData.fullName,
+        email: formData.email,
+        phone: formData.phone,
+        message: formData.message,
+        preferredContact: formData.preferredContact as 'call' | 'text' | 'email',
       });
-      setErrors({});
 
-      setTimeout(() => setSubmitSuccess(false), 5000);
+      if (result.success) {
+        setSubmitSuccess(true);
+        setFormData({
+          fullName: '',
+          email: '',
+          phone: '',
+          message: '',
+          preferredContact: '',
+        });
+        setErrors({});
+
+        setTimeout(() => setSubmitSuccess(false), 10000);
+      } else {
+        alert(result.error || 'Failed to send message. Please try again.');
+      }
     } catch (error) {
       console.error('Error submitting form:', error);
+      alert('An unexpected error occurred. Please try again.');
     } finally {
       setIsSubmitting(false);
     }

@@ -1,9 +1,10 @@
 import { CustomTruckDesignInput } from '@/app/actions/submitCustomTruckDesign';
 import { PAYMENT_METHOD_OPTIONS } from '@/types/configurator';
 import puppeteer from 'puppeteer';
+import fs from 'fs';
+import path from 'path';
 
 export function customTruckDesignHTML(data: CustomTruckDesignInput) {
-
       const paymentMethodLabel = PAYMENT_METHOD_OPTIONS.find(
         option => option.value === data.paymentMethods
       )?.label || data.paymentMethods;
@@ -752,19 +753,24 @@ export async function generatePdfFromHtml(htmlContent: string) {
     timeout: 60000,
   });
 
+  // Load logo and convert to base64
+  const logoPath = path.join(process.cwd(), 'public', 'logo12.png');
+  let logoBase64 = '';
+  try {
+    const logoBuffer = fs.readFileSync(logoPath);
+    logoBase64 = `data:image/png;base64,${logoBuffer.toString('base64')}`;
+  } catch (error) {
+    console.error('Error loading logo:', error);
+  }
+
   // Header template with company branding
   const headerTemplate = `
-    <div style="width: 100%; display: flex; justify-content: space-between; align-items: flex-start; padding: 10px 20px; border-bottom: 2px solid #0066b2; font-size: 10px; -webkit-print-color-adjust: exact;">
-      <div style="display: flex; align-items: center; gap: 10px;">
-        <div style="width: 60px; height: 40px; background: #0066b2; border-radius: 3px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 14px;">CTP</div>
-        <div style="font-size: 18px; font-weight: bold;">
-          <span style="color: #0066b2;">CUSTOM</span>
-          <span style="color: #666;"> TRAILERS</span>
-          <span style="color: #0066b2;"> PRO</span>
-        </div>
+    <div style="width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; border-bottom: 2px solid #0066b2; font-size: 10px; -webkit-print-color-adjust: exact;">
+      <div style="display: flex; align-items: center;">
+        ${logoBase64 ? `<img src="${logoBase64}" style="height: 40px; width: auto;" />` : '<div style="font-size: 18px; font-weight: bold;"><span style="color: #0066b2;">CUSTOM TRAILER PRO</span></div>'}
       </div>
       <div style="text-align: right;">
-        <div style="font-weight: bold; font-size: 12px; color: #333;">P: 800-859-5405</div>
+        <div style="font-weight: bold; font-size: 12px; color: #333;">P: +1 501 216-2500</div>
         <div style="color: #0066b2; font-size: 11px;">www.customtrailerpros.com</div>
       </div>
     </div>

@@ -55,7 +55,7 @@ export default function Footer() {
           {/* Company Info + Newsletter */}
           <div className="lg:col-span-2">
             <h3 className="text-2xl font-bold text-white mb-4">
-              Custom Trailers<span className="text-blue-500">Pro</span>
+            <span className="text-blue-500">Custom</span> Trailers Pro
             </h3>
             <p className="text-gray-400 mb-6 leading-relaxed">
               Building premium custom food trucks and trailers for entrepreneurs nationwide. Turn your culinary dreams into reality.

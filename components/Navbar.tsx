@@ -96,10 +96,14 @@ export default function Navbar() {
           {/* Logo */}
           <Link
             href="/"
-            className="text-2xl font-bold text-white"
+            className="flex items-center"
             aria-label="Food Trucks Home"
           >
-            FoodTrucks<span className="text-cyan-200">Pro</span>
+            <img
+              src="/logo12.png"
+              alt="Custom Trailer Pro"
+              className="h-12 md:h-16 w-auto"
+            />
           </Link>
 
           {/* Desktop Navigation */}
