@@ -13,13 +13,14 @@ import {
 } from "@/components/ui/sheet";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import path from "path";
 
 const navLinks = [
   { label: "Shop", href: "/shop" },
   { label: "Design Your Own", href: "/configure" },
   { label: "Financing", href: "#financing" },
   { label: "How-to", href: "#process" },
-  { label: "Contact", href: "#contact" },
+  { label: "About Us", href: "/contact" },
 ];
 
 export default function Navbar() {
@@ -48,6 +49,8 @@ export default function Navbar() {
   const hideContactBar =
     pathname?.startsWith("/shop") ||
     pathname?.startsWith("/configure") ||
+    pathname?.startsWith("/financing") ||
+    pathname?.startsWith("/contact") ||
     (isHomePage && isScrolled);
 
   return (
@@ -67,20 +70,20 @@ export default function Navbar() {
           <div className="container mx-auto px-4">
             <div className="flex items-center justify-end gap-6 py-2 text-sm">
               <a
-                href="tel:+18005551234"
+                href="tel:+15012162500"
                 className="flex items-center gap-2 text-white/90 hover:text-white transition-colors"
-                aria-label="Call us at 1-800-555-1234"
+                aria-label="Call us at +1 501 216-2500"
               >
                 <Phone className="h-4 w-4" />
-                <span className="hidden sm:inline">1-800-555-1234</span>
+                <span className="hidden sm:inline">+1 501 216-2500</span>
               </a>
               <a
-                href="mailto:sales@foodtrucks.com"
+                href="mailto:sales@customtrailerspro.com"
                 className="flex items-center gap-2 text-white/90 hover:text-white transition-colors"
-                aria-label="Email us at sales@foodtrucks.com"
+                aria-label="Email us at sales@customtrailerspro.com"
               >
                 <Mail className="h-4 w-4" />
-                <span className="hidden sm:inline">sales@foodtrucks.com</span>
+                <span className="hidden sm:inline">sales@customtrailerspro.com</span>
               </a>
             </div>
           </div>
@@ -112,13 +115,15 @@ export default function Navbar() {
                 {link.label}
               </Link>
             ))}
+            <Link href="/contact">
             <Button
               size="default"
               className="bg-white text-blue-600 hover:bg-blue-50 font-semibold"
               data-analytics="cta-nav-quote"
             >
-              Get Quote
+              Contact Us
             </Button>
+            </Link>
           </div>
 
           {/* Mobile Menu Button */}
@@ -150,29 +155,29 @@ export default function Navbar() {
                     {link.label}
                   </Link>
                 ))}
-                <Link href="/configure" onClick={() => setMobileMenuOpen(false)}>
+                <Link href="/contact" onClick={() => setMobileMenuOpen(false)}>
                   <Button
                     size="lg"
                     className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 mt-4"
                     data-analytics="cta-mobile-quote"
                   >
-                    Get Quote
+                  Contact Us
                   </Button>
                 </Link>
                 <div className="flex flex-col gap-3 pt-6 border-t border-gray-200">
                   <a
-                    href="tel:+18005551234"
+                    href="tel:+15012162500"
                     className="flex items-center gap-2 text-gray-600 hover:text-blue-600"
                   >
                     <Phone className="h-5 w-5" />
-                    1-800-555-1234
+                    +1 501 216-2500
                   </a>
                   <a
-                    href="mailto:sales@foodtrucks.com"
+                    href="mailto:sales@customtrailerspro.com"
                     className="flex items-center gap-2 text-gray-600 hover:text-blue-600"
                   >
                     <Mail className="h-5 w-5" />
-                    sales@foodtrucks.com
+                    sales@customtrailerspro.com
                   </a>
                 </div>
               </div>

@@ -41,10 +41,12 @@ export const contactSchema = z.object({
     .string()
     .min(1, "Phone number is required")
     .regex(/^[\d\s\-\(\)\+]+$/, "Please enter a valid phone number"),
+  address: z.string().min(1, "Address is required").max(200),
   zipcode: z
     .string()
     .min(1, "Zip code is required")
     .regex(/^\d{5}(-\d{4})?$/, "Please enter a valid zip code"),
+  paymentMethods: z.string().min(1, "Payment method is required"),
 });
 
 // Full Configuration Schema
@@ -81,10 +83,12 @@ export const configuratorFormSchema = z.object({
     .string()
     .min(1, "Phone number is required")
     .regex(/^[\d\s\-\(\)\+]+$/, "Please enter a valid phone number"),
+  address: z.string().min(1, "Address is required").max(200),
   zipcode: z
     .string()
     .min(1, "Zip code is required")
     .regex(/^\d{5}(-\d{4})?$/, "Please enter a valid zip code"),
+  paymentMethods: z.string().min(1, "Payment method is required"),
 
   // Price
   totalPrice: z.number().optional(),

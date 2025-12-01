@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Mail, Phone, MapPin, Facebook, Instagram, Twitter, Linkedin, ArrowRight } from "lucide-react";
+import { Mail, Phone, MapPin, Facebook, Instagram, Twitter, Linkedin, ArrowRight, Youtube } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -31,10 +31,9 @@ const locationsServed = [
 ];
 
 const socialLinks = [
-  { icon: Facebook, href: "https://facebook.com", label: "Facebook" },
-  { icon: Instagram, href: "https://instagram.com", label: "Instagram" },
-  { icon: Twitter, href: "https://twitter.com", label: "Twitter" },
-  { icon: Linkedin, href: "https://linkedin.com", label: "LinkedIn" },
+  { icon: Facebook, href: "https://www.facebook.com/share/1HPhbDUTaS/?mibextid=wwXIfr", label: "Facebook" },
+  { icon: Instagram, href: "https://www.instagram.com/customfoodtrailerpros?igsh=Mm4weThuOGFieXNm&utm_source=qr", label: "Instagram" },
+  { icon: Youtube, href: "https://www.youtube.com/channel/UC_0cLoRk5GcrqtBJQMNjWnQ", label: "YouTube" },
 ];
 
 export default function Footer() {
@@ -56,7 +55,7 @@ export default function Footer() {
           {/* Company Info + Newsletter */}
           <div className="lg:col-span-2">
             <h3 className="text-2xl font-bold text-white mb-4">
-              FoodTrucks<span className="text-blue-500">Pro</span>
+              Custom Trailers<span className="text-blue-500">Pro</span>
             </h3>
             <p className="text-gray-400 mb-6 leading-relaxed">
               Building premium custom food trucks and trailers for entrepreneurs nationwide. Turn your culinary dreams into reality.
@@ -195,8 +194,8 @@ export default function Footer() {
               <Phone className="h-5 w-5 text-blue-500 flex-shrink-0 mt-1" />
               <div>
                 <div className="text-white font-semibold mb-1">Call Us</div>
-                <a href="tel:+18005551234" className="hover:text-white transition-colors">
-                  1-800-555-1234
+                <a href="tel:+15012162500" className="hover:text-white transition-colors">
+                  +1 501 216-2500
                 </a>
                 <div className="text-sm text-gray-500">Mon-Fri, 9am-6pm EST</div>
               </div>
@@ -207,10 +206,10 @@ export default function Footer() {
               <div>
                 <div className="text-white font-semibold mb-1">Email Us</div>
                 <a
-                  href="mailto:sales@foodtruckspro.com"
+                  href="mailto:sales@customtrailerspro.com"
                   className="hover:text-white transition-colors"
                 >
-                  sales@foodtruckspro.com
+                  sales@customtrailerspro.com
                 </a>
                 <div className="text-sm text-gray-500">24-hour response time</div>
               </div>

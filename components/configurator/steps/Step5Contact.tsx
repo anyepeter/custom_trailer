@@ -156,51 +156,73 @@ export default function Step5Contact({ config, updateConfig, pricing, errors }: 
               )}
             </div>
 
-            {/* Phone & Zipcode */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                  Phone Number <span className="text-red-500">*</span>
-                </label>
-                <div className="relative">
-                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                  <Input
-                    type="tel"
-                    value={config.phoneNumber}
-                    onChange={(e) => updateConfig({ phoneNumber: e.target.value })}
-                    placeholder="(555) 123-4567"
-                    className={cn(
-                      "pl-10",
-                      errors.phoneNumber && "border-red-500 focus:ring-red-500"
-                    )}
-                  />
-                </div>
-                {errors.phoneNumber && (
-                  <p className="text-red-500 text-xs mt-1">{errors.phoneNumber}</p>
-                )}
+            {/* Phone Number */}
+            <div>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                Phone Number <span className="text-red-500">*</span>
+              </label>
+              <div className="relative">
+                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                <Input
+                  type="tel"
+                  value={config.phoneNumber}
+                  onChange={(e) => updateConfig({ phoneNumber: e.target.value })}
+                  placeholder="(555) 123-4567"
+                  className={cn(
+                    "pl-10",
+                    errors.phoneNumber && "border-red-500 focus:ring-red-500"
+                  )}
+                />
               </div>
+              {errors.phoneNumber && (
+                <p className="text-red-500 text-xs mt-1">{errors.phoneNumber}</p>
+              )}
+            </div>
 
-              <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                  Zip Code <span className="text-red-500">*</span>
-                </label>
-                <div className="relative">
-                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                  <Input
-                    type="text"
-                    value={config.zipcode}
-                    onChange={(e) => updateConfig({ zipcode: e.target.value })}
-                    placeholder="12345"
-                    className={cn(
-                      "pl-10",
-                      errors.zipcode && "border-red-500 focus:ring-red-500"
-                    )}
-                  />
-                </div>
-                {errors.zipcode && (
-                  <p className="text-red-500 text-xs mt-1">{errors.zipcode}</p>
-                )}
+            {/* Address */}
+            <div>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                Street Address <span className="text-red-500">*</span>
+              </label>
+              <div className="relative">
+                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                <Input
+                  type="text"
+                  value={config.address}
+                  onChange={(e) => updateConfig({ address: e.target.value })}
+                  placeholder="123 Main Street"
+                  className={cn(
+                    "pl-10",
+                    errors.address && "border-red-500 focus:ring-red-500"
+                  )}
+                />
               </div>
+              {errors.address && (
+                <p className="text-red-500 text-xs mt-1">{errors.address}</p>
+              )}
+            </div>
+
+            {/* Zip Code */}
+            <div>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                Zip Code <span className="text-red-500">*</span>
+              </label>
+              <div className="relative">
+                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                <Input
+                  type="text"
+                  value={config.zipcode}
+                  onChange={(e) => updateConfig({ zipcode: e.target.value })}
+                  placeholder="12345"
+                  className={cn(
+                    "pl-10",
+                    errors.zipcode && "border-red-500 focus:ring-red-500"
+                  )}
+                />
+              </div>
+              {errors.zipcode && (
+                <p className="text-red-500 text-xs mt-1">{errors.zipcode}</p>
+              )}
             </div>
 
             {/* Payment Methods */}

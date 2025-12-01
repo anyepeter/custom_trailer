@@ -37,6 +37,7 @@ const initialConfig: TrailerConfiguration = {
   lastName: "",
   email: "",
   phoneNumber: "",
+  address: "",
   zipcode: "",
   paymentMethods: "",
 };
@@ -155,7 +156,9 @@ export function useConfigurator() {
             !!config.lastName?.trim() &&
             !!config.email?.trim() &&
             !!config.phoneNumber?.trim() &&
-            !!config.zipcode?.trim()
+            !!config.address?.trim() &&
+            !!config.zipcode?.trim() &&
+            !!config.paymentMethods?.trim()
           );
         default:
           return false;
@@ -193,7 +196,9 @@ export function useConfigurator() {
       config.lastName,
       config.email,
       config.phoneNumber,
+      config.address,
       config.zipcode,
+      config.paymentMethods,
     ];
 
     requiredFields.forEach((field) => {

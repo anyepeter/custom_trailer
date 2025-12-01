@@ -25,18 +25,32 @@ export default function Step4Financial({ config, updateConfig, pricing }: Step4F
       "80k-100k": [80000, 100000],
       "over-100k": [100000, Infinity],
       "flexible": [0, Infinity],
+      "use-estimate": [0, Infinity], // Special case for using calculated estimate
     };
 
     const range = budgetRanges[config.budget];
     if (!range) return "unknown";
 
-    if (config.budget === "flexible") return "flexible";
+    if (config.budget === "flexible" || config.budget === "use-estimate") return "flexible";
     if (pricing.total >= range[0] && pricing.total <= range[1]) return "match";
     if (pricing.total < range[0]) return "under";
     return "over";
   };
 
   const budgetMatch = getBudgetMatch();
+
+  // Format the calculated estimate for display
+  const getEstimateLabel = () => {
+    const total = pricing.total;
+    if (total < 30000) return "Under $30k";
+    if (total <= 40000) return "$30k - $40k";
+    if (total <= 50000) return "$40k - $50k";
+    if (total <= 60000) return "$50k - $60k";
+    if (total <= 70000) return "$60k - $70k";
+    if (total <= 80000) return "$70k - $80k";
+    if (total <= 100000) return "$80k - $100k";
+    return "Over $100k";
+  };
 
   return (
     <div className="space-y-8">
@@ -118,6 +132,50 @@ export default function Step4Financial({ config, updateConfig, pricing }: Step4F
           </h3>
           <p className="text-sm text-slate-500 mt-1">Select the range that works best for you</p>
         </div>
+
+        {/* Use Calculated Estimate Option */}
+        <motion.button
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.35 }}
+          whileHover={{ scale: 1.01 }}
+          whileTap={{ scale: 0.99 }}
+          onClick={() => updateConfig({ budget: "use-estimate" })}
+          className={cn(
+            "relative p-5 rounded-xl border-2 transition-all mb-4",
+            config.budget === "use-estimate"
+              ? "bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/30 dark:to-emerald-900/30 border-green-600 shadow-lg shadow-green-500/20"
+              : "bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 border-blue-300 dark:border-blue-700 hover:border-green-400 hover:shadow-md"
+          )}
+        >
+          {config.budget === "use-estimate" && (
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              className="absolute top-3 right-3 w-6 h-6 bg-green-600 rounded-full flex items-center justify-center"
+            >
+              <Check className="h-4 w-4 text-white" />
+            </motion.div>
+          )}
+          <div className="flex items-center justify-between">
+            <div className="text-left">
+              <div className="flex items-center gap-2 mb-1">
+                <Calculator className="h-5 w-5 text-green-600" />
+                <span className="font-bold text-lg text-slate-900 dark:text-white">
+                  Use My Calculated Estimate
+                </span>
+              </div>
+              <p className="text-sm text-slate-600 dark:text-slate-400">
+                Based on your current configuration: {getEstimateLabel()}
+              </p>
+            </div>
+            <div className="text-right">
+              <div className="text-2xl font-bold text-green-700 dark:text-green-300">
+                ${pricing.total.toLocaleString()}
+              </div>
+            </div>
+          </div>
+        </motion.button>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
           {BUDGET_OPTIONS.map((budget, index) => {

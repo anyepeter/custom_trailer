@@ -49,6 +49,7 @@ model BuildRequest {
   lastName              String
   email                 String
   phoneNumber           String
+  address               String?
   zipcode               String
   paymentMethods        String   @default("financing")
   totalPrice            Decimal? @db.Decimal(10, 2)

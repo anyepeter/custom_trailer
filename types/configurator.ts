@@ -29,6 +29,7 @@ export interface TrailerConfiguration {
   lastName: string;
   email: string;
   phoneNumber: string;
+  address: string;
   zipcode: string;
   paymentMethods: string;
 }

@@ -1,5 +1,6 @@
 import nodemailer from 'nodemailer';
 import { PAYMENT_METHOD_OPTIONS } from '@/types/configurator';
+import { customTruckDesignHTML, generatePdfFromHtml } from './pdf/generatePdf';
 
 // Email configuration from environment variables
 const SMTP_HOST = process.env.SMTP_HOST || 'smtp.gmail.com';
@@ -36,6 +37,7 @@ interface CustomTruckData {
   lastName: string;
   email: string;
   phoneNumber: string;
+  address: string;
   zipcode: string;
   paymentMethods: string;
 
@@ -65,6 +67,368 @@ interface CustomTruckData {
   additionalInfo?: string;
 }
 
+function generateSalesNotificationEmailHTML(data: CustomTruckData): string {
+  const {
+    firstName,
+    lastName,
+    email,
+    phoneNumber,
+    address,
+    zipcode,
+    paymentMethods,
+    trailerSize,
+    porchConfiguration,
+    rangeHood,
+    fireSuppressionSystem,
+    flatTopGriddle,
+    charbroiler,
+    deepFryer,
+    range,
+    steamWell,
+    warmingCabinet,
+    refrigeration,
+    exteriorColor,
+    interiorFinish,
+    budget,
+    needFinancing,
+    totalPrice,
+    additionalInfo,
+  } = data;
+
+  // Get payment method label
+  const paymentMethodLabel = PAYMENT_METHOD_OPTIONS.find(
+    option => option.value === paymentMethods
+  )?.label || paymentMethods;
+
+  // Format price
+  const formattedPrice = totalPrice 
+    ? `$${totalPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` 
+    : 'Not specified';
+
+  return `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>New Custom Truck Order</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background-color: #f5f5f5;
+      color: #333;
+    }
+    .container {
+      max-width: 650px;
+      margin: 0 auto;
+      background-color: #ffffff;
+    }
+    .header {
+      background: linear-gradient(135deg, #059669 0%, #047857 100%);
+      padding: 35px 30px;
+      color: #ffffff;
+    }
+    .header h1 {
+      margin: 0 0 8px;
+      font-size: 26px;
+      font-weight: 700;
+    }
+    .header p {
+      margin: 0;
+      font-size: 15px;
+      opacity: 0.95;
+    }
+    .content {
+      padding: 35px 30px;
+    }
+    .alert-banner {
+      background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+      border-left: 5px solid #f59e0b;
+      padding: 18px 20px;
+      margin-bottom: 30px;
+      border-radius: 6px;
+    }
+    .alert-banner h2 {
+      margin: 0 0 8px;
+      font-size: 18px;
+      color: #92400e;
+      font-weight: 700;
+    }
+    .alert-banner p {
+      margin: 0;
+      color: #78350f;
+      font-size: 14px;
+    }
+    .highlight-card {
+      background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+      border: 2px solid #3b82f6;
+      border-radius: 8px;
+      padding: 25px;
+      margin-bottom: 30px;
+    }
+    .highlight-card h3 {
+      margin: 0 0 18px;
+      font-size: 16px;
+      color: #1e40af;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .key-info {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+    }
+    .info-item {
+      background-color: #ffffff;
+      padding: 15px;
+      border-radius: 6px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+    .info-item label {
+      display: block;
+      font-size: 11px;
+      font-weight: 600;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+    .info-item .value {
+      font-size: 16px;
+      font-weight: 700;
+      color: #1f2937;
+    }
+    .info-item.total .value {
+      color: #059669;
+      font-size: 22px;
+    }
+    .section {
+      margin-bottom: 30px;
+    }
+    .section h3 {
+      margin: 0 0 15px;
+      font-size: 16px;
+      color: #1f2937;
+      font-weight: 700;
+      border-bottom: 2px solid #e5e7eb;
+      padding-bottom: 8px;
+    }
+    .detail-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+    .detail-item {
+      background-color: #f9fafb;
+      padding: 12px 15px;
+      border-radius: 4px;
+      border-left: 3px solid #3b82f6;
+    }
+    .detail-item label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: #6b7280;
+      margin-bottom: 4px;
+    }
+    .detail-item .value {
+      font-size: 14px;
+      color: #1f2937;
+      font-weight: 500;
+    }
+    .full-width {
+      grid-column: 1 / -1;
+    }
+    .equipment-list {
+      background-color: #f9fafb;
+      padding: 15px;
+      border-radius: 6px;
+      margin-top: 10px;
+    }
+    .equipment-list ul {
+      margin: 0;
+      padding-left: 20px;
+      color: #374151;
+    }
+    .equipment-list li {
+      margin-bottom: 6px;
+      line-height: 1.5;
+    }
+    .footer {
+      background-color: #1f2937;
+      padding: 25px 30px;
+      text-align: center;
+      color: #9ca3af;
+    }
+    .footer p {
+      margin: 0 0 10px;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    .footer a {
+      color: #60a5fa;
+      text-decoration: none;
+    }
+    .action-required {
+      background-color: #fee2e2;
+      border: 2px solid #ef4444;
+      padding: 18px;
+      border-radius: 6px;
+      margin-top: 25px;
+    }
+    .action-required h3 {
+      margin: 0 0 10px;
+      font-size: 16px;
+      color: #991b1b;
+      font-weight: 700;
+    }
+    .action-required p {
+      margin: 0;
+      color: #7f1d1d;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <h1>🎉 New Custom Truck Order Received!</h1>
+      <p>A new customer has submitted a design request</p>
+    </div>
+
+    <!-- Content -->
+    <div class="content">
+      <!-- Alert Banner -->
+      <div class="alert-banner">
+        <h2>⚡ Action Required</h2>
+        <p>Please review the attached quote PDF and contact the customer within 24 hours.</p>
+      </div>
+
+      <!-- Key Information Card -->
+      <div class="highlight-card">
+        <h3>📊 Order Summary</h3>
+        <div class="key-info">
+          <div class="info-item">
+            <label>Customer Name</label>
+            <div class="value">${firstName} ${lastName}</div>
+          </div>
+          <div class="info-item">
+            <label>Payment Method</label>
+            <div class="value">${paymentMethodLabel}</div>
+          </div>
+          <div class="info-item total">
+            <label>Total Amount</label>
+            <div class="value">${formattedPrice}</div>
+          </div>
+          <div class="info-item">
+            <label>Financing Needed</label>
+            <div class="value">${needFinancing}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Customer Details -->
+      <div class="section">
+        <h3>👤 Customer Information</h3>
+        <div class="detail-grid">
+          <div class="detail-item">
+            <label>Email</label>
+            <div class="value">${email}</div>
+          </div>
+          <div class="detail-item">
+            <label>Phone</label>
+            <div class="value">${phoneNumber}</div>
+          </div>
+          <div class="detail-item">
+            <label>Address</label>
+            <div class="value">${address}</div>
+          </div>
+          <div class="detail-item">
+            <label>Zipcode</label>
+            <div class="value">${zipcode}</div>
+          </div>
+          <div class="detail-item">
+            <label>Budget Range</label>
+            <div class="value">${budget}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Truck Configuration -->
+      <div class="section">
+        <h3>🚚 Truck Configuration</h3>
+        <div class="detail-grid">
+          <div class="detail-item">
+            <label>Trailer Size</label>
+            <div class="value">${trailerSize}</div>
+          </div>
+          ${porchConfiguration ? `
+          <div class="detail-item">
+            <label>Porch Configuration</label>
+            <div class="value">${porchConfiguration}</div>
+          </div>
+          ` : ''}
+          <div class="detail-item">
+            <label>Exterior Color</label>
+            <div class="value">${exteriorColor}</div>
+          </div>
+          <div class="detail-item">
+            <label>Interior Finish</label>
+            <div class="value">${interiorFinish}</div>
+          </div>
+          <div class="detail-item">
+            <label>Range Hood</label>
+            <div class="value">${rangeHood}</div>
+          </div>
+          <div class="detail-item">
+            <label>Fire Suppression</label>
+            <div class="value">${fireSuppressionSystem}</div>
+          </div>
+        </div>
+      </div>
+
+      ${additionalInfo ? `
+      <!-- Additional Information -->
+      <div class="section">
+        <h3>📝 Additional Information</h3>
+        <div class="detail-item full-width">
+          <div class="value">${additionalInfo}</div>
+        </div>
+      </div>
+      ` : ''}
+
+      <!-- Action Required -->
+      <div class="action-required">
+        <h3>📋 Next Steps</h3>
+        <p><strong>1.</strong> Review the attached PDF quote for complete details<br>
+        <strong>2.</strong> Contact ${firstName} at ${email} or ${phoneNumber} within 24 hours<br>
+        <strong>3.</strong> Update the CRM with this new lead</p>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <p><strong>Custom Trailers Pro - Sales Team</strong></p>
+      <p>
+        📧 <a href="mailto:sales@customtrailerspro.com">sales@customtrailerspro.com</a> | 
+        📞 <a href="tel:+15012162500">+1 501 216 2500</a>
+      </p>
+      <p style="margin-top: 15px; font-size: 12px; color: #6b7280;">
+        This is an automated notification. Please do not reply to this email.
+      </p>
+    </div>
+  </div>
+</body>
+</html>
+  `;
+}
+
+
 // Generate professional HTML email template
 function generateCustomTruckEmailHTML(data: CustomTruckData): string {
   const {
@@ -72,6 +436,7 @@ function generateCustomTruckEmailHTML(data: CustomTruckData): string {
     lastName,
     email,
     phoneNumber,
+    address,
     zipcode,
     paymentMethods,
     trailerSize,
@@ -141,77 +506,54 @@ function generateCustomTruckEmailHTML(data: CustomTruckData): string {
       font-size: 18px;
       margin-bottom: 20px;
       color: #1f2937;
+      font-weight: 600;
     }
     .section {
       margin-bottom: 30px;
-    }
-    .section-title {
-      font-size: 20px;
-      font-weight: 700;
-      color: #1f2937;
-      margin-bottom: 15px;
-      padding-bottom: 10px;
-      border-bottom: 2px solid #2563eb;
-    }
-    .detail-row {
-      display: flex;
-      padding: 12px 0;
-      border-bottom: 1px solid #e5e7eb;
-    }
-    .detail-label {
-      font-weight: 600;
-      color: #4b5563;
-      width: 40%;
-      flex-shrink: 0;
-    }
-    .detail-value {
-      color: #1f2937;
-      flex: 1;
-    }
-    .price-box {
-      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-      color: #ffffff;
-      padding: 25px;
-      border-radius: 8px;
-      text-align: center;
-      margin: 30px 0;
-    }
-    .price-label {
-      font-size: 14px;
-      opacity: 0.9;
-      margin-bottom: 5px;
-    }
-    .price-value {
-      font-size: 36px;
-      font-weight: 700;
-    }
-    .feature-list {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
-    .feature-item {
-      padding: 8px 0 8px 25px;
-      position: relative;
-    }
-    .feature-item:before {
-      content: "✓";
-      position: absolute;
-      left: 0;
-      color: #10b981;
-      font-weight: 700;
-    }
-    .footer {
-      background-color: #f9fafb;
-      padding: 30px;
-      text-align: center;
-      border-top: 1px solid #e5e7eb;
-    }
-    .footer-text {
-      color: #6b7280;
-      font-size: 14px;
       line-height: 1.6;
-      margin: 5px 0;
+    }
+    .section p {
+      margin: 0 0 15px;
+      color: #4b5563;
+    }
+    .next-steps {
+      background-color: #f9fafb;
+      border-left: 4px solid #2563eb;
+      padding: 25px;
+      margin: 30px 0;
+      border-radius: 4px;
+    }
+    .next-steps h2 {
+      margin: 0 0 20px;
+      font-size: 20px;
+      color: #1f2937;
+      font-weight: 600;
+    }
+    .step {
+      display: flex;
+      align-items: flex-start;
+      margin-bottom: 18px;
+    }
+    .step:last-child {
+      margin-bottom: 0;
+    }
+    .step-number {
+      width: 28px;
+      height: 28px;
+      font-weight: 700;
+      font-size: 14px;
+      flex-shrink: 0;
+      margin-right: 15px;
+    }
+    .step-content {
+      flex: 1;
+      padding-top: 3px;
+    }
+    .step-content p {
+      margin: 0;
+      color: #374151;
+      font-size: 15px;
+      line-height: 1.5;
     }
     .cta-button {
       display: inline-block;
@@ -221,22 +563,48 @@ function generateCustomTruckEmailHTML(data: CustomTruckData): string {
       padding: 14px 32px;
       border-radius: 6px;
       font-weight: 600;
-      margin: 20px 0;
+      font-size: 15px;
+      margin: 10px 0;
+      transition: background-color 0.3s ease;
     }
-    @media only screen and (max-width: 600px) {
-      .content {
-        padding: 20px;
-      }
-      .detail-row {
-        flex-direction: column;
-      }
-      .detail-label {
-        width: 100%;
-        margin-bottom: 5px;
-      }
-      .price-value {
-        font-size: 28px;
-      }
+    .cta-button:hover {
+      background-color: #1e40af;
+    }
+    .contact-info {
+      background-color: #fefce8;
+      border: 1px solid #fde047;
+      padding: 20px;
+      border-radius: 6px;
+      margin-top: 30px;
+    }
+    .contact-info h3 {
+      margin: 0 0 12px;
+      font-size: 16px;
+      color: #854d0e;
+      font-weight: 600;
+    }
+    .contact-info p {
+      margin: 0;
+      color: #713f12;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    .footer {
+      background-color: #f9fafb;
+      padding: 25px 30px;
+      text-align: center;
+      border-top: 1px solid #e5e7eb;
+    }
+    .footer p {
+      margin: 0;
+      color: #6b7280;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .divider {
+      height: 1px;
+      background-color: #e5e7eb;
+      margin: 30px 0;
     }
   </style>
 </head>
@@ -244,142 +612,68 @@ function generateCustomTruckEmailHTML(data: CustomTruckData): string {
   <div class="container">
     <!-- Header -->
     <div class="header">
-      <h1>🚚 Custom Food Truck Design</h1>
-      <p>Thank you for your submission!</p>
+      <h1>🚚 Your Custom Trailer Quote</h1>
+      <p>Your design is ready for review</p>
     </div>
 
     <!-- Content -->
     <div class="content">
       <div class="greeting">
-        Hello ${firstName} ${lastName},
+        Hello ${firstName},
       </div>
-      <p>Thank you for your interest in building a custom food truck! We've received your design specifications and our team will review them shortly.</p>
 
-      ${totalPrice ? `
-      <div class="price-box">
-        <div class="price-label">Estimated Total Price</div>
-        <div class="price-value">$${totalPrice.toLocaleString()}</div>
+      <div class="section">
+        <p>Thank you for your interest in building a custom food truck with us! We're excited to work with you.</p>
+        <p>We've prepared a detailed quote based on your specifications. Please review the attached PDF carefully. It includes all the features, pricing, and terms for your custom build.</p>
       </div>
-      ` : ''}
+
+      <!-- Next Steps Section -->
+      <div class="next-steps">
+        <h2>📋 Next Steps</h2>
+        
+        <div class="step">
+          <div class="step-number">1</div>
+          <div class="step-content">
+            <p><strong>Download the PDF</strong> attached to this email and review all details carefully.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-number">2</div>
+          <div class="step-content">
+            <p><strong>Sign the document</strong> if you're ready to move forward with your custom truck build.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-number">3</div>
+          <div class="step-content">
+            <p><strong>Return the signed quote</strong> by replying to this email, or contact us if you have questions or need clarification.</p>
+          </div>
+        </div>
+      </div>
 
       <!-- Contact Information -->
-      <div class="section">
-        <div class="section-title">📋 Contact Information</div>
-        <div class="detail-row">
-          <div class="detail-label">Name:</div>
-          <div class="detail-value">${firstName} ${lastName}</div>
-        </div>
-        <div class="detail-row">
-          <div class="detail-label">Email:</div>
-          <div class="detail-value">${email}</div>
-        </div>
-        <div class="detail-row">
-          <div class="detail-label">Phone:</div>
-          <div class="detail-value">${phoneNumber}</div>
-        </div>
-        <div class="detail-row">
-          <div class="detail-label">Zip Code:</div>
-          <div class="detail-value">${zipcode}</div>
-        </div>
+      <div class="contact-info">
+        <h3>💬 Have Questions?</h3>
+        <p>We're here to help! If you need any clarification about your quote or want to discuss modifications, don't hesitate to reach out. Simply reply to this email and we'll get back to you promptly.</p>
       </div>
 
-      <!-- Truck Specifications -->
-      <div class="section">
-        <div class="section-title">🔧 Truck Specifications</div>
-        <div class="detail-row">
-          <div class="detail-label">Trailer Size:</div>
-          <div class="detail-value">${trailerSize}</div>
-        </div>
-        ${porchConfiguration ? `
-        <div class="detail-row">
-          <div class="detail-label">Porch Configuration:</div>
-          <div class="detail-value">${porchConfiguration}</div>
-        </div>
-        ` : ''}
-        <div class="detail-row">
-          <div class="detail-label">Range Hood:</div>
-          <div class="detail-value">${rangeHood}</div>
-        </div>
-        <div class="detail-row">
-          <div class="detail-label">Fire Suppression:</div>
-          <div class="detail-value">${fireSuppressionSystem}</div>
-        </div>
-      </div>
+      <div class="divider"></div>
 
-      <!-- Equipment -->
       <div class="section">
-        <div class="section-title">🍳 Equipment & Appliances</div>
-        <ul class="feature-list">
-          ${flatTopGriddle ? `<li class="feature-item">Flat Top Griddle: ${flatTopGriddle}</li>` : ''}
-          ${charbroiler ? `<li class="feature-item">Charbroiler: ${charbroiler}</li>` : ''}
-          ${deepFryer ? `<li class="feature-item">Deep Fryer: ${deepFryer}</li>` : ''}
-          ${range ? `<li class="feature-item">Range: ${range}</li>` : ''}
-          ${steamWell ? `<li class="feature-item">Steam Well: ${steamWell}</li>` : ''}
-          ${warmingCabinet ? `<li class="feature-item">Warming Cabinet: ${warmingCabinet}</li>` : ''}
-          ${refrigeration && refrigeration.length > 0 ? `<li class="feature-item">Refrigeration: ${refrigeration.join(', ')}</li>` : ''}
-        </ul>
-      </div>
-
-      <!-- Customization -->
-      <div class="section">
-        <div class="section-title">🎨 Customization</div>
-        <div class="detail-row">
-          <div class="detail-label">Exterior Color:</div>
-          <div class="detail-value">${exteriorColor}</div>
-        </div>
-        <div class="detail-row">
-          <div class="detail-label">Interior Finish:</div>
-          <div class="detail-value">${interiorFinish}</div>
-        </div>
-      </div>
-
-      <!-- Financial Information -->
-      <div class="section">
-        <div class="section-title">💰 Financial Details</div>
-        <div class="detail-row">
-          <div class="detail-label">Budget Range:</div>
-          <div class="detail-value">${budget}</div>
-        </div>
-        <div class="detail-row">
-          <div class="detail-label">Financing Needed:</div>
-          <div class="detail-value">${needFinancing}</div>
-        </div>
-        <div class="detail-row">
-          <div class="detail-label">Payment Method:</div>
-          <div class="detail-value">${paymentMethodLabel}</div>
-        </div>
-      </div>
-
-      ${additionalInfo ? `
-      <!-- Additional Information -->
-      <div class="section">
-        <div class="section-title">📝 Additional Notes</div>
-        <p style="color: #4b5563; line-height: 1.6;">${additionalInfo}</p>
-      </div>
-      ` : ''}
-
-      <!-- Next Steps -->
-      <div class="section">
-        <div class="section-title">📅 Next Steps</div>
-        <p style="color: #4b5563; line-height: 1.6;">
-          Our design team will review your specifications and reach out within 1-2 business days to discuss:
-        </p>
-        <ul class="feature-list">
-          <li class="feature-item">Detailed pricing and timeline</li>
-          <li class="feature-item">Available customization options</li>
-          <li class="feature-item">Financing options (if applicable)</li>
-          <li class="feature-item">Next steps in the design process</li>
-        </ul>
+        <p style="margin-bottom: 5px;">We look forward to bringing your vision to life!</p>
+        <p style="margin: 0; font-weight: 600; color: #1f2937;">The Custom Trailers Team</p>
       </div>
     </div>
 
     <!-- Footer -->
     <div class="footer">
-      <p class="footer-text"><strong>FoodTrucksPro</strong></p>
-      <p class="footer-text">Building dreams, one truck at a time</p>
-      <p class="footer-text">Phone: +1 (800) 555-1234 | Email: sales@foodtruckspro.com</p>
-      <p class="footer-text" style="margin-top: 20px; font-size: 12px;">
-        © ${new Date().getFullYear()} FoodTrucksPro. All rights reserved.
+      <p><strong>Custom Trailers Pro</strong></p>
+      <p style="margin-top: 15px;">
+        📧 <a href="mailto:sales@customtrailerspro.com" style="color: #2563eb; text-decoration: none;">sales@customtrailerspro.com</a><br>
+        📞 <a href="tel:+15012162500" style="color: #2563eb; text-decoration: none;">+1 501 216 2500</a><br>
+        🌐 <a href="https://customtrailerspro.com/" style="color: #2563eb; text-decoration: none;">customtrailerspro.com</a>
       </p>
     </div>
   </div>
@@ -392,20 +686,38 @@ function generateCustomTruckEmailHTML(data: CustomTruckData): string {
 export async function sendCustomTruckDesignEmail(data: CustomTruckData) {
   try {
     const htmlContent = generateCustomTruckEmailHTML(data);
+    const htmlSalesContent = generateSalesNotificationEmailHTML(data);
+
+    // Generate PDF with the actual user data
+    console.log('Generating PDF from HTML content...');
+    const pdfBuffer = Buffer.from(await generatePdfFromHtml(customTruckDesignHTML(data)));
+    console.log('PDF generated successfully');
 
     // Email to customer
     const customerEmail = await transporter.sendMail({
-      from: `"FoodTrucksPro" <${SMTP_FROM}>`,
+      from: `"Custom Trailers Pro" <${SMTP_FROM}>`,
       to: data.email,
-      subject: '🚚 Your Custom Food Truck Design - FoodTrucksPro',
+      subject: '🚚 Your Custom Trailer Design - CustomTrailersPro',
       html: htmlContent,
+      attachments: [
+        {
+          filename: 'custom-trailer-design.pdf',
+          content: pdfBuffer,
+        },
+      ],
     });
 
-    const salesEmail = await transporter.sendMail({
-      from: `"FoodTrucksPro System" <${SMTP_FROM}>`,
+    await transporter.sendMail({
+      from: `"Custom Trailers Pro System" <${SMTP_FROM}>`,
       to: SALES_EMAIL,
-      subject: `New Custom Truck Design Request - ${data.firstName} ${data.lastName}`,
-      html: htmlContent,
+      subject: `🎉 New Order: ${data.firstName} ${data.lastName} - ${data.paymentMethods}`,
+      html: htmlSalesContent,
+      attachments: [
+        {
+          filename: 'customer-quote.pdf',
+          content: pdfBuffer,
+        },
+      ],
     });
 
     return {
