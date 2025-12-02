@@ -1,4 +1,4 @@
-import chromium from "chrome-aws-lambda";
+import chromium from "@sparticuz/chromium";
 import puppeteerCore from "puppeteer-core";
 
 export async function getBrowserInstance() {
@@ -14,15 +14,14 @@ export async function getBrowserInstance() {
     });
   }
 
-  console.log("Using chrome-aws-lambda for Puppeteer in production.");
+  console.log("Using @sparticuz/chromium for Puppeteer in production.");
 
-  // In production, use chrome-aws-lambda for serverless compatibility
-  const executablePath = await chromium.executablePath;
+  // In production, use @sparticuz/chromium for serverless compatibility
+  const executablePath = await chromium.executablePath();
 
   return puppeteerCore.launch({
     args: chromium.args,
     executablePath,
-    defaultViewport: chromium.defaultViewport,
-    headless: chromium.headless,
+    headless: true,
   });
 }

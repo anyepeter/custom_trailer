@@ -17,18 +17,12 @@ const nextConfig = {
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production',
   },
-  // Webpack configuration for chrome-aws-lambda
+  // Webpack configuration for @sparticuz/chromium
   webpack: (config, { isServer }) => {
     if (isServer) {
-      // Exclude chrome-aws-lambda from webpack processing
-      config.externals = [...config.externals, 'chrome-aws-lambda'];
+      // Exclude @sparticuz/chromium from webpack processing
+      config.externals = [...config.externals, '@sparticuz/chromium'];
     }
-
-    // Ignore .map files from chrome-aws-lambda
-    config.module.rules.push({
-      test: /\.map$/,
-      use: 'ignore-loader',
-    });
 
     return config;
   },
