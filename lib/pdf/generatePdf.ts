@@ -1,7 +1,6 @@
 import { CustomTruckDesignInput } from '@/app/actions/submitCustomTruckDesign';
 import { PAYMENT_METHOD_OPTIONS } from '@/types/configurator';
-import chromium from '@sparticuz/chromium';
-import puppeteer from 'puppeteer-core';
+import { getBrowserInstance } from '@/lib/puppeteer';
 import fs from 'fs';
 import path from 'path';
 
@@ -740,33 +739,8 @@ export function customTruckDesignHTML(data: CustomTruckDesignInput) {
 
 
 export async function generatePdfFromHtml(htmlContent: string) {
-  // Determine if we're in a serverless environment (production) or local development
-  const isProduction = process.env.NODE_ENV === 'production';
-
-//   let browser;
-
-//   if (isProduction) {
-    // Use @sparticuz/chromium for serverless environments (Vercel, AWS Lambda, etc.)
-  const browser = await puppeteer.launch({
-        args: chromium.args,
-        executablePath: await chromium.executablePath(),
-        headless: true,
-    });
-//   } else {
-//     // Use local Chrome/Chromium for development
-//     const puppeteerFull = await import('puppeteer');
-//     browser = await puppeteerFull.default.launch({
-//       args: [
-//         '--no-sandbox',
-//         '--disable-setuid-sandbox',
-//         '--disable-dev-shm-usage',
-//         '--disable-accelerated-2d-canvas',
-//         '--disable-gpu'
-//       ],
-//       headless: true,
-//       timeout: 60000,
-//     });
-//   }
+  // Launch browser using chrome-aws-lambda for serverless compatibility
+  const browser = await getBrowserInstance();
 
   // Load logo and convert to base64
   const logoPath = path.join(process.cwd(), 'public', 'logo12.png');
