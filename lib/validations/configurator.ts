@@ -37,15 +37,9 @@ export const contactSchema = z.object({
   firstName: z.string().min(1, "First name is required").max(50),
   lastName: z.string().min(1, "Last name is required").max(50),
   email: z.string().min(1, "Email is required").email("Please enter a valid email"),
-  phoneNumber: z
-    .string()
-    .min(1, "Phone number is required")
-    .regex(/^[\d\s\-\(\)\+]+$/, "Please enter a valid phone number"),
-  address: z.string().min(1, "Address is required").max(200),
-  zipcode: z
-    .string()
-    .min(1, "Zip code is required")
-    .regex(/^\d{5}(-\d{4})?$/, "Please enter a valid zip code"),
+  phoneNumber: z.string().min(1, "Phone number is required"),
+  address: z.string().optional().default(""),
+  zipcode: z.string().min(1, "Zip code is required"),
   paymentMethods: z.string().min(1, "Payment method is required"),
 });
 
@@ -79,15 +73,9 @@ export const configuratorFormSchema = z.object({
   firstName: z.string().min(1, "First name is required").max(50),
   lastName: z.string().min(1, "Last name is required").max(50),
   email: z.string().min(1, "Email is required").email("Please enter a valid email"),
-  phoneNumber: z
-    .string()
-    .min(1, "Phone number is required")
-    .regex(/^[\d\s\-\(\)\+]+$/, "Please enter a valid phone number"),
-  address: z.string().min(1, "Address is required").max(200),
-  zipcode: z
-    .string()
-    .min(1, "Zip code is required")
-    .regex(/^\d{5}(-\d{4})?$/, "Please enter a valid zip code"),
+  phoneNumber: z.string().min(1, "Phone number is required"),
+  address: z.string().optional().default(""),
+  zipcode: z.string().min(1, "Zip code is required"),
   paymentMethods: z.string().min(1, "Payment method is required"),
 
   // Price

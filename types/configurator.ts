@@ -206,11 +206,7 @@ export const FINANCING_OPTIONS = [
 
 // Payment Method Options
 export const PAYMENT_METHOD_OPTIONS = [
-  { value: "cash", label: "Cash" },
-  { value: "financing", label: "Financing" },
-  { value: "bank-loan", label: "Bank Loan" },
-  { value: "credit-card", label: "Credit Card" },
-  { value: "check", label: "Check" },
   { value: "wire-transfer", label: "Wire Transfer" },
-  { value: "other", label: "Other" },
+  { value: "zelle", label: "Zelle" },
+  { value: "crypto", label: "Crypto" },
 ] as const;

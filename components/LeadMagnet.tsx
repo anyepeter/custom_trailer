@@ -6,6 +6,7 @@ import { Download, Mail, CheckCircle, BookOpen, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
+import Link from "next/link";
 
 const resources = [
   {
@@ -79,7 +80,7 @@ export default function LeadMagnet() {
                   </div>
 
                   <h3 className="text-3xl font-bold mb-4">
-                    Food Truck Buyer's Guide
+                    Food Truck Business Guide
                   </h3>
 
                   <p className="text-blue-100 mb-6 leading-relaxed">
@@ -101,55 +102,12 @@ export default function LeadMagnet() {
                       </div>
                     ))}
                   </div>
-
-                  {/* Email Form */}
-                  {!submitted ? (
-                    <form onSubmit={handleSubmit} className="space-y-4">
-                      <div className="relative">
-                        <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-                        <Input
-                          type="email"
-                          placeholder="Enter your email"
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
-                          required
-                          className="pl-12 bg-white text-gray-900 h-14"
-                          aria-label="Email address for buyer's guide"
-                        />
-                      </div>
-                      <Button
-                        type="submit"
-                        size="lg"
-                        className="w-full bg-white text-blue-600 hover:bg-blue-50 h-14"
-                        disabled={loading}
-                        data-analytics="cta-download-guide"
-                      >
-                        {loading ? (
-                          "Sending..."
-                        ) : (
-                          <>
-                            <Download className="mr-2 h-5 w-5" />
-                            Download Free Guide
-                          </>
-                        )}
-                      </Button>
-                      <p className="text-xs text-blue-100 text-center">
-                        No spam. Unsubscribe anytime. We respect your privacy.
-                      </p>
-                    </form>
-                  ) : (
-                    <motion.div
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      className="bg-white/20 backdrop-blur-sm rounded-2xl p-6 text-center"
-                    >
-                      <CheckCircle className="h-12 w-12 text-green-300 mx-auto mb-3" />
-                      <h4 className="text-xl font-bold mb-2">Check Your Email!</h4>
-                      <p className="text-blue-100">
-                        We've sent the buyer's guide to <strong>{email}</strong>
-                      </p>
-                    </motion.div>
-                  )}
+                <div className="w-full flex items-center justify-center">
+                <Link
+                    href="/how-to"
+                    className="p-4 bg-white text-blue-700 font-semibold rounded-lg shadow-lg hover:bg-blue-50 transition-colors flex items-center"
+                  >Learn How to start food truck business today</Link>
+                </div>
                 </CardContent>
               </Card>
             </motion.div>
@@ -189,15 +147,16 @@ export default function LeadMagnet() {
                       </div>
                     ))}
                   </div>
-
+                  
+                  <Link href="/contact">
                   <Button
                     size="lg"
                     className="w-full bg-green-600 hover:bg-green-700 h-14"
-                    data-analytics="cta-book-consultation"
                   >
                     <Calendar className="mr-2 h-5 w-5" />
                     Schedule Your Call
                   </Button>
+                  </Link>
 
                   {/* <p className="text-xs text-gray-500 text-center mt-4">
                     Available slots: Mon-Fri, 9am-6pm EST

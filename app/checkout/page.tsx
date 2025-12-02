@@ -21,7 +21,7 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { useCart } from "@/contexts/CartContext";
 
-type PaymentMethod = "credit-card" | "bank-transfer" | "financing" | null;
+type PaymentMethod = "wire-tranfer" | "zelle" | "crypto" | null;
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -101,7 +101,7 @@ export default function CheckoutPage() {
     }
 
     // Validate credit card details if credit card is selected
-    if (selectedPayment === "credit-card") {
+    if (selectedPayment === "wire-tranfer") {
       if (!paymentDetails.cardNumber.trim()) {
         newErrors.cardNumber = "Card number is required";
       } else if (!/^\d{16}$/.test(paymentDetails.cardNumber.replace(/\s/g, ""))) {
@@ -167,40 +167,40 @@ export default function CheckoutPage() {
     return (
       <main className="min-h-screen bg-gray-50">
         <Navbar />
-        <div className="container mx-auto px-4 py-20">
+        <div className="container mx-auto px-4 py-12 sm:py-16 md:py-20">
           <motion.div
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.5 }}
             className="max-w-2xl mx-auto text-center"
           >
-            <div className="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-6">
-              <CheckCircle2 className="h-12 w-12 text-white" />
+            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
+              <CheckCircle2 className="h-10 w-10 sm:h-12 sm:w-12 text-white" />
             </div>
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">
               Order Complete!
             </h1>
-            <p className="text-xl text-gray-600 mb-8">
+            <p className="text-base sm:text-lg md:text-xl text-gray-600 mb-6 sm:mb-8 px-4">
               Thank you for your purchase. We'll be in touch within 24 hours to
               discuss your build timeline and customization options.
             </p>
-            <Card className="p-6 bg-white mb-8">
-              <p className="text-sm text-gray-600 mb-2">
+            <Card className="p-4 sm:p-6 bg-white mb-6 sm:mb-8">
+              <p className="text-xs sm:text-sm text-gray-600 mb-2">
                 Confirmation sent to:
               </p>
-              <p className="text-lg font-medium text-gray-900 mb-4">
+              <p className="text-base sm:text-lg font-medium text-gray-900 mb-4 break-words">
                 {billingInfo.email}
               </p>
-              <p className="text-sm text-gray-600 mb-2">Order Total:</p>
-              <p className="text-3xl font-bold text-blue-600">
+              <p className="text-xs sm:text-sm text-gray-600 mb-2">Order Total:</p>
+              <p className="text-2xl sm:text-3xl font-bold text-blue-600">
                 ${getCartTotal().toLocaleString()}
               </p>
             </Card>
-            <div className="flex gap-4 justify-center">
-              <Button asChild>
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
+              <Button asChild className="w-full sm:w-auto">
                 <Link href="/shop">Continue Shopping</Link>
               </Button>
-              <Button variant="outline" asChild>
+              <Button variant="outline" asChild className="w-full sm:w-auto">
                 <Link href="/">Back to Home</Link>
               </Button>
             </div>
@@ -404,18 +404,17 @@ export default function CheckoutPage() {
                     {/* Credit Card */}
                     <button
                       type="button"
-                      onClick={() => setSelectedPayment("credit-card")}
+                      onClick={() => setSelectedPayment("wire-tranfer")}
                       className={`w-full p-4 rounded-lg border-2 transition-all text-left ${
-                        selectedPayment === "credit-card"
+                        selectedPayment === "wire-tranfer"
                           ? "border-blue-600 bg-blue-50"
                           : "border-gray-200 hover:border-gray-300"
                       }`}
                     >
                       <div className="flex items-center gap-3">
-                        <CreditCard className="h-6 w-6 text-gray-700" />
                         <div>
                           <p className="font-semibold text-gray-900">
-                            Credit / Debit Card
+                            Wire Transfer
                           </p>
                           <p className="text-sm text-gray-600">
                             Pay securely with your card
@@ -427,9 +426,9 @@ export default function CheckoutPage() {
                     {/* Bank Transfer */}
                     <button
                       type="button"
-                      onClick={() => setSelectedPayment("bank-transfer")}
+                      onClick={() => setSelectedPayment("zelle")}
                       className={`w-full p-4 rounded-lg border-2 transition-all text-left ${
-                        selectedPayment === "bank-transfer"
+                        selectedPayment === "zelle"
                           ? "border-blue-600 bg-blue-50"
                           : "border-gray-200 hover:border-gray-300"
                       }`}
@@ -438,7 +437,7 @@ export default function CheckoutPage() {
                         <DollarSign className="h-6 w-6 text-gray-700" />
                         <div>
                           <p className="font-semibold text-gray-900">
-                            Bank Transfer
+                            zelle
                           </p>
                           <p className="text-sm text-gray-600">
                             Direct bank transfer or wire
@@ -450,9 +449,9 @@ export default function CheckoutPage() {
                     {/* Financing */}
                     <button
                       type="button"
-                      onClick={() => setSelectedPayment("financing")}
+                      onClick={() => setSelectedPayment("crypto")}
                       className={`w-full p-4 rounded-lg border-2 transition-all text-left ${
-                        selectedPayment === "financing"
+                        selectedPayment === "crypto"
                           ? "border-blue-600 bg-blue-50"
                           : "border-gray-200 hover:border-gray-300"
                       }`}
@@ -461,8 +460,7 @@ export default function CheckoutPage() {
                         <CheckCircle2 className="h-6 w-6 text-gray-700" />
                         <div>
                           <p className="font-semibold text-gray-900">
-                            Financing Options
-                          </p>
+                            Crypto                          </p>
                           <p className="text-sm text-gray-600">
                             Apply for financing - Low monthly payments
                           </p>
@@ -473,7 +471,7 @@ export default function CheckoutPage() {
                 </Card>
 
                 {/* Credit Card Details (if selected) */}
-                {selectedPayment === "credit-card" && (
+                {selectedPayment === "wire-tranfer" && (
                   <Card className="p-6 bg-white">
                     <h2 className="text-xl font-bold text-gray-900 mb-6">
                       Card Details
@@ -570,7 +568,7 @@ export default function CheckoutPage() {
                 )}
 
                 {/* Bank Transfer Info */}
-                {selectedPayment === "bank-transfer" && (
+                {selectedPayment === "zelle" && (
                   <Card className="p-6 bg-blue-50 border-blue-200">
                     <h3 className="font-semibold text-gray-900 mb-3">
                       Bank Transfer Instructions
@@ -587,7 +585,7 @@ export default function CheckoutPage() {
                 )}
 
                 {/* Financing Info */}
-                {selectedPayment === "financing" && (
+                {selectedPayment === "crypto" && (
                   <Card className="p-6 bg-green-50 border-green-200">
                     <h3 className="font-semibold text-gray-900 mb-3">
                       Financing Application
@@ -675,10 +673,10 @@ export default function CheckoutPage() {
                           ${tax.toLocaleString()}
                         </span>
                       </div>
-                      <div className="flex items-center justify-between text-sm">
+                      {/* <div className="flex items-center justify-between text-sm">
                         <span className="text-gray-600">Shipping</span>
                         <span className="font-medium text-green-600">FREE</span>
-                      </div>
+                      </div> */}
                     </div>
 
                     {/* Total */}
@@ -712,10 +710,10 @@ export default function CheckoutPage() {
                         )}
                       </Button>
 
-                      <p className="text-xs text-gray-500 text-center mt-4">
+                      {/* <p className="text-xs text-gray-500 text-center mt-4">
                         By placing your order, you agree to our terms and
                         conditions
-                      </p>
+                      </p> */}
                     </div>
                   </Card>
                 </div>

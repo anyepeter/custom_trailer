@@ -133,7 +133,7 @@ export default function TrailerCard({
                 ${trailer.price.toLocaleString()}
               </p>
             </div>
-            <div className="flex flex-col items-end gap-1">
+            <div className="hidden md:flex flex-col items-end gap-1">
               <Button
                 size="sm"
                 variant="outline"

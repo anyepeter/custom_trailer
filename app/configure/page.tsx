@@ -57,13 +57,9 @@ export default function ConfiguratorPage() {
     }
     if (!config.phoneNumber?.trim()) {
       newErrors.phoneNumber = "Phone number is required";
-    } else if (!/^[\d\s\-\(\)\+]+$/.test(config.phoneNumber)) {
-      newErrors.phoneNumber = "Please enter a valid phone number";
     }
     if (!config.zipcode?.trim()) {
       newErrors.zipcode = "Zip code is required";
-    } else if (!/^\d{5}(-\d{4})?$/.test(config.zipcode)) {
-      newErrors.zipcode = "Please enter a valid zip code";
     }
     if (!config.paymentMethods?.trim()) {
       newErrors.paymentMethods = "Payment method is required";

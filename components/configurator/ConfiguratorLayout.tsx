@@ -157,8 +157,8 @@ export default function ConfiguratorLayout({
               </motion.div>
             </AnimatePresence>
 
-            {/* Navigation Buttons */}
-            <div className="flex items-center justify-between mt-8 pt-6 border-t border-slate-200 dark:border-slate-700">
+            {/* Navigation Buttons - Desktop Only */}
+            <div className="hidden lg:flex items-center justify-between mt-8 pt-6 border-t border-slate-200 dark:border-slate-700">
               <Button
                 variant="outline"
                 onClick={onPrevious}
@@ -217,7 +217,7 @@ export default function ConfiguratorLayout({
           </div>
           <Button
             onClick={onNext}
-            disabled={!canGoNext}
+            disabled={!isLastStep && !canGoNext}
             className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white px-8"
           >
             {isLastStep ? "Get Quote" : "Continue"}
