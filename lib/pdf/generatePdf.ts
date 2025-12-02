@@ -771,7 +771,7 @@ export async function generatePdfFromHtml(htmlContent: string) {
       </div>
       <div style="text-align: right;">
         <div style="font-weight: bold; font-size: 12px; color: #333;">P: +1 501 216-2500</div>
-        <div style="color: #0066b2; font-size: 11px;">www.customtrailerpros.com</div>
+        <div style="color: #0066b2; font-size: 11px;">www.customtrailerspro.com</div>
       </div>
     </div>
   `;

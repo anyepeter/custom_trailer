@@ -27,6 +27,10 @@ export const metadata: Metadata = {
   authors: [{ name: "FoodTrucksPro" }],
   creator: "FoodTrucksPro",
   publisher: "FoodTrucksPro",
+  icons: {
+    icon: '/logo12.png',
+    apple: '/logo12.png',
+  },
   robots: {
     index: true,
     follow: true,
@@ -87,8 +91,8 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
 
         {/* Favicon */}
-        <link rel="icon" href="/favicon.ico" />
-        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+        <link rel="icon" href="/logo12.png" />
+        <link rel="apple-touch-icon" sizes="50x50" href="/logo12.png" />
 
         {/* PWA tags (optional) */}
         <meta name="application-name" content="FoodTrucksPro" />

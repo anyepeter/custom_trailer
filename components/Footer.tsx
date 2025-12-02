@@ -195,7 +195,7 @@ export default function Footer() {
               <div>
                 <div className="text-white font-semibold mb-1">Call Us</div>
                 <a href="tel:+15012162500" className="hover:text-white transition-colors">
-                  +1 501 216-2500
+                  +1-501-216-2500
                 </a>
                 <div className="text-sm text-gray-500">Mon-Fri, 9am-6pm EST</div>
               </div>

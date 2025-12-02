@@ -19,8 +19,8 @@ const navLinks = [
   { label: "Shop", href: "/shop" },
   { label: "Design Your Own", href: "/configure" },
   { label: "Financing", href: "#financing" },
-  { label: "How-to", href: "#process" },
-  { label: "About Us", href: "/contact" },
+  { label: "How-to", href: "/how-to" },
+  { label: "About Us", href: "/about" },
 ];
 
 export default function Navbar() {
@@ -51,6 +51,8 @@ export default function Navbar() {
     pathname?.startsWith("/configure") ||
     pathname?.startsWith("/financing") ||
     pathname?.startsWith("/contact") ||
+    pathname?.startsWith("/about") ||
+    pathname?.startsWith("/how-to") ||
     (isHomePage && isScrolled);
 
   return (

@@ -38,17 +38,11 @@ export default function Home() {
       {/* Testimonials & Social Proof */}
       <Testimonials />
 
-      {/* Financing Callout */}
-      {/* <FinancingCallout /> */}
-
       {/* Lead Magnet - Downloadable Guide & Consultation */}
       <LeadMagnet />
 
       {/* Footer with Newsletter, Contact, Legal */}
       <Footer />
-
-      {/* Sticky CTA Button & Floating Contact Buttons */}
-      {/* <StickyCTA /> */}
     </main>
   );
 }
