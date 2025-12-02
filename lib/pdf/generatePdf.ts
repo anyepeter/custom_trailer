@@ -756,7 +756,7 @@ export async function generatePdfFromHtml(htmlContent: string) {
   const headerTemplate = `
     <div style="width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; border-bottom: 2px solid #0066b2; font-size: 10px; -webkit-print-color-adjust: exact;">
       <div style="display: flex; align-items: center;">
-        ${logoBase64 ? `<img src="${logoBase64}" style="height: 40px; width: auto;" />` : '<div style="font-size: 18px; font-weight: bold;"><span style="color: #0066b2;">CUSTOM TRAILER PRO</span></div>'}
+        ${logoBase64 ? `<img src="${logoBase64}" style="height: 40px; width: auto;" />` : '<img src="https://i.ibb.co/zHRHPZtN/logo12.png" alt="Logo" style="height: 40px; width: auto;" />'}
       </div>
       <div style="text-align: right;">
         <div style="font-weight: bold; font-size: 12px; color: #333;">P: +1 501 216-2500</div>
