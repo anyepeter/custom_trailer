@@ -743,30 +743,30 @@ export async function generatePdfFromHtml(htmlContent: string) {
   // Determine if we're in a serverless environment (production) or local development
   const isProduction = process.env.NODE_ENV === 'production';
 
-  let browser;
+//   let browser;
 
-  if (isProduction) {
+//   if (isProduction) {
     // Use @sparticuz/chromium for serverless environments (Vercel, AWS Lambda, etc.)
-    browser = await puppeteer.launch({
-      args: chromium.args,
-      executablePath: await chromium.executablePath(),
-      headless: true,
+  const browser = await puppeteer.launch({
+        args: chromium.args,
+        executablePath: await chromium.executablePath(),
+        headless: true,
     });
-  } else {
-    // Use local Chrome/Chromium for development
-    const puppeteerFull = await import('puppeteer');
-    browser = await puppeteerFull.default.launch({
-      args: [
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        '--disable-dev-shm-usage',
-        '--disable-accelerated-2d-canvas',
-        '--disable-gpu'
-      ],
-      headless: true,
-      timeout: 60000,
-    });
-  }
+//   } else {
+//     // Use local Chrome/Chromium for development
+//     const puppeteerFull = await import('puppeteer');
+//     browser = await puppeteerFull.default.launch({
+//       args: [
+//         '--no-sandbox',
+//         '--disable-setuid-sandbox',
+//         '--disable-dev-shm-usage',
+//         '--disable-accelerated-2d-canvas',
+//         '--disable-gpu'
+//       ],
+//       headless: true,
+//       timeout: 60000,
+//     });
+//   }
 
   // Load logo and convert to base64
   const logoPath = path.join(process.cwd(), 'public', 'logo12.png');

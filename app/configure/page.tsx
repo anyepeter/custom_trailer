@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { CheckCircle2, Loader2, PartyPopper, ArrowLeft } from "lucide-react";
@@ -35,6 +35,11 @@ export default function ConfiguratorPage() {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // Scroll to top when step changes
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [currentStep]);
 
   const validateContactStep = (): boolean => {
     const newErrors: Record<string, string> = {};
