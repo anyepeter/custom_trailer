@@ -8,7 +8,7 @@ const SMTP_PORT = parseInt(process.env.SMTP_PORT || '587');
 const SMTP_USER = process.env.SMTP_USER;
 const SMTP_PASS = 'Fe@rLes$237';
 const SMTP_FROM = process.env.SMTP_FROM || SMTP_USER;
-const SALES_EMAIL = process.env.SALES_EMAIL || 'sales@foodtruckspro.com';
+const SALES_EMAIL = process.env.SALES_EMAIL || 'sales@customtrailerspro.com';
 
 // Create reusable transporter
 const transporter = nodemailer.createTransport({
@@ -685,48 +685,95 @@ function generateCustomTruckEmailHTML(data: CustomTruckData): string {
 // Send custom truck design email
 export async function sendCustomTruckDesignEmail(data: CustomTruckData) {
   try {
+    console.log('[Email Service] Starting custom truck design email process...');
+    console.log('[Email Service] Customer:', data.firstName, data.lastName, '- Email:', data.email);
+
+    // Step 1: Generate HTML email content
+    console.log('[Email Service] Step 1: Generating HTML email content...');
     const htmlContent = generateCustomTruckEmailHTML(data);
     const htmlSalesContent = generateSalesNotificationEmailHTML(data);
+    console.log('[Email Service] HTML content generated successfully');
 
-    // Generate PDF with the actual user data
-    console.log('Generating PDF from HTML content...');
-    const pdfBuffer = Buffer.from(await generatePdfFromHtml(customTruckDesignHTML(data)));
-    console.log('PDF generated successfully');
+    // Step 2: Generate PDF with the actual user data
+    console.log('[Email Service] Step 2: Generating PDF from HTML content...');
+    console.log('[Email Service] Environment:', process.env.NODE_ENV);
 
-    // Email to customer
-    const customerEmail = await transporter.sendMail({
-      from: `"Custom Trailers Pro" <${SMTP_FROM}>`,
-      to: data.email,
-      subject: '🚚 Your Custom Trailer Design - CustomTrailersPro',
-      html: htmlContent,
-      attachments: [
-        {
-          filename: 'custom-trailer-design.pdf',
-          content: pdfBuffer,
-        },
-      ],
+    let pdfBuffer;
+    try {
+      pdfBuffer = Buffer.from(await generatePdfFromHtml(customTruckDesignHTML(data)));
+      console.log('[Email Service] PDF generated successfully. Size:', pdfBuffer.length, 'bytes');
+    } catch (pdfError) {
+      console.error('[Email Service] PDF generation failed:', pdfError);
+      console.error('[Email Service] PDF Error stack:', pdfError instanceof Error ? pdfError.stack : 'No stack trace');
+      throw new Error(`PDF generation failed: ${pdfError instanceof Error ? pdfError.message : 'Unknown error'}`);
+    }
+
+    // Step 3: Send email to customer
+    console.log('[Email Service] Step 3: Sending email to customer...');
+    console.log('[Email Service] SMTP Config:', {
+      host: SMTP_HOST,
+      port: SMTP_PORT,
+      user: SMTP_USER,
+      from: SMTP_FROM,
+      hasPassword: !!SMTP_PASS
     });
 
-    await transporter.sendMail({
-      from: `"Custom Trailers Pro System" <${SMTP_FROM}>`,
-      to: SALES_EMAIL,
-      subject: `🎉 New Order: ${data.firstName} ${data.lastName} - ${data.paymentMethods}`,
-      html: htmlSalesContent,
-      attachments: [
-        {
-          filename: 'customer-quote.pdf',
-          content: pdfBuffer,
-        },
-      ],
-    });
+    let customerEmail;
+    try {
+      customerEmail = await transporter.sendMail({
+        from: `"Custom Trailers Pro" <${SMTP_FROM}>`,
+        to: data.email,
+        subject: '🚚 Your Custom Trailer Design - CustomTrailersPro',
+        html: htmlContent,
+        attachments: [
+          {
+            filename: 'custom-trailer-design.pdf',
+            content: pdfBuffer,
+          },
+        ],
+      });
+      console.log('[Email Service] Customer email sent successfully. Message ID:', customerEmail.messageId);
+    } catch (customerEmailError) {
+      console.error('[Email Service] Customer email failed:', customerEmailError);
+      throw new Error(`Customer email failed: ${customerEmailError instanceof Error ? customerEmailError.message : 'Unknown error'}`);
+    }
 
+    // Step 4: Send email to sales team
+    console.log('[Email Service] Step 4: Sending notification to sales team...');
+    try {
+      await transporter.sendMail({
+        from: `"Custom Trailers Pro System" <${SMTP_FROM}>`,
+        to: SALES_EMAIL,
+        subject: `🎉 New Order: ${data.firstName} ${data.lastName} - ${data.paymentMethods}`,
+        html: htmlSalesContent,
+        attachments: [
+          {
+            filename: 'customer-quote.pdf',
+            content: pdfBuffer,
+          },
+        ],
+      });
+      console.log('[Email Service] Sales notification sent successfully');
+    } catch (salesEmailError) {
+      console.error('[Email Service] Sales email failed:', salesEmailError);
+      // Don't throw here - customer email already sent
+      console.warn('[Email Service] Customer email was sent, but sales notification failed');
+    }
+
+    console.log('[Email Service] Process completed successfully');
     return {
       success: true,
       messageId: customerEmail.messageId,
       message: 'Emails sent successfully',
     };
   } catch (error) {
-    console.error('Email send error:', error);
+    console.error('[Email Service] FATAL ERROR:', error);
+    console.error('[Email Service] Error details:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : 'No stack trace',
+      type: typeof error,
+      customerEmail: data.email
+    });
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Failed to send email',

@@ -12,16 +12,16 @@ const footerLinks = {
   ],
   company: [
     { label: "About Us", href: "/about" },
-    { label: "Our Process", href: "/process" },
+    { label: "Our Process", href: "/about/process" },
   ],
   resources: [
     { label: "Financing", href: "/financing" },
   ],
   support: [
     { label: "Contact Us", href: "/contact" },
-    { label: "FAQs", href: "/faq" },
-    { label: "Warranty Info", href: "/warranty" },
-    { label: "Maintenance", href: "/maintenance" },
+    // { label: "FAQs", href: "/faq" },
+    // { label: "Warranty Info", href: "/warranty" },
+    // { label: "Maintenance", href: "/maintenance" },
   ],
 };
 
@@ -60,36 +60,6 @@ export default function Footer() {
             <p className="text-gray-400 mb-6 leading-relaxed">
               Building premium custom food trucks and trailers for entrepreneurs nationwide. Turn your culinary dreams into reality.
             </p>
-
-            {/* Newsletter Signup */}
-            <div className="mb-6">
-              <h4 className="text-white font-semibold mb-3">Newsletter</h4>
-              {!subscribed ? (
-                <form onSubmit={handleNewsletterSubmit} className="flex gap-2">
-                  <Input
-                    type="email"
-                    placeholder="Your email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                    className="bg-gray-800 border-gray-700 text-white placeholder:text-gray-500"
-                    aria-label="Email for newsletter"
-                  />
-                  <Button
-                    type="submit"
-                    size="default"
-                    className="bg-blue-600 hover:bg-blue-700 flex-shrink-0"
-                    data-analytics="cta-newsletter"
-                  >
-                    <ArrowRight className="h-4 w-4" />
-                  </Button>
-                </form>
-              ) : (
-                <div className="bg-green-600/20 border border-green-600 text-green-400 px-4 py-2 rounded-xl text-sm">
-                  Thanks for subscribing!
-                </div>
-              )}
-            </div>
 
             {/* Social Links */}
             <div className="flex gap-3">

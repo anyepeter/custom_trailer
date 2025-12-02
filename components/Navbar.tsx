@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
-import { Menu, Phone, Mail } from "lucide-react";
+import { Menu, Phone, Mail, Facebook, Instagram } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -86,6 +86,24 @@ export default function Navbar() {
               >
                 <Mail className="h-4 w-4" />
                 <span className="hidden sm:inline">sales@customtrailerspro.com</span>
+              </a>
+              <a
+                href="https://www.facebook.com/share/1HPhbDUTaS/?mibextid=wwXIfr"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 text-white/90 hover:text-white transition-colors"
+                aria-label="Visit our Facebook page"
+              >
+                <Facebook className="h-4 w-4" />
+              </a>
+              <a
+                href="https://www.instagram.com/customfoodtrailerpros?igsh=Mm4weThuOGFieXNm&utm_source=qr"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 text-white/90 hover:text-white transition-colors"
+                aria-label="Visit our Instagram page"
+              >
+                <Instagram className="h-4 w-4" />
               </a>
             </div>
           </div>
@@ -184,6 +202,24 @@ export default function Navbar() {
                   >
                     <Mail className="h-5 w-5" />
                     sales@customtrailerspro.com
+                  </a>
+                  <a
+                    href="https://www.facebook.com/share/1HPhbDUTaS/?mibextid=wwXIfr"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 text-gray-600 hover:text-blue-600"
+                  >
+                    <Facebook className="h-5 w-5" />
+                    Facebook
+                  </a>
+                  <a
+                    href="https://www.instagram.com/customfoodtrailerpros?igsh=Mm4weThuOGFieXNm&utm_source=qr"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 text-gray-600 hover:text-blue-600"
+                  >
+                    <Instagram className="h-5 w-5" />
+                    Instagram
                   </a>
                 </div>
               </div>
