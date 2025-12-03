@@ -743,11 +743,21 @@ export async function generatePdfFromHtml(htmlContent: string) {
   // Launch browser using chrome-aws-lambda for serverless compatibility
   const browser = await getBrowserInstance();
 
+  // Load logo and convert to base64
+  const logoPath = path.join(process.cwd(), 'public', 'logo12.png');
+  let logoBase64 = '';
+  try {
+    const logoBuffer = fs.readFileSync(logoPath);
+    logoBase64 = `data:image/png;base64,${logoBuffer.toString('base64')}`;
+  } catch (error) {
+    console.error('Error loading logo:', error);
+  }
+
   // Header template with company branding
   const headerTemplate = `
     <div style="width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; border-bottom: 2px solid #0066b2; font-size: 10px; -webkit-print-color-adjust: exact;">
       <div style="display: flex; align-items: center;">
-        <img src="https://i.ibb.co/zHRHPZtN/logo12.png" alt="Logo" style="height: 40px; width: auto;" />
+        ${logoBase64 ? `<img src="${logoBase64}" alt="Logo" style="height: 40px; width: auto;" />` : '<img src="https://i.ibb.co/zHRHPZt/logo12.png" alt="Logo" style="height: 40px; width: auto;" />'}
       </div>
       <div style="text-align: right;">
         <div style="font-weight: bold; font-size: 12px; color: #333;">P: +1-501-216-2500</div>
