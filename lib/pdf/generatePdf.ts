@@ -1,8 +1,7 @@
 import { CustomTruckDesignInput } from '@/app/actions/submitCustomTruckDesign';
 import { PAYMENT_METHOD_OPTIONS } from '@/types/configurator';
 import { getBrowserInstance } from '@/lib/puppeteer';
-import fs from 'fs';
-import path from 'path';
+import { LOGO_BASE64 } from './logoBase64';
 
 export function customTruckDesignHTML(data: CustomTruckDesignInput) {
       const paymentMethodLabel = PAYMENT_METHOD_OPTIONS.find(
@@ -743,34 +742,86 @@ export async function generatePdfFromHtml(htmlContent: string) {
   // Launch browser using chrome-aws-lambda for serverless compatibility
   const browser = await getBrowserInstance();
 
-  // Load logo and convert to base64
-  const logoPath = path.join(process.cwd(), 'public', 'logo12.png');
-  let logoBase64 = '';
-  try {
-    const logoBuffer = fs.readFileSync(logoPath);
-    logoBase64 = `data:image/png;base64,${logoBuffer.toString('base64')}`;
-  } catch (error) {
-    console.error('Error loading logo:', error);
-  }
+  // Use pre-bundled base64 logo for consistent behavior in dev and production
+  console.log('[PDF Generation] Using bundled logo, base64 length:', LOGO_BASE64.length);
 
-  // Header template with company branding
+  // Header template with company branding - Puppeteer requires full HTML structure
   const headerTemplate = `
-    <div style="width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; border-bottom: 2px solid #0066b2; font-size: 10px; -webkit-print-color-adjust: exact;">
-      <div style="display: flex; align-items: center;">
-        ${logoBase64 ? `<img src="${logoBase64}" alt="Logo" style="height: 40px; width: auto;" />` : '<img src="https://i.ibb.co/zHRHPZt/logo12.png" alt="Logo" style="height: 40px; width: auto;" />'}
-      </div>
-      <div style="text-align: right;">
-        <div style="font-weight: bold; font-size: 12px; color: #333;">P: +1-501-216-2500</div>
-        <div style="color: #0066b2; font-size: 11px;">www.customtrailerspro.com</div>
-      </div>
-    </div>
+    <html>
+      <head>
+        <style>
+          body { margin: 0; padding: 0; }
+          .header-container {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            border-bottom: 2px solid #0066b2;
+            font-size: 10px;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+          }
+          .logo-section {
+            display: flex;
+            align-items: center;
+          }
+          .logo-section img {
+            height: 40px;
+            width: auto;
+            display: block;
+          }
+          .contact-section {
+            text-align: right;
+          }
+          .phone {
+            font-weight: bold;
+            font-size: 12px;
+            color: #333;
+            margin-bottom: 2px;
+          }
+          .website {
+            color: #0066b2;
+            font-size: 11px;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="header-container">
+          <div class="logo-section">
+            <img src="${LOGO_BASE64}" alt="Logo" />
+          </div>
+          <div class="contact-section">
+            <div class="phone">P: +1-501-216-2500</div>
+            <div class="website">www.customtrailerspro.com</div>
+          </div>
+        </div>
+      </body>
+    </html>
   `;
 
   // Footer template with page numbers
   const footerTemplate = `
-    <div style="width: 100%; text-align: center; font-size: 9px; padding: 10px 0; border-top: 1px solid #ddd; color: #666;">
-      <span>All prices are valid for 30 days from the date stated above. Page <span class="pageNumber"></span> of <span class="totalPages"></span></span>
-    </div>
+    <html>
+      <head>
+        <style>
+          body { margin: 0; padding: 0; }
+          .footer-container {
+            width: 100%;
+            text-align: center;
+            font-size: 9px;
+            padding: 10px 0;
+            border-top: 1px solid #ddd;
+            color: #666;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="footer-container">
+          <span>All prices are valid for 30 days from the date stated above. Page <span class="pageNumber"></span> of <span class="totalPages"></span></span>
+        </div>
+      </body>
+    </html>
   `;
 
   let page;
