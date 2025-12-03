@@ -698,10 +698,12 @@ export async function sendCustomTruckDesignEmail(data: CustomTruckData) {
     console.log('[Email Service] Step 2: Generating PDF from HTML content...');
     console.log('[Email Service] Environment:', process.env.NODE_ENV);
 
-    let pdfBuffer;
+    let pdfBuffer: Buffer;
     try {
-      pdfBuffer = Buffer.from(await generatePdfFromHtml(customTruckDesignHTML(data)));
+      const pdfData = await generatePdfFromHtml(customTruckDesignHTML(data));
+      pdfBuffer = Buffer.from(pdfData);
       console.log('[Email Service] PDF generated successfully. Size:', pdfBuffer.length, 'bytes');
+      console.log('[Email Service] PDF buffer type:', typeof pdfBuffer, 'Is Buffer:', Buffer.isBuffer(pdfBuffer));
     } catch (pdfError) {
       console.error('[Email Service] PDF generation failed:', pdfError);
       console.error('[Email Service] PDF Error stack:', pdfError instanceof Error ? pdfError.stack : 'No stack trace');
@@ -729,6 +731,8 @@ export async function sendCustomTruckDesignEmail(data: CustomTruckData) {
           {
             filename: 'custom-trailer-design.pdf',
             content: pdfBuffer,
+            contentType: 'application/pdf',
+            encoding: 'base64',
           },
         ],
       });
@@ -750,6 +754,8 @@ export async function sendCustomTruckDesignEmail(data: CustomTruckData) {
           {
             filename: 'customer-quote.pdf',
             content: pdfBuffer,
+            contentType: 'application/pdf',
+            encoding: 'base64',
           },
         ],
       });

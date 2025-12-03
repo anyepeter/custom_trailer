@@ -772,14 +772,20 @@ export async function generatePdfFromHtml(htmlContent: string) {
     </div>
   `;
 
+  let page;
   try {
-    const page = await browser.newPage();
+    page = await browser.newPage();
 
-    // optional: set viewport for consistent rendering
+    // Set viewport for consistent rendering
     await page.setViewport({ width: 1200, height: 800 });
 
-    await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
+    console.log('[PDF Generation] Setting page content...');
+    await page.setContent(htmlContent, {
+      waitUntil: 'networkidle0',
+      timeout: 30000 // 30 second timeout
+    });
 
+    console.log('[PDF Generation] Generating PDF...');
     const pdfBuffer = await page.pdf({
       format: 'letter',
       printBackground: true,
@@ -794,8 +800,20 @@ export async function generatePdfFromHtml(htmlContent: string) {
       },
     });
 
+    console.log('[PDF Generation] PDF generated successfully, size:', pdfBuffer.length, 'bytes');
+
+    // Close the page before returning
+    await page.close();
     return pdfBuffer;
+  } catch (error) {
+    console.error('[PDF Generation] Error:', error);
+    throw error;
   } finally {
+    // Close page if it's still open
+    if (page && !page.isClosed()) {
+      await page.close();
+    }
+    // Close browser
     await browser.close();
   }
 }
