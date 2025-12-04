@@ -120,7 +120,7 @@ export default function ConfiguratorPage() {
         exteriorColor: config.exteriorColor || '',
         interiorFinish: config.interiorFinish || '',
         budget: config.budget || '',
-        needFinancing: config.needFinancing || '',
+        needFinancing: config.needFinancing || 'no',
         refrigeration: config.refrigeration || [],
       });
 

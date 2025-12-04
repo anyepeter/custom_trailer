@@ -60,3 +60,44 @@ model BuildRequest {
 
   @@map("build_requests")
 }
+
+model Order {
+  id              String   @id @default(cuid())
+  orderNumber     String   @unique @default(cuid())
+
+  // User Information
+  firstName       String
+  lastName        String
+  email           String
+  phone           String
+  address         String
+  city            String
+  state           String
+  zipCode         String
+
+  // Truck Information
+  truckName       String
+  truckSize       String
+  truckType       String?
+  truckImage      String
+  truckImages     String[] @default([])
+  upgrades        Json?    // Selected upgrades with name and price
+
+  // Pricing
+  price           Decimal  @db.Decimal(10, 2)
+  tax             Decimal? @db.Decimal(10, 2)
+  total           Decimal  @db.Decimal(10, 2)
+
+  // Payment
+  paymentMethod   String
+  paymentStatus   String   @default("pending")
+
+  // Order Status
+  status          String   @default("pending")
+  notes           String?
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("orders")
+}

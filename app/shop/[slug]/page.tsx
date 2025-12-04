@@ -113,9 +113,14 @@ export default function TrailerDetailPage() {
     );
   };
 
+  // Use trailer upgrades if available, otherwise fall back to standard upgrades
+  const availableUpgrades = trailer?.upgrades && trailer.upgrades.length > 0
+    ? trailer.upgrades
+    : STANDARD_UPGRADES;
+
   // Calculate total price with upgrades
   const upgradesTotal = selectedUpgrades.reduce((total, id) => {
-    const upgrade = STANDARD_UPGRADES.find((u) => u.id === id);
+    const upgrade = availableUpgrades.find((u) => u.id === id);
     return total + (upgrade?.price || 0);
   }, 0);
   const totalPrice = (trailer?.price || 0) + upgradesTotal;
@@ -460,9 +465,9 @@ export default function TrailerDetailPage() {
                 </p>
               </div>
 
-              {STANDARD_UPGRADES.length > 0 ? (
+              {availableUpgrades.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-                  {STANDARD_UPGRADES.map((upgrade) => {
+                  {availableUpgrades.map((upgrade) => {
                     const isSelected = selectedUpgrades.includes(upgrade.id);
                     return (
                       <motion.button

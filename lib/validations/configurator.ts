@@ -29,7 +29,7 @@ export const customizationSchema = z.object({
 // Step 4 - Financial Schema
 export const financialSchema = z.object({
   budget: z.string().min(1, "Budget selection is required"),
-  needFinancing: z.string().min(1, "Financing preference is required"),
+  needFinancing: z.string().optional().default("none"),
 });
 
 // Step 5 - Contact Schema
@@ -67,7 +67,7 @@ export const configuratorFormSchema = z.object({
 
   // Financial
   budget: z.string().min(1, "Budget selection is required"),
-  needFinancing: z.string().min(1, "Financing preference is required"),
+  needFinancing: z.string().optional().default("none"),
 
   // Contact
   firstName: z.string().min(1, "First name is required").max(50),

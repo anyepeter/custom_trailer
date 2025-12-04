@@ -11,7 +11,7 @@ const customTruckDesignSchema = z.object({
   firstName: z.string().min(1, "First name is required"),
   lastName: z.string().min(1, "Last name is required"),
   email: z.string().email("Valid email is required"),
-  phoneNumber: z.string().min(10, "Valid phone number is required"),
+  phoneNumber: z.string().min(1, "Phone number is required"),
   address: z.string().min(1, "Address is required"),
   zipcode: z.string().min(5, "Valid zip code is required"),
   paymentMethods: z.string().min(1, "Payment method is required"),
@@ -35,7 +35,7 @@ const customTruckDesignSchema = z.object({
 
   // Financial
   budget: z.string().min(1, "Budget range is required"),
-  needFinancing: z.string().min(1, "Financing preference is required"),
+  needFinancing: z.string().optional().default("none"),
   totalPrice: z.number().optional(),
 
   // Additional

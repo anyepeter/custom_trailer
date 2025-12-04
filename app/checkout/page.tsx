@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import Image from "next/image";
@@ -20,17 +20,19 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { useCart } from "@/contexts/CartContext";
+import { submitOrder } from "@/app/actions/submitOrder";
 
 type PaymentMethod = "wire-tranfer" | "zelle" | "crypto" | null;
 
 export default function CheckoutPage() {
   const router = useRouter();
-  const { cartItems, removeFromCart, getCartTotal, getCartCount, clearCart } =
+  const { cartItems, removeFromCart, getCartTotal, getCartCount, clearCart, toggleUpgrade } =
     useCart();
 
   const [selectedPayment, setSelectedPayment] = useState<PaymentMethod>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
+  const [orderNumber, setOrderNumber] = useState<string>("");
 
   // Billing Information
   const [billingInfo, setBillingInfo] = useState({
@@ -54,11 +56,17 @@ export default function CheckoutPage() {
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  // Scroll to top when page loads or order completes
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [isComplete]);
+
   // Redirect if cart is empty
   if (cartItems.length === 0 && !isComplete) {
     return (
       <main className="min-h-screen bg-gray-50">
         <Navbar />
+        <div className="flex w-full justify-center items-center h-screen">
         <div className="container mx-auto px-4 py-20 text-center">
           <ShoppingCart className="h-16 w-16 text-gray-400 mx-auto mb-4" />
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
@@ -70,6 +78,7 @@ export default function CheckoutPage() {
           <Button asChild>
             <Link href="/shop">Browse Trailers</Link>
           </Button>
+        </div>
         </div>
         <Footer />
       </main>
@@ -100,27 +109,6 @@ export default function CheckoutPage() {
       newErrors.payment = "Please select a payment method";
     }
 
-    // Validate credit card details if credit card is selected
-    if (selectedPayment === "wire-tranfer") {
-      if (!paymentDetails.cardNumber.trim()) {
-        newErrors.cardNumber = "Card number is required";
-      } else if (!/^\d{16}$/.test(paymentDetails.cardNumber.replace(/\s/g, ""))) {
-        newErrors.cardNumber = "Invalid card number";
-      }
-      if (!paymentDetails.cardName.trim())
-        newErrors.cardName = "Cardholder name is required";
-      if (!paymentDetails.expiryDate.trim()) {
-        newErrors.expiryDate = "Expiry date is required";
-      } else if (!/^\d{2}\/\d{2}$/.test(paymentDetails.expiryDate)) {
-        newErrors.expiryDate = "Invalid format (MM/YY)";
-      }
-      if (!paymentDetails.cvv.trim()) {
-        newErrors.cvv = "CVV is required";
-      } else if (!/^\d{3,4}$/.test(paymentDetails.cvv)) {
-        newErrors.cvv = "Invalid CVV";
-      }
-    }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -134,31 +122,69 @@ export default function CheckoutPage() {
 
     setIsProcessing(true);
 
-    // Simulate payment processing
     try {
-      await new Promise((resolve) => setTimeout(resolve, 2500));
+      // Get cart item (assuming single item for now)
+      const item = cartItems[0];
+      if (!item) {
+        throw new Error("No items in cart");
+      }
 
-      // In production, send to your payment API:
-      // const response = await fetch('/api/checkout', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ billingInfo, paymentDetails, cartItems, paymentMethod: selectedPayment }),
-      // });
+      const primaryImage = item.trailer.images.find((img) => img.isPrimary) || item.trailer.images[0];
 
-      console.log("Order Submitted:", {
-        billingInfo,
-        paymentMethod: selectedPayment,
-        cartItems,
-        total: getCartTotal(),
+      // Calculate totals
+      const total = getCartTotal();
+
+      // Map selected upgrades to include name and price
+      const selectedUpgrades = item.selectedUpgrades.map(upgradeId => {
+        const upgrade = item.trailer.upgrades.find(u => u.id === upgradeId);
+        return {
+          id: upgradeId,
+          name: upgrade?.name || 'Unknown Upgrade',
+          price: upgrade?.price || 0,
+        };
       });
 
+      // Submit order
+      const result = await submitOrder({
+        // User Information
+        firstName: billingInfo.firstName,
+        lastName: billingInfo.lastName,
+        email: billingInfo.email,
+        phone: billingInfo.phone,
+        address: billingInfo.address,
+        city: billingInfo.city,
+        state: billingInfo.state,
+        zipCode: billingInfo.zipCode,
+
+        // Truck Information
+        truckName: item.trailer.name,
+        truckSize: item.trailer.size || "Custom",
+        truckType: item.trailer.type,
+        truckImage: primaryImage.url,
+        truckImages: item.trailer.images.map(img => img.url),
+        upgrades: selectedUpgrades,
+
+        // Pricing
+        price: total,
+        total: total,
+
+        // Payment
+        paymentMethod: selectedPayment!,
+      });
+
+      if (!result.success) {
+        throw new Error(result.error || "Failed to submit order");
+      }
+
+      console.log("✅ Order submitted successfully:", result.orderNumber);
+      setOrderNumber(result.orderNumber || "");
       setIsComplete(true);
-      setIsProcessing(false);
       clearCart();
     } catch (error) {
-      console.error("Payment error:", error);
+      console.error("❌ Order submission error:", error);
+      alert(error instanceof Error ? error.message : "Failed to submit order. Please try again.");
+    } finally {
       setIsProcessing(false);
-      alert("Payment failed. Please try again.");
     }
   };
 
@@ -167,15 +193,16 @@ export default function CheckoutPage() {
     return (
       <main className="min-h-screen bg-gray-50">
         <Navbar />
-        <div className="container mx-auto px-4 py-12 sm:py-16 md:py-20">
+        <div className="flex w-full justify-center items-center min-h-screen">
+        <div className="container mx-auto px-4 mt-20 py-12 sm:py-16 md:py-20">
           <motion.div
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.5 }}
             className="max-w-2xl mx-auto text-center"
           >
-            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
-              <CheckCircle2 className="h-10 w-10 sm:h-12 sm:w-12 text-white" />
+            <div className="w-10 h-10 md:w-16 md:h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
+              <CheckCircle2 className="h-6 w-6 md:h-10 md:w-10 text-white" />
             </div>
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">
               Order Complete!
@@ -185,15 +212,21 @@ export default function CheckoutPage() {
               discuss your build timeline and customization options.
             </p>
             <Card className="p-4 sm:p-6 bg-white mb-6 sm:mb-8">
+              {orderNumber && (
+                <>
+                  <p className="text-xs sm:text-sm text-gray-600 mb-2">
+                    Order Number:
+                  </p>
+                  <p className="text-lg sm:text-xl font-mono font-bold text-gray-900 mb-4">
+                    #{orderNumber}
+                  </p>
+                </>
+              )}
               <p className="text-xs sm:text-sm text-gray-600 mb-2">
                 Confirmation sent to:
               </p>
               <p className="text-base sm:text-lg font-medium text-gray-900 mb-4 break-words">
                 {billingInfo.email}
-              </p>
-              <p className="text-xs sm:text-sm text-gray-600 mb-2">Order Total:</p>
-              <p className="text-2xl sm:text-3xl font-bold text-blue-600">
-                ${getCartTotal().toLocaleString()}
               </p>
             </Card>
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
@@ -206,15 +239,13 @@ export default function CheckoutPage() {
             </div>
           </motion.div>
         </div>
+        </div>
         <Footer />
       </main>
     );
   }
 
-  const subtotal = getCartTotal();
-  const tax = subtotal * 0.08; // 8% tax
-  const shipping = 0; // Free shipping
-  const total = subtotal + tax + shipping;
+  const total = getCartTotal();
 
   return (
     <main className="min-h-screen bg-gray-50">
@@ -395,13 +426,13 @@ export default function CheckoutPage() {
                 {/* Payment Method Selection */}
                 <Card className="p-6 bg-white">
                   <h2 className="text-xl font-bold text-gray-900 mb-6">
-                    Payment Method
+                    Payment Method <span className="text-red-500">*</span>
                   </h2>
                   {errors.payment && (
                     <p className="text-red-500 text-sm mb-4">{errors.payment}</p>
                   )}
                   <div className="space-y-3">
-                    {/* Credit Card */}
+                    {/* Wire Transfer */}
                     <button
                       type="button"
                       onClick={() => setSelectedPayment("wire-tranfer")}
@@ -412,18 +443,19 @@ export default function CheckoutPage() {
                       }`}
                     >
                       <div className="flex items-center gap-3">
+                        <CreditCard className="h-6 w-6 text-gray-700" />
                         <div>
                           <p className="font-semibold text-gray-900">
                             Wire Transfer
                           </p>
                           <p className="text-sm text-gray-600">
-                            Pay securely with your card
+                            Direct bank-to-bank wire transfer
                           </p>
                         </div>
                       </div>
                     </button>
 
-                    {/* Bank Transfer */}
+                    {/* Zelle */}
                     <button
                       type="button"
                       onClick={() => setSelectedPayment("zelle")}
@@ -437,16 +469,16 @@ export default function CheckoutPage() {
                         <DollarSign className="h-6 w-6 text-gray-700" />
                         <div>
                           <p className="font-semibold text-gray-900">
-                            zelle
+                            Zelle
                           </p>
                           <p className="text-sm text-gray-600">
-                            Direct bank transfer or wire
+                            Fast and secure payment via Zelle
                           </p>
                         </div>
                       </div>
                     </button>
 
-                    {/* Financing */}
+                    {/* Crypto */}
                     <button
                       type="button"
                       onClick={() => setSelectedPayment("crypto")}
@@ -460,9 +492,10 @@ export default function CheckoutPage() {
                         <CheckCircle2 className="h-6 w-6 text-gray-700" />
                         <div>
                           <p className="font-semibold text-gray-900">
-                            Crypto                          </p>
+                            Cryptocurrency
+                          </p>
                           <p className="text-sm text-gray-600">
-                            Apply for financing - Low monthly payments
+                            Pay with Bitcoin, USDT, or other crypto
                           </p>
                         </div>
                       </div>
@@ -470,136 +503,66 @@ export default function CheckoutPage() {
                   </div>
                 </Card>
 
-                {/* Credit Card Details (if selected) */}
+                {/* Wire Transfer Info */}
                 {selectedPayment === "wire-tranfer" && (
-                  <Card className="p-6 bg-white">
-                    <h2 className="text-xl font-bold text-gray-900 mb-6">
-                      Card Details
-                    </h2>
-                    <div className="space-y-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Card Number <span className="text-red-500">*</span>
-                        </label>
-                        <Input
-                          placeholder="1234 5678 9012 3456"
-                          value={paymentDetails.cardNumber}
-                          onChange={(e) =>
-                            setPaymentDetails({
-                              ...paymentDetails,
-                              cardNumber: e.target.value,
-                            })
-                          }
-                          className={errors.cardNumber ? "border-red-500" : ""}
-                        />
-                        {errors.cardNumber && (
-                          <p className="text-red-500 text-xs mt-1">
-                            {errors.cardNumber}
-                          </p>
-                        )}
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Cardholder Name <span className="text-red-500">*</span>
-                        </label>
-                        <Input
-                          placeholder="John Smith"
-                          value={paymentDetails.cardName}
-                          onChange={(e) =>
-                            setPaymentDetails({
-                              ...paymentDetails,
-                              cardName: e.target.value,
-                            })
-                          }
-                          className={errors.cardName ? "border-red-500" : ""}
-                        />
-                        {errors.cardName && (
-                          <p className="text-red-500 text-xs mt-1">
-                            {errors.cardName}
-                          </p>
-                        )}
-                      </div>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Expiry Date <span className="text-red-500">*</span>
-                          </label>
-                          <Input
-                            placeholder="MM/YY"
-                            value={paymentDetails.expiryDate}
-                            onChange={(e) =>
-                              setPaymentDetails({
-                                ...paymentDetails,
-                                expiryDate: e.target.value,
-                              })
-                            }
-                            className={errors.expiryDate ? "border-red-500" : ""}
-                          />
-                          {errors.expiryDate && (
-                            <p className="text-red-500 text-xs mt-1">
-                              {errors.expiryDate}
-                            </p>
-                          )}
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            CVV <span className="text-red-500">*</span>
-                          </label>
-                          <Input
-                            placeholder="123"
-                            value={paymentDetails.cvv}
-                            onChange={(e) =>
-                              setPaymentDetails({
-                                ...paymentDetails,
-                                cvv: e.target.value,
-                              })
-                            }
-                            className={errors.cvv ? "border-red-500" : ""}
-                          />
-                          {errors.cvv && (
-                            <p className="text-red-500 text-xs mt-1">
-                              {errors.cvv}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </Card>
-                )}
-
-                {/* Bank Transfer Info */}
-                {selectedPayment === "zelle" && (
                   <Card className="p-6 bg-blue-50 border-blue-200">
                     <h3 className="font-semibold text-gray-900 mb-3">
-                      Bank Transfer Instructions
+                      Wire Transfer Instructions
                     </h3>
                     <p className="text-sm text-gray-700 mb-4">
-                      After placing your order, you'll receive an email with our
-                      bank details and your unique order reference number.
+                      After placing your order, you'll receive an email with our complete wire transfer details including:
                     </p>
+                    <ul className="text-sm text-gray-700 space-y-2 mb-4">
+                      <li>• Bank name and address</li>
+                      <li>• Account number and routing number</li>
+                      <li>• SWIFT/BIC code for international transfers</li>
+                      <li>• Your unique order reference number</li>
+                    </ul>
                     <p className="text-sm text-gray-700">
-                      Please allow 3-5 business days for the transfer to be
-                      processed. Your build will begin once payment is confirmed.
+                      Wire transfers typically take 1-3 business days to process. Your build will begin once payment is confirmed.
                     </p>
                   </Card>
                 )}
 
-                {/* Financing Info */}
+                {/* Zelle Info */}
+                {selectedPayment === "zelle" && (
+                  <Card className="p-6 bg-purple-50 border-purple-200">
+                    <h3 className="font-semibold text-gray-900 mb-3">
+                      Zelle Payment Instructions
+                    </h3>
+                    <p className="text-sm text-gray-700 mb-4">
+                      After placing your order, you'll receive an email with our Zelle payment details:
+                    </p>
+                    <ul className="text-sm text-gray-700 space-y-2 mb-4">
+                      <li>• Zelle email or phone number</li>
+                      <li>• Your unique order reference number (include in notes)</li>
+                      <li>• Payment amount</li>
+                    </ul>
+                    <p className="text-sm text-gray-700">
+                      Zelle payments are instant and secure. Your build will begin once we confirm receipt.
+                    </p>
+                  </Card>
+                )}
+
+                {/* Crypto Info */}
                 {selectedPayment === "crypto" && (
                   <Card className="p-6 bg-green-50 border-green-200">
                     <h3 className="font-semibold text-gray-900 mb-3">
-                      Financing Application
+                      Cryptocurrency Payment Instructions
                     </h3>
                     <p className="text-sm text-gray-700 mb-4">
-                      Complete your order and our financing team will contact you
-                      within 24 hours with available financing options.
+                      After placing your order, you'll receive an email with cryptocurrency payment options:
                     </p>
-                    <ul className="text-sm text-gray-700 space-y-1">
-                      <li>• Competitive rates starting at 4.99% APR</li>
-                      <li>• Terms from 24 to 84 months</li>
-                      <li>• Quick approval process</li>
-                      <li>• No prepayment penalties</li>
+                    <ul className="text-sm text-gray-700 space-y-2 mb-4">
+                      <li>• Bitcoin (BTC) wallet address</li>
+                      <li>• USDT (TRC20/ERC20) wallet address</li>
+                      <li>• Ethereum (ETH) wallet address</li>
+                      <li>• Current exchange rate and payment amount</li>
+                      <li>• Your unique order reference number</li>
                     </ul>
+                    <p className="text-sm text-gray-700">
+                      Crypto payments are confirmed after 3-6 network confirmations (typically 30-60 minutes). Your build will begin once payment is confirmed on the blockchain.
+                    </p>
                   </Card>
                 )}
               </div>
@@ -645,6 +608,42 @@ export default function CheckoutPage() {
                                   item.trailer.price * item.quantity
                                 ).toLocaleString()}
                               </p>
+
+                              {/* Display selected upgrades */}
+                              {item.selectedUpgrades.length > 0 && (
+                                <div className="mt-2 pt-2 border-t border-gray-100">
+                                  <p className="text-xs font-medium text-gray-700 mb-1">
+                                    Upgrades:
+                                  </p>
+                                  {item.selectedUpgrades.map((upgradeId) => {
+                                    const upgrade = item.trailer.upgrades.find(
+                                      (u) => u.id === upgradeId
+                                    );
+                                    if (!upgrade) return null;
+                                    return (
+                                      <div
+                                        key={upgradeId}
+                                        className="flex justify-between items-center text-xs text-gray-600 mb-1 group"
+                                      >
+                                        <span className="flex-1">• {upgrade.name}</span>
+                                        <span className="text-blue-600 font-medium mr-2">
+                                          +${upgrade.price.toLocaleString()}
+                                        </span>
+                                        <button
+                                          type="button"
+                                          onClick={() => toggleUpgrade(item.trailer.id, upgradeId)}
+                                          className="text-gray-400 hover:text-red-600 transition-colors opacity-0 group-hover:opacity-100"
+                                          aria-label="Remove upgrade"
+                                        >
+                                          <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                                          </svg>
+                                        </button>
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              )}
                             </div>
                             <button
                               type="button"
@@ -664,19 +663,9 @@ export default function CheckoutPage() {
                       <div className="flex items-center justify-between text-sm">
                         <span className="text-gray-600">Subtotal</span>
                         <span className="font-medium text-gray-900">
-                          ${subtotal.toLocaleString()}
+                          ${total.toLocaleString()}
                         </span>
                       </div>
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-gray-600">Tax (8%)</span>
-                        <span className="font-medium text-gray-900">
-                          ${tax.toLocaleString()}
-                        </span>
-                      </div>
-                      {/* <div className="flex items-center justify-between text-sm">
-                        <span className="text-gray-600">Shipping</span>
-                        <span className="font-medium text-green-600">FREE</span>
-                      </div> */}
                     </div>
 
                     {/* Total */}
@@ -694,13 +683,18 @@ export default function CheckoutPage() {
                       <Button
                         type="submit"
                         size="lg"
-                        className="w-full bg-blue-600 hover:bg-blue-700 text-white"
-                        disabled={isProcessing}
+                        className="w-full bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                        disabled={isProcessing || !selectedPayment}
                       >
                         {isProcessing ? (
                           <>
                             <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                             Processing...
+                          </>
+                        ) : !selectedPayment ? (
+                          <>
+                            Complete Order
+                            <CheckCircle2 className="ml-2 h-5 w-5" />
                           </>
                         ) : (
                           <>
@@ -709,6 +703,12 @@ export default function CheckoutPage() {
                           </>
                         )}
                       </Button>
+
+                      {!selectedPayment && (
+                        <p className="text-xs text-red-500 text-center mt-2">
+                          Please select a payment method to continue
+                        </p>
+                      )}
 
                       {/* <p className="text-xs text-gray-500 text-center mt-4">
                         By placing your order, you agree to our terms and

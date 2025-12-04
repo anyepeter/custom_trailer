@@ -51,12 +51,21 @@ export function CartProvider({ children }: { children: ReactNode }) {
       const existingItem = prev.find((item) => item.trailer.id === trailer.id);
 
       if (existingItem) {
-        // Update quantity if already in cart
-        return prev.map((item) =>
-          item.trailer.id === trailer.id
-            ? { ...item, quantity: item.quantity + 1, selectedUpgrades: upgrades }
-            : item
-        );
+        // If upgrades are provided, replace them without changing quantity
+        // If no upgrades provided, just increase quantity
+        if (upgrades.length > 0) {
+          return prev.map((item) =>
+            item.trailer.id === trailer.id
+              ? { ...item, selectedUpgrades: upgrades }
+              : item
+          );
+        } else {
+          return prev.map((item) =>
+            item.trailer.id === trailer.id
+              ? { ...item, quantity: item.quantity + 1 }
+              : item
+          );
+        }
       } else {
         // Add new item
         return [...prev, { trailer, quantity: 1, selectedUpgrades: upgrades }];

@@ -120,7 +120,7 @@ export default function Navbar() {
             aria-label="Food Trucks Home"
           >
             <img
-              src="/logo12.png"
+              src="/logo-1.webp"
               alt="Custom Trailer Pro"
               className="h-12 md:h-16 w-auto"
             />
