@@ -196,6 +196,7 @@ export default function ProcessSteps() {
             size="xl"
             className="bg-blue-600 hover:bg-blue-700 shadow-2xl"
             data-analytics="cta-start-process"
+            onClick={() => window.location.href = '/configure'}
           >
             Start Your Build Today
           </Button>

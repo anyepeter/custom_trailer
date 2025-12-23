@@ -18,7 +18,7 @@ import path from "path";
 const navLinks = [
   { label: "Shop", href: "/shop" },
   { label: "Design Your Own", href: "/configure" },
-  { label: "Financing", href: "#financing" },
+  { label: "Financing", href: "/financing" },
   { label: "How-to", href: "/how-to" },
   { label: "About Us", href: "/about" },
 ];

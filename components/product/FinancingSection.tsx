@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Link from "next/link";
 import {
   Building,
   Landmark,
@@ -113,9 +114,11 @@ export default function FinancingSection({ trailerPrice }: FinancingSectionProps
             </ul>
 
             <div className="pt-3 sm:pt-4 border-t border-gray-100">
-              <Button variant="outline" className="w-full text-sm">
-                Learn More
-                <ArrowRight className="h-4 w-4 ml-2" />
+              <Button variant="outline" className="w-full text-sm" asChild>
+                <Link href="/financing#business-loan">
+                  Learn More
+                  <ArrowRight className="h-4 w-4 ml-2" />
+                </Link>
               </Button>
             </div>
           </Card>
@@ -149,9 +152,11 @@ export default function FinancingSection({ trailerPrice }: FinancingSectionProps
             </ul>
 
             <div className="pt-3 sm:pt-4 border-t border-gray-100">
-              <Button variant="outline" className="w-full text-sm">
-                Learn More
-                <ArrowRight className="h-4 w-4 ml-2" />
+              <Button variant="outline" className="w-full text-sm" asChild>
+                <Link href="/financing#lease-to-own">
+                  Learn More
+                  <ArrowRight className="h-4 w-4 ml-2" />
+                </Link>
               </Button>
             </div>
           </Card>
@@ -166,9 +171,11 @@ export default function FinancingSection({ trailerPrice }: FinancingSectionProps
           option for your business needs.
         </p>
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
-          <Button size="default" className="bg-white text-blue-600 hover:bg-blue-50 w-full sm:w-auto">
-            Apply Now
-            <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5 ml-2" />
+          <Button size="default" className="bg-white text-blue-600 hover:bg-blue-50 w-full sm:w-auto" asChild>
+            <Link href="/financing">
+              Apply Now
+              <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5 ml-2" />
+            </Link>
           </Button>
         </div>
       </Card>

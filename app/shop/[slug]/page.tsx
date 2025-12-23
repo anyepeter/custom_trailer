@@ -552,13 +552,13 @@ export default function TrailerDetailPage() {
           </Tabs>
 
           {/* Quote Form */}
-          <div id="quote-form" className="mt-8 sm:mt-12">
+          {/* <div id="quote-form" className="mt-8 sm:mt-12">
             <QuoteForm
               trailerId={trailer.id}
               trailerName={trailer.name}
               trailerPrice={totalPrice}
             />
-          </div>
+          </div> */}
 
           {/* Related Products */}
           <RelatedProducts

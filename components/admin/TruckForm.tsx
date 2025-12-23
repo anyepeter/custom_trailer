@@ -16,6 +16,7 @@ import { truckFormSchema, type TruckFormSchema } from "@/lib/admin/schemas";
 import { createTruckAction, updateTruckAction } from "@/lib/admin/actions";
 import type { Truck } from "@prisma/client";
 import Image from "next/image";
+import imageCompression from "browser-image-compression";
 
 // Type for truck with serialized Decimal fields
 type TruckWithNumbers = Omit<Truck, 'actualPrice' | 'regularPrice'> & {
@@ -59,6 +60,7 @@ export default function TruckForm({ truck, mode }: TruckFormProps) {
   const [selectedFiles, setSelectedFiles] = React.useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = React.useState<string[]>([]);
   const [existingImages, setExistingImages] = React.useState<string[]>(truck?.images || []);
+  const [isCompressing, setIsCompressing] = React.useState(false);
 
   // Specification handling (now string array)
   const [specifications, setSpecifications] = React.useState<string[]>(
@@ -98,19 +100,76 @@ export default function TruckForm({ truck, mode }: TruckFormProps) {
     name: "additionalOptions",
   });
 
-  // Handle file selection
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Handle file selection with compression
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
-    setSelectedFiles((prev) => [...prev, ...files]);
+    if (files.length === 0) return;
 
-    // Generate previews
-    files.forEach((file) => {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreviews((prev) => [...prev, reader.result as string]);
+    setIsCompressing(true);
+
+    try {
+      // Compression options
+      const options = {
+        maxSizeMB: 1, // Maximum file size in MB
+        maxWidthOrHeight: 1920, // Max width or height
+        useWebWorker: true, // Use web worker for better performance
+        fileType: 'image/jpeg', // Convert to JPEG for better compression
       };
-      reader.readAsDataURL(file);
-    });
+
+      // Compress each file
+      const compressedFiles: File[] = [];
+      const previews: string[] = [];
+
+      for (const file of files) {
+        try {
+          // Compress the image
+          const compressedFile = await imageCompression(file, options);
+          compressedFiles.push(compressedFile);
+
+          // Generate preview
+          const reader = new FileReader();
+          const preview = await new Promise<string>((resolve) => {
+            reader.onloadend = () => resolve(reader.result as string);
+            reader.readAsDataURL(compressedFile);
+          });
+          previews.push(preview);
+
+          console.log(
+            `Compressed ${file.name}: ${(file.size / 1024 / 1024).toFixed(2)}MB → ${(compressedFile.size / 1024 / 1024).toFixed(2)}MB`
+          );
+        } catch (error) {
+          console.error(`Failed to compress ${file.name}:`, error);
+          // Fall back to original file if compression fails
+          compressedFiles.push(file);
+          const reader = new FileReader();
+          const preview = await new Promise<string>((resolve) => {
+            reader.onloadend = () => resolve(reader.result as string);
+            reader.readAsDataURL(file);
+          });
+          previews.push(preview);
+        }
+      }
+
+      // Update state with compressed files
+      setSelectedFiles((prev) => [...prev, ...compressedFiles]);
+      setImagePreviews((prev) => [...prev, ...previews]);
+
+      toast({
+        title: "Images compressed",
+        description: `${files.length} image(s) compressed and ready for upload`,
+      });
+    } catch (error) {
+      console.error("Error processing images:", error);
+      toast({
+        title: "Error",
+        description: "Failed to process images",
+        variant: "destructive",
+      });
+    } finally {
+      setIsCompressing(false);
+      // Reset the input so the same file can be selected again
+      e.target.value = "";
+    }
   };
 
   // Remove new image
@@ -385,13 +444,27 @@ export default function TruckForm({ truck, mode }: TruckFormProps) {
 
           {/* File Input */}
           <div>
-            <Label htmlFor="images" className="cursor-pointer">
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-500 transition-colors">
-                <Upload className="h-12 w-12 mx-auto mb-4 text-gray-400" />
-                <p className="text-sm text-gray-600 mb-2">
-                  Click to upload or drag and drop
-                </p>
-                <p className="text-xs text-gray-500">PNG, JPG, WEBP up to 10MB</p>
+            <Label htmlFor="images" className={isCompressing ? "cursor-not-allowed" : "cursor-pointer"}>
+              <div className={`border-2 border-dashed border-gray-300 rounded-lg p-8 text-center transition-colors ${
+                isCompressing ? "bg-gray-50" : "hover:border-blue-500"
+              }`}>
+                {isCompressing ? (
+                  <>
+                    <Loader2 className="h-12 w-12 mx-auto mb-4 text-blue-500 animate-spin" />
+                    <p className="text-sm text-gray-600 mb-2">
+                      Compressing images...
+                    </p>
+                    <p className="text-xs text-gray-500">Please wait</p>
+                  </>
+                ) : (
+                  <>
+                    <Upload className="h-12 w-12 mx-auto mb-4 text-gray-400" />
+                    <p className="text-sm text-gray-600 mb-2">
+                      Click to upload or drag and drop
+                    </p>
+                    <p className="text-xs text-gray-500">PNG, JPG, WEBP (will be compressed)</p>
+                  </>
+                )}
               </div>
               <Input
                 id="images"
@@ -399,6 +472,7 @@ export default function TruckForm({ truck, mode }: TruckFormProps) {
                 accept="image/*"
                 multiple
                 onChange={handleFileSelect}
+                disabled={isCompressing}
                 className="hidden"
               />
             </Label>

@@ -20,16 +20,42 @@ export async function uploadToCloudinary(
     // Remove file extension from filename to avoid double extensions
     const nameWithoutExt = filename.replace(/\.[^/.]+$/, "");
 
+    // Set timeout for upload (5 minutes)
+    const timeout = setTimeout(() => {
+      reject(new Error("Upload timeout - please try again with a smaller image"));
+    }, 300000); // 5 minutes in milliseconds
+
     const uploadStream = cloudinary.uploader.upload_stream(
       {
         folder,
         resource_type: "auto",
         public_id: `${Date.now()}-${nameWithoutExt}`,
+        // Optimization settings
+        quality: "auto:good", // Automatic quality optimization
+        fetch_format: "auto", // Automatic format selection (WebP for supported browsers)
+        format: "jpg", // Default format
+        transformation: [
+          {
+            width: 1920,
+            height: 1920,
+            crop: "limit", // Don't upscale, only downscale if needed
+            quality: "auto:good",
+          },
+        ],
+        // Additional optimizations
+        flags: ["progressive"], // Progressive JPEG loading
+        use_filename: true,
+        unique_filename: true,
+        overwrite: false,
       },
       (error, result) => {
+        clearTimeout(timeout); // Clear timeout on completion
+
         if (error) {
+          console.error("Cloudinary upload error:", error);
           reject(error);
         } else {
+          console.log(`✅ Uploaded to Cloudinary: ${result!.secure_url}`);
           resolve(result!.secure_url);
         }
       }

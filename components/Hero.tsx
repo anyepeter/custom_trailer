@@ -6,6 +6,7 @@ import Image from "next/image";
 import { ArrowRight, Play, CheckCircle2, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import Link from "next/link";
 
 // Hero carousel slides - each with unique content and imagery
 const heroSlides = [
@@ -191,25 +192,29 @@ export default function Hero() {
                 transition={{ duration: 0.6, delay: 0.6 }}
                 className="flex flex-col sm:flex-row items-center justify-center gap-4"
               >
-                <Button
-                  size="xl"
-                  className="bg-blue-600 hover:bg-blue-700 text-white shadow-2xl hover:shadow-blue-500/50 transition-all group w-full sm:w-auto"
-                  data-analytics="cta-hero-primary"
-                  data-cta="start-custom-build"
-                >
-                  Start Your Custom Build
-                  <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                </Button>
+                <Link href="/configure">
+                  <Button
+                    size="xl"
+                    className="bg-blue-600 hover:bg-blue-700 text-white shadow-2xl hover:shadow-blue-500/50 transition-all group w-full sm:w-auto"
+                    data-analytics="cta-hero-primary"
+                    data-cta="start-custom-build"
+                  >
+                    Start Your Custom Build
+                    <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                  </Button>
+                </Link>
 
-                <Button
-                  size="xl"
-                  variant="outline"
-                  className="bg-white/10 backdrop-blur-sm border-2 border-white/30 text-white hover:bg-white/20 w-full sm:w-auto"
-                  data-analytics="cta-hero-secondary"
-                  data-cta="shop-ready-built"
-                >
-                  Shop Ready-Built Trucks
-                </Button>
+                <Link href="/shop">
+                  <Button
+                    size="xl"
+                    variant="outline"
+                    className="bg-white/10 backdrop-blur-sm border-2 border-white/30 text-white hover:bg-white/20 w-full sm:w-auto"
+                    data-analytics="cta-hero-secondary"
+                    data-cta="shop-ready-built"
+                  >
+                    Shop Ready-Built Trucks
+                  </Button>
+                </Link>
               </motion.div>
             </motion.div>
           </AnimatePresence>
@@ -267,23 +272,6 @@ export default function Hero() {
         ))}
       </div>
 
-      {/* Auto-play Indicator */}
-      <div className="absolute bottom-20 left-1/2 -translate-x-1/2 z-20">
-        <div className="text-xs text-white/60 flex items-center gap-2">
-          {isAutoPlaying && !isHovered && (
-            <>
-              <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse" />
-              <span>Auto-playing</span>
-            </>
-          )}
-          {isHovered && (
-            <>
-              <div className="w-1.5 h-1.5 bg-yellow-400 rounded-full" />
-              <span>Paused</span>
-            </>
-          )}
-        </div>
-      </div>
     </section>
   );
 }
