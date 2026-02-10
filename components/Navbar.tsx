@@ -88,7 +88,7 @@ export default function Navbar() {
                 <span className="hidden sm:inline">sales@customtrailerspro.com</span>
               </a>
               <a
-                href="https://www.facebook.com/share/1HPhbDUTaS/?mibextid=wwXIfr"
+                href="https://www.facebook.com/share/1KcnccVYB2/?mibextid=wwXIfr"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 text-white/90 hover:text-white transition-colors"
@@ -204,7 +204,7 @@ export default function Navbar() {
                     sales@customtrailerspro.com
                   </a>
                   <a
-                    href="https://www.facebook.com/share/1HPhbDUTaS/?mibextid=wwXIfr"
+                    href="https://www.facebook.com/share/1KcnccVYB2/?mibextid=wwXIfr"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-2 text-gray-600 hover:text-blue-600"

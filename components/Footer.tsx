@@ -31,7 +31,7 @@ const locationsServed = [
 ];
 
 const socialLinks = [
-  { icon: Facebook, href: "https://www.facebook.com/share/1HPhbDUTaS/?mibextid=wwXIfr", label: "Facebook" },
+  { icon: Facebook, href: "https://www.facebook.com/share/1KcnccVYB2/?mibextid=wwXIfr", label: "Facebook" },
   { icon: Instagram, href: "https://www.instagram.com/customfoodtrailerpros?igsh=Mm4weThuOGFieXNm&utm_source=qr", label: "Instagram" },
   { icon: Youtube, href: "https://www.youtube.com/channel/UC_0cLoRk5GcrqtBJQMNjWnQ", label: "YouTube" },
 ];
