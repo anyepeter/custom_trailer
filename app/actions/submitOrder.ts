@@ -43,6 +43,11 @@ const orderSchema = z.object({
 
   // Payment
   paymentMethod: z.string().min(1, "Payment method is required"),
+
+  // Financing
+  financingPreference: z.string().optional(),
+  financingTerm: z.number().int().optional(),
+  financingMonthlyEstimate: z.number().optional(),
 });
 
 export type OrderItemInput = z.infer<typeof orderItemSchema>;
@@ -74,6 +79,11 @@ export async function submitOrder(data: OrderInput) {
         paymentMethod: validated.paymentMethod,
         paymentStatus: "pending",
         status: "pending",
+
+        // Financing
+        financingPreference: validated.financingPreference,
+        financingTerm: validated.financingTerm,
+        financingMonthlyEstimate: validated.financingMonthlyEstimate,
 
         // Create all order items
         items: {
@@ -111,15 +121,25 @@ export async function submitOrder(data: OrderInput) {
       itemTotal: item.itemTotal,
     }));
 
+    // Build financing data for emails
+    const financingData = validated.financingPreference && validated.financingPreference !== 'no' ? {
+      preference: validated.financingPreference,
+      term: validated.financingTerm,
+      monthlyEstimate: validated.financingMonthlyEstimate,
+    } : undefined;
+
     // Send confirmation email to customer
     const customerEmailResult = await sendOrderConfirmationEmail({
       orderNumber: order.orderNumber,
       customerEmail: validated.email,
       customerName: `${validated.firstName} ${validated.lastName}`,
+      customerPhone: validated.phone,
+      customerAddress: `${validated.address}, ${validated.city}, ${validated.state} ${validated.zipCode}`,
       items: emailItems,
       subtotal: validated.subtotal,
       total: validated.total,
       paymentMethod: validated.paymentMethod,
+      financing: financingData,
     });
 
     if (!customerEmailResult.success) {
@@ -141,6 +161,7 @@ export async function submitOrder(data: OrderInput) {
       subtotal: validated.subtotal,
       total: validated.total,
       paymentMethod: validated.paymentMethod,
+      financing: financingData,
     });
 
     if (!salesEmailResult.success) {

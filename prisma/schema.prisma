@@ -87,6 +87,11 @@ model Order {
   paymentMethod   String
   paymentStatus   String   @default("pending")
 
+  // Financing
+  financingPreference    String?
+  financingTerm          Int?
+  financingMonthlyEstimate Decimal? @db.Decimal(10, 2)
+
   // Order Status
   status          String   @default("pending")
   notes           String?

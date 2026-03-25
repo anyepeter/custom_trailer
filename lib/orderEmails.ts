@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer';
+import { generateOrderItemPdf } from './pdf/generateOrderItemPdf';
 
 // Email configuration
 const SMTP_HOST = process.env.SMTP_HOST || 'smtp.gmail.com';
@@ -37,14 +38,23 @@ interface OrderEmailItem {
   itemTotal: number;
 }
 
+interface FinancingData {
+  preference: string;
+  term?: number;
+  monthlyEstimate?: number;
+}
+
 interface OrderConfirmationData {
   orderNumber: string;
   customerEmail: string;
   customerName: string;
+  customerPhone: string;
+  customerAddress: string;
   items: OrderEmailItem[];
   subtotal: number;
   total: number;
   paymentMethod: string;
+  financing?: FinancingData;
 }
 
 interface OrderNotificationData {
@@ -59,6 +69,7 @@ interface OrderNotificationData {
   subtotal: number;
   total: number;
   paymentMethod: string;
+  financing?: FinancingData;
 }
 
 // Format payment method for display
@@ -148,6 +159,61 @@ function renderItemHTML(item: OrderEmailItem, index: number, totalItems: number)
   `;
 }
 
+// Render financing section for emails
+function renderFinancingHTML(financing: FinancingData, style: 'customer' | 'sales'): string {
+  const accentColor = style === 'customer' ? '#0066b2' : '#28a745';
+  const preferenceLabel = financing.preference === 'yes' ? 'Yes, interested in financing' : 'Maybe, exploring options';
+
+  return `
+    <div style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border-radius: 12px; padding: 25px; margin-bottom: 20px; border: 1px solid #bbf7d0;">
+      <div style="display: flex; align-items: center; margin-bottom: 15px;">
+        <span style="font-size: 22px; margin-right: 10px;">&#x1F4B0;</span>
+        <h3 style="margin: 0; color: #166534; font-size: 18px; font-weight: 700;">Financing Information</h3>
+      </div>
+      <table style="width: 100%; border-collapse: collapse;">
+        <tr>
+          <td style="padding: 10px 0; color: #666; font-size: 14px; border-bottom: 1px solid #d1fae5;">Interest in Financing:</td>
+          <td style="padding: 10px 0; color: #166534; font-size: 14px; font-weight: 600; text-align: right; border-bottom: 1px solid #d1fae5;">${preferenceLabel}</td>
+        </tr>
+        ${financing.term ? `
+        <tr>
+          <td style="padding: 10px 0; color: #666; font-size: 14px; border-bottom: 1px solid #d1fae5;">Selected Term:</td>
+          <td style="padding: 10px 0; color: #166534; font-size: 14px; font-weight: 600; text-align: right; border-bottom: 1px solid #d1fae5;">${financing.term} months @ 7% APR</td>
+        </tr>
+        ` : ''}
+        ${financing.monthlyEstimate ? `
+        <tr>
+          <td style="padding: 10px 0; color: #666; font-size: 14px;">Estimated Monthly Payment:</td>
+          <td style="padding: 10px 0; color: #166534; font-size: 20px; font-weight: 700; text-align: right;">$${financing.monthlyEstimate.toLocaleString()}/mo</td>
+        </tr>
+        ` : ''}
+      </table>
+      ${style === 'customer' ? `
+      <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #d1fae5;">
+        <p style="margin: 0 0 10px 0; color: #166534; font-size: 14px; font-weight: 600;">Our Lending Partners:</p>
+        <table style="width: 100%; border-collapse: collapse;">
+          <tr>
+            <td style="padding: 8px; background: #ffffff; border-radius: 8px; text-align: center; width: 50%;">
+              <a href="https://www.equinoxnox.com/efapplication" style="color: #0066b2; text-decoration: none; font-size: 14px; font-weight: 600;">Equinox Funding</a>
+              <p style="margin: 4px 0 0 0; color: #999; font-size: 11px;">Apply Now &rarr;</p>
+            </td>
+            <td style="width: 10px;"></td>
+            <td style="padding: 8px; background: #ffffff; border-radius: 8px; text-align: center; width: 50%;">
+              <a href="https://www.clickleese.com/apply" style="color: #0066b2; text-decoration: none; font-size: 14px; font-weight: 600;">ClickLease</a>
+              <p style="margin: 4px 0 0 0; color: #999; font-size: 11px;">Apply Now &rarr;</p>
+            </td>
+          </tr>
+        </table>
+      </div>
+      ` : `
+      <div style="margin-top: 15px; padding: 12px; background: #fff3cd; border-radius: 8px; border: 1px solid #ffc107;">
+        <p style="margin: 0; color: #856404; font-size: 13px; font-weight: 600;">&#x26A1; Customer needs financing assistance. Follow up with lending partner options.</p>
+      </div>
+      `}
+    </div>
+  `;
+}
+
 // Customer Order Confirmation Email Template
 function getCustomerEmailHTML(data: OrderConfirmationData): string {
   const itemsHTML = data.items
@@ -214,11 +280,14 @@ function getCustomerEmailHTML(data: OrderConfirmationData): string {
                 </table>
             </div>
 
+            ${data.financing ? renderFinancingHTML(data.financing, 'customer') : ''}
+
             <!-- Next Steps -->
             <div style="background-color: #e3f2fd; border-left: 4px solid #0066b2; padding: 20px; margin-bottom: 30px; border-radius: 4px;">
                 <h3 style="margin: 0 0 10px 0; color: #0066b2; font-size: 16px;">What's Next?</h3>
                 <ul style="margin: 0; padding-left: 20px; color: #666; font-size: 14px; line-height: 1.8;">
                     <li>Our sales team will contact you within 24 hours</li>
+                    ${data.financing ? '<li>A financing specialist will reach out to discuss your options</li>' : ''}
                     <li>We'll send payment instructions for ${formatPaymentMethod(data.paymentMethod)}</li>
                     <li>Once payment is confirmed, we'll begin building your trailer${data.items.length > 1 ? 's' : ''}</li>
                     <li>You'll receive regular updates on the build progress</li>
@@ -320,11 +389,14 @@ function getSalesEmailHTML(data: OrderNotificationData): string {
                 </table>
             </div>
 
+            ${data.financing ? renderFinancingHTML(data.financing, 'sales') : ''}
+
             <!-- Action Required -->
             <div style="background-color: #fff3cd; border: 2px solid #ffc107; border-radius: 8px; padding: 20px; margin-top: 20px;">
                 <h3 style="margin: 0 0 10px 0; color: #856404; font-size: 16px;">&#x26A1; Action Required</h3>
                 <p style="margin: 0; color: #856404; font-size: 14px; line-height: 1.6;">
                     Please contact <strong>${data.customerInfo.name}</strong> within 24 hours to confirm the order and provide payment instructions for ${formatPaymentMethod(data.paymentMethod)}.
+                    ${data.financing ? ' <strong>This customer has expressed interest in financing — connect them with a lending partner.</strong>' : ''}
                 </p>
             </div>
         </div>
@@ -339,18 +411,92 @@ function getSalesEmailHTML(data: OrderNotificationData): string {
   `;
 }
 
+// Generate PDF attachments for all order items
+async function generateOrderPdfAttachments(data: {
+  orderNumber: string;
+  customerName: string;
+  customerEmail: string;
+  customerPhone: string;
+  customerAddress: string;
+  items: OrderEmailItem[];
+  paymentMethod: string;
+  financing?: FinancingData;
+}): Promise<{ filename: string; content: Buffer; contentType: string; encoding: string }[]> {
+  const attachments: { filename: string; content: Buffer; contentType: string; encoding: string }[] = [];
+
+  for (let i = 0; i < data.items.length; i++) {
+    const item = data.items[i];
+    try {
+      console.log(`[Order PDF] Generating PDF for item ${i + 1}/${data.items.length}: ${item.truckName}`);
+      const pdfBuffer = await generateOrderItemPdf({
+        orderNumber: data.orderNumber,
+        customerName: data.customerName,
+        customerEmail: data.customerEmail,
+        customerPhone: data.customerPhone,
+        customerAddress: data.customerAddress,
+        itemIndex: i,
+        totalItems: data.items.length,
+        truckName: item.truckName,
+        truckSize: item.truckSize,
+        truckImage: item.truckImage,
+        truckImages: item.truckImages,
+        upgrades: item.upgrades,
+        quantity: item.quantity,
+        unitPrice: item.unitPrice,
+        upgradesTotal: item.upgradesTotal,
+        itemTotal: item.itemTotal,
+        paymentMethod: data.paymentMethod,
+        financing: data.financing,
+      });
+
+      // Sanitize truck name for filename
+      const safeName = item.truckName.replace(/[^a-zA-Z0-9-_ ]/g, '').replace(/\s+/g, '-');
+      const filename = data.items.length > 1
+        ? `Order-${data.orderNumber}-Item${i + 1}-${safeName}.pdf`
+        : `Order-${data.orderNumber}-${safeName}.pdf`;
+
+      attachments.push({
+        filename,
+        content: pdfBuffer,
+        contentType: 'application/pdf',
+        encoding: 'base64',
+      });
+
+      console.log(`[Order PDF] PDF generated for ${item.truckName}: ${pdfBuffer.length} bytes`);
+    } catch (pdfError) {
+      console.error(`[Order PDF] Failed to generate PDF for item ${i + 1} (${item.truckName}):`, pdfError);
+      // Continue with other items - don't fail the entire email
+    }
+  }
+
+  return attachments;
+}
+
 // Send order confirmation email to customer
 export async function sendOrderConfirmationEmail(data: OrderConfirmationData) {
   try {
     const html = getCustomerEmailHTML(data);
 
-    const itemNames = data.items.map(i => i.truckName).join(', ');
+    // Generate PDF attachments for each item
+    console.log('[Order Email] Generating PDF attachments for customer email...');
+    const attachments = await generateOrderPdfAttachments({
+      orderNumber: data.orderNumber,
+      customerName: data.customerName,
+      customerEmail: data.customerEmail,
+      customerPhone: data.customerPhone,
+      customerAddress: data.customerAddress,
+      items: data.items,
+      paymentMethod: data.paymentMethod,
+      financing: data.financing,
+    });
+    console.log(`[Order Email] ${attachments.length} PDF attachment(s) ready`);
 
     await transporter.sendMail({
       from: SMTP_FROM,
       to: data.customerEmail,
       subject: `Order Confirmation - #${data.orderNumber} (${data.items.length} item${data.items.length > 1 ? 's' : ''})`,
       html,
+      attachments,
     });
 
     return { success: true };
@@ -370,11 +516,26 @@ export async function sendOrderNotificationToSales(data: OrderNotificationData) 
 
     const itemNames = data.items.map(i => i.truckName).join(', ');
 
+    // Generate PDF attachments for each item
+    console.log('[Order Email] Generating PDF attachments for sales email...');
+    const attachments = await generateOrderPdfAttachments({
+      orderNumber: data.orderNumber,
+      customerName: data.customerInfo.name,
+      customerEmail: data.customerInfo.email,
+      customerPhone: data.customerInfo.phone,
+      customerAddress: data.customerInfo.address,
+      items: data.items,
+      paymentMethod: data.paymentMethod,
+      financing: data.financing,
+    });
+    console.log(`[Order Email] ${attachments.length} PDF attachment(s) ready for sales`);
+
     await transporter.sendMail({
       from: SMTP_FROM,
       to: SALES_EMAIL,
       subject: `\u{1F6A8} New Order #${data.orderNumber} - ${itemNames} ($${data.total.toLocaleString()})`,
       html,
+      attachments,
     });
 
     return { success: true };

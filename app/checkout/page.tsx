@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -13,6 +13,12 @@ import {
   Loader2,
   ShoppingCart,
   Trash2,
+  Calculator,
+  TrendingUp,
+  ExternalLink,
+  Check,
+  HelpCircle,
+  X,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -23,6 +29,17 @@ import { useCart } from "@/contexts/CartContext";
 import { submitOrder } from "@/app/actions/submitOrder";
 
 type PaymentMethod = "wire-tranfer" | "zelle" | "crypto" | null;
+type FinancingPreference = "yes" | "no" | "maybe" | null;
+
+// Monthly payment calculator (standard amortization)
+function calculateMonthlyPayment(principal: number, annualRate: number, months: number): number {
+  if (principal <= 0) return 0;
+  const monthlyRate = annualRate / 12;
+  return Math.round(
+    (principal * monthlyRate * Math.pow(1 + monthlyRate, months)) /
+      (Math.pow(1 + monthlyRate, months) - 1)
+  );
+}
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -30,6 +47,8 @@ export default function CheckoutPage() {
     useCart();
 
   const [selectedPayment, setSelectedPayment] = useState<PaymentMethod>(null);
+  const [financingPreference, setFinancingPreference] = useState<FinancingPreference>(null);
+  const [selectedTerm, setSelectedTerm] = useState<number>(60);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
   const [orderNumber, setOrderNumber] = useState<string>("");
@@ -46,20 +65,31 @@ export default function CheckoutPage() {
     zipCode: "",
   });
 
-  // Payment Details (for credit card)
-  const [paymentDetails, setPaymentDetails] = useState({
-    cardNumber: "",
-    cardName: "",
-    expiryDate: "",
-    cvv: "",
-  });
-
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   // Scroll to top when page loads or order completes
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [isComplete]);
+
+  // Calculate financing estimates
+  const total = getCartTotal();
+  const financingEstimates = useMemo(() => ({
+    monthly48: calculateMonthlyPayment(total, 0.07, 48),
+    monthly60: calculateMonthlyPayment(total, 0.07, 60),
+    monthly72: calculateMonthlyPayment(total, 0.07, 72),
+    monthly84: calculateMonthlyPayment(total, 0.07, 84),
+  }), [total]);
+
+  const selectedMonthlyPayment = useMemo(() => {
+    switch (selectedTerm) {
+      case 48: return financingEstimates.monthly48;
+      case 60: return financingEstimates.monthly60;
+      case 72: return financingEstimates.monthly72;
+      case 84: return financingEstimates.monthly84;
+      default: return financingEstimates.monthly60;
+    }
+  }, [selectedTerm, financingEstimates]);
 
   // Redirect if cart is empty
   if (cartItems.length === 0 && !isComplete) {
@@ -104,6 +134,11 @@ export default function CheckoutPage() {
     if (!billingInfo.state.trim()) newErrors.state = "State is required";
     if (!billingInfo.zipCode.trim()) newErrors.zipCode = "ZIP code is required";
 
+    // Validate financing preference
+    if (!financingPreference) {
+      newErrors.financing = "Please select a financing preference";
+    }
+
     // Validate payment method selection
     if (!selectedPayment) {
       newErrors.payment = "Please select a payment method";
@@ -126,9 +161,6 @@ export default function CheckoutPage() {
       if (cartItems.length === 0) {
         throw new Error("No items in cart");
       }
-
-      // Calculate totals
-      const total = getCartTotal();
 
       // Build order items from ALL cart items
       const orderItems = cartItems.map((item) => {
@@ -161,9 +193,8 @@ export default function CheckoutPage() {
         };
       });
 
-      // Submit order with all items
+      // Submit order with all items + financing info
       const result = await submitOrder({
-        // User Information
         firstName: billingInfo.firstName,
         lastName: billingInfo.lastName,
         email: billingInfo.email,
@@ -173,27 +204,29 @@ export default function CheckoutPage() {
         state: billingInfo.state,
         zipCode: billingInfo.zipCode,
 
-        // All order items
         items: orderItems,
 
-        // Pricing
         subtotal: total,
         total: total,
 
-        // Payment
         paymentMethod: selectedPayment!,
+
+        // Financing
+        financingPreference: financingPreference!,
+        financingTerm: financingPreference === "yes" ? selectedTerm : undefined,
+        financingMonthlyEstimate: financingPreference === "yes" ? selectedMonthlyPayment : undefined,
       });
 
       if (!result.success) {
         throw new Error(result.error || "Failed to submit order");
       }
 
-      console.log("✅ Order submitted successfully:", result.orderNumber);
+      console.log("Order submitted successfully:", result.orderNumber);
       setOrderNumber(result.orderNumber || "");
       setIsComplete(true);
       clearCart();
     } catch (error) {
-      console.error("❌ Order submission error:", error);
+      console.error("Order submission error:", error);
       alert(error instanceof Error ? error.message : "Failed to submit order. Please try again.");
     } finally {
       setIsProcessing(false);
@@ -257,8 +290,6 @@ export default function CheckoutPage() {
     );
   }
 
-  const total = getCartTotal();
-
   return (
     <main className="min-h-screen bg-gray-50">
       <Navbar />
@@ -284,11 +315,16 @@ export default function CheckoutPage() {
             <div className="grid lg:grid-cols-3 gap-8">
               {/* Left Column - Forms */}
               <div className="lg:col-span-2 space-y-6">
-                {/* Billing Information */}
+                {/* ═══════════════════════════════════════ */}
+                {/* STEP 1: Billing Information             */}
+                {/* ═══════════════════════════════════════ */}
                 <Card className="p-6 bg-white">
-                  <h2 className="text-xl font-bold text-gray-900 mb-6">
-                    Billing Information
-                  </h2>
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center text-sm font-bold">1</div>
+                    <h2 className="text-xl font-bold text-gray-900">
+                      Billing Information
+                    </h2>
+                  </div>
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -435,11 +471,254 @@ export default function CheckoutPage() {
                   </div>
                 </Card>
 
-                {/* Payment Method Selection */}
+                {/* ═══════════════════════════════════════ */}
+                {/* STEP 2: Financing Preference            */}
+                {/* ═══════════════════════════════════════ */}
+                <Card className="p-6 bg-white overflow-hidden">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center text-sm font-bold">2</div>
+                    <h2 className="text-xl font-bold text-gray-900">
+                      Financing Options
+                    </h2>
+                  </div>
+                  <p className="text-sm text-gray-500 mb-6 ml-11">
+                    We offer flexible payment plans to help make your trailer affordable
+                  </p>
+
+                  {errors.financing && (
+                    <p className="text-red-500 text-sm mb-4">{errors.financing}</p>
+                  )}
+
+                  {/* Financing Preference Selection */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
+                    {[
+                      { value: "yes" as const, label: "Yes, I need financing", icon: CheckCircle2, description: "View payment plans" },
+                      { value: "no" as const, label: "No, I'll pay in full", icon: DollarSign, description: "Wire, Zelle, or Crypto" },
+                      { value: "maybe" as const, label: "Maybe, tell me more", icon: HelpCircle, description: "See options first" },
+                    ].map((option) => (
+                      <button
+                        key={option.value}
+                        type="button"
+                        onClick={() => setFinancingPreference(option.value)}
+                        className={`relative p-5 rounded-xl border-2 text-left transition-all ${
+                          financingPreference === option.value
+                            ? "border-green-600 bg-green-50 shadow-lg shadow-green-500/10"
+                            : "border-gray-200 hover:border-green-300 hover:shadow-md bg-white"
+                        }`}
+                      >
+                        {financingPreference === option.value && (
+                          <motion.div
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            className="absolute top-3 right-3 w-6 h-6 bg-green-600 rounded-full flex items-center justify-center"
+                          >
+                            <Check className="h-4 w-4 text-white" />
+                          </motion.div>
+                        )}
+                        <option.icon className={`h-6 w-6 mb-2 ${
+                          financingPreference === option.value ? "text-green-600" : "text-gray-400"
+                        }`} />
+                        <p className="font-semibold text-gray-900 text-sm">{option.label}</p>
+                        <p className="text-xs text-gray-500 mt-1">{option.description}</p>
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Financing Calculator — shown when Yes or Maybe */}
+                  <AnimatePresence>
+                    {(financingPreference === "yes" || financingPreference === "maybe") && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        {/* Monthly Payment Estimate Banner */}
+                        <div className="bg-gradient-to-r from-green-600 to-emerald-600 rounded-xl p-6 mb-6 text-white">
+                          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                            <div>
+                              <p className="text-green-100 text-sm font-medium">Estimated Monthly Payment</p>
+                              <p className="text-3xl font-bold mt-1">${selectedMonthlyPayment.toLocaleString()}/mo</p>
+                              <p className="text-green-200 text-xs mt-1">{selectedTerm} months @ 7% APR</p>
+                            </div>
+                            <div className="text-right">
+                              <p className="text-green-100 text-sm">Total Order</p>
+                              <p className="text-2xl font-bold">${total.toLocaleString()}</p>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Term Selection */}
+                        <div className="mb-6">
+                          <h3 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                            <Calculator className="h-4 w-4 text-green-600" />
+                            Choose Your Term
+                          </h3>
+                          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                            {[
+                              { months: 48, label: "48 mo", rate: "7% APR" },
+                              { months: 60, label: "60 mo", rate: "7% APR", popular: true },
+                              { months: 72, label: "72 mo", rate: "7% APR" },
+                              { months: 84, label: "84 mo", rate: "7% APR" },
+                            ].map((term) => {
+                              const monthly = calculateMonthlyPayment(total, 0.07, term.months);
+                              const isSelected = selectedTerm === term.months;
+                              return (
+                                <button
+                                  key={term.months}
+                                  type="button"
+                                  onClick={() => setSelectedTerm(term.months)}
+                                  className={`relative p-4 rounded-xl border-2 text-center transition-all ${
+                                    isSelected
+                                      ? "border-green-600 bg-green-50 shadow-md"
+                                      : "border-gray-200 hover:border-green-300 bg-white"
+                                  }`}
+                                >
+                                  {term.popular && (
+                                    <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 text-[10px] font-bold text-white bg-green-600 px-2 py-0.5 rounded-full">
+                                      POPULAR
+                                    </span>
+                                  )}
+                                  {isSelected && (
+                                    <motion.div
+                                      initial={{ scale: 0 }}
+                                      animate={{ scale: 1 }}
+                                      className="absolute top-2 right-2 w-5 h-5 bg-green-600 rounded-full flex items-center justify-center"
+                                    >
+                                      <Check className="h-3 w-3 text-white" />
+                                    </motion.div>
+                                  )}
+                                  <p className="text-xs text-gray-500 mb-1">{term.label} @ {term.rate}</p>
+                                  <p className={`text-lg font-bold ${isSelected ? "text-green-700" : "text-gray-900"}`}>
+                                    ${monthly.toLocaleString()}/mo
+                                  </p>
+                                </button>
+                              );
+                            })}
+                          </div>
+                          <p className="text-[11px] text-gray-400 mt-3 text-center">
+                            * Rates and terms subject to credit approval. These are estimates only.
+                          </p>
+                        </div>
+
+                        {/* Lender Partners */}
+                        <div className="mb-6">
+                          <h3 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                            <TrendingUp className="h-4 w-4 text-green-600" />
+                            Our Lending Partners
+                          </h3>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            {/* Equinox Funding */}
+                            <div className="border-2 border-gray-200 rounded-xl p-5 hover:border-green-300 hover:shadow-md transition-all">
+                              <div className="text-2xl font-bold text-green-600 mb-1">Equinox</div>
+                              <p className="text-xs text-gray-500 mb-3">Business Loan</p>
+                              <ul className="space-y-1.5 mb-4">
+                                <li className="flex items-start gap-2 text-xs text-gray-600">
+                                  <CheckCircle2 className="h-3.5 w-3.5 text-green-500 flex-shrink-0 mt-0.5" />
+                                  20+ years industry experience
+                                </li>
+                                <li className="flex items-start gap-2 text-xs text-gray-600">
+                                  <CheckCircle2 className="h-3.5 w-3.5 text-green-500 flex-shrink-0 mt-0.5" />
+                                  Soft credit pull available
+                                </li>
+                                <li className="flex items-start gap-2 text-xs text-gray-600">
+                                  <CheckCircle2 className="h-3.5 w-3.5 text-green-500 flex-shrink-0 mt-0.5" />
+                                  Same-day loan options
+                                </li>
+                                <li className="flex items-start gap-2 text-xs text-gray-600">
+                                  <CheckCircle2 className="h-3.5 w-3.5 text-green-500 flex-shrink-0 mt-0.5" />
+                                  Loans from $5K to $25M
+                                </li>
+                              </ul>
+                              <a
+                                href="https://www.equinoxnox.com/efapplication"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1.5 text-sm font-semibold text-green-600 hover:text-green-700 transition-colors"
+                              >
+                                Apply Now
+                                <ExternalLink className="h-3.5 w-3.5" />
+                              </a>
+                            </div>
+
+                            {/* ClickLease */}
+                            <div className="border-2 border-gray-200 rounded-xl p-5 hover:border-blue-300 hover:shadow-md transition-all">
+                              <div className="text-2xl font-bold text-blue-600 mb-1">clicklease</div>
+                              <p className="text-xs text-gray-500 mb-3">Lease to Own</p>
+                              <ul className="space-y-1.5 mb-4">
+                                <li className="flex items-start gap-2 text-xs text-gray-600">
+                                  <CheckCircle2 className="h-3.5 w-3.5 text-blue-500 flex-shrink-0 mt-0.5" />
+                                  Funding up to $30,000
+                                </li>
+                                <li className="flex items-start gap-2 text-xs text-gray-600">
+                                  <CheckCircle2 className="h-3.5 w-3.5 text-blue-500 flex-shrink-0 mt-0.5" />
+                                  Soft credit pull only
+                                </li>
+                                <li className="flex items-start gap-2 text-xs text-gray-600">
+                                  <CheckCircle2 className="h-3.5 w-3.5 text-blue-500 flex-shrink-0 mt-0.5" />
+                                  Highest approval rating
+                                </li>
+                                <li className="flex items-start gap-2 text-xs text-gray-600">
+                                  <CheckCircle2 className="h-3.5 w-3.5 text-blue-500 flex-shrink-0 mt-0.5" />
+                                  Low credit score friendly
+                                </li>
+                              </ul>
+                              <a
+                                href="https://www.clickleese.com/apply"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1.5 text-sm font-semibold text-blue-600 hover:text-blue-700 transition-colors"
+                              >
+                                Apply Now
+                                <ExternalLink className="h-3.5 w-3.5" />
+                              </a>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* ROI Quick Stats */}
+                        <div className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl p-5 border border-blue-200">
+                          <h4 className="text-sm font-semibold text-blue-800 mb-3 flex items-center gap-2">
+                            <TrendingUp className="h-4 w-4" />
+                            Potential Return on Investment
+                          </h4>
+                          <div className="grid grid-cols-3 gap-3">
+                            <div className="text-center">
+                              <p className="text-lg font-bold text-blue-600">$500-$2K</p>
+                              <p className="text-[10px] text-gray-500">Daily Revenue</p>
+                            </div>
+                            <div className="text-center">
+                              <p className="text-lg font-bold text-blue-600">6-18 mo</p>
+                              <p className="text-[10px] text-gray-500">ROI Timeline</p>
+                            </div>
+                            <div className="text-center">
+                              <p className="text-lg font-bold text-blue-600">30-50%</p>
+                              <p className="text-[10px] text-gray-500">Profit Margin</p>
+                            </div>
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </Card>
+
+                {/* ═══════════════════════════════════════ */}
+                {/* STEP 3: Payment Method                  */}
+                {/* ═══════════════════════════════════════ */}
                 <Card className="p-6 bg-white">
-                  <h2 className="text-xl font-bold text-gray-900 mb-6">
-                    Payment Method <span className="text-red-500">*</span>
-                  </h2>
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center text-sm font-bold">3</div>
+                    <h2 className="text-xl font-bold text-gray-900">
+                      Payment Method <span className="text-red-500">*</span>
+                    </h2>
+                  </div>
+                  <p className="text-sm text-gray-500 mb-6 ml-11">
+                    {financingPreference === "yes"
+                      ? "Select how you'd like to pay the down payment (determined by lender)"
+                      : "Select how you'd like to pay for your order"
+                    }
+                  </p>
+
                   {errors.payment && (
                     <p className="text-red-500 text-sm mb-4">{errors.payment}</p>
                   )}
@@ -515,7 +794,7 @@ export default function CheckoutPage() {
                   </div>
                 </Card>
 
-                {/* Wire Transfer Info */}
+                {/* Payment Method Info Cards */}
                 {selectedPayment === "wire-tranfer" && (
                   <Card className="p-6 bg-blue-50 border-blue-200">
                     <h3 className="font-semibold text-gray-900 mb-3">
@@ -531,12 +810,14 @@ export default function CheckoutPage() {
                       <li>• Your unique order reference number</li>
                     </ul>
                     <p className="text-sm text-gray-700">
-                      Wire transfers typically take 1-3 business days to process. Your build will begin once payment is confirmed.
+                      {financingPreference === "yes"
+                        ? "A 50% deposit or the amount determined by your lender is required to begin production."
+                        : "Wire transfers typically take 1-3 business days to process. Your build will begin once payment is confirmed."
+                      }
                     </p>
                   </Card>
                 )}
 
-                {/* Zelle Info */}
                 {selectedPayment === "zelle" && (
                   <Card className="p-6 bg-purple-50 border-purple-200">
                     <h3 className="font-semibold text-gray-900 mb-3">
@@ -556,7 +837,6 @@ export default function CheckoutPage() {
                   </Card>
                 )}
 
-                {/* Crypto Info */}
                 {selectedPayment === "crypto" && (
                   <Card className="p-6 bg-green-50 border-green-200">
                     <h3 className="font-semibold text-gray-900 mb-3">
@@ -581,7 +861,7 @@ export default function CheckoutPage() {
 
               {/* Right Column - Order Summary */}
               <div className="lg:col-span-1">
-                <div className="sticky top-24">
+                <div className="sticky top-24 space-y-4">
                   <Card className="p-6 bg-white">
                     <h2 className="text-xl font-bold text-gray-900 mb-6">
                       Order Summary
@@ -647,9 +927,7 @@ export default function CheckoutPage() {
                                           className="text-gray-400 hover:text-red-600 transition-colors opacity-0 group-hover:opacity-100"
                                           aria-label="Remove upgrade"
                                         >
-                                          <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
-                                            <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-                                          </svg>
+                                          <X className="h-3 w-3" />
                                         </button>
                                       </div>
                                     );
@@ -678,11 +956,21 @@ export default function CheckoutPage() {
                           ${total.toLocaleString()}
                         </span>
                       </div>
+
+                      {/* Show financing estimate in summary */}
+                      {financingPreference === "yes" && (
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-green-600 font-medium">Est. Monthly</span>
+                          <span className="font-semibold text-green-600">
+                            ${selectedMonthlyPayment.toLocaleString()}/mo
+                          </span>
+                        </div>
+                      )}
                     </div>
 
                     {/* Total */}
                     <div className="pt-4 border-t border-gray-200">
-                      <div className="flex items-center justify-between mb-6">
+                      <div className="flex items-center justify-between mb-2">
                         <span className="text-lg font-semibold text-gray-900">
                           Total
                         </span>
@@ -691,22 +979,23 @@ export default function CheckoutPage() {
                         </span>
                       </div>
 
+                      {financingPreference === "yes" && (
+                        <p className="text-xs text-green-600 text-right mb-4">
+                          or ~${selectedMonthlyPayment.toLocaleString()}/mo for {selectedTerm} months
+                        </p>
+                      )}
+
                       {/* Submit Button */}
                       <Button
                         type="submit"
                         size="lg"
                         className="w-full bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50 disabled:cursor-not-allowed"
-                        disabled={isProcessing || !selectedPayment}
+                        disabled={isProcessing || !selectedPayment || !financingPreference}
                       >
                         {isProcessing ? (
                           <>
                             <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                             Processing...
-                          </>
-                        ) : !selectedPayment ? (
-                          <>
-                            Complete Order
-                            <CheckCircle2 className="ml-2 h-5 w-5" />
                           </>
                         ) : (
                           <>
@@ -716,16 +1005,14 @@ export default function CheckoutPage() {
                         )}
                       </Button>
 
-                      {!selectedPayment && (
+                      {(!selectedPayment || !financingPreference) && (
                         <p className="text-xs text-red-500 text-center mt-2">
-                          Please select a payment method to continue
+                          {!financingPreference
+                            ? "Please select a financing preference"
+                            : "Please select a payment method"
+                          }
                         </p>
                       )}
-
-                      {/* <p className="text-xs text-gray-500 text-center mt-4">
-                        By placing your order, you agree to our terms and
-                        conditions
-                      </p> */}
                     </div>
                   </Card>
                 </div>
