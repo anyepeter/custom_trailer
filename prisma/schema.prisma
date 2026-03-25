@@ -62,8 +62,8 @@ model BuildRequest {
 }
 
 model Order {
-  id              String   @id @default(cuid())
-  orderNumber     String   @unique @default(cuid())
+  id              String      @id @default(cuid())
+  orderNumber     String      @unique @default(cuid())
 
   // User Information
   firstName       String
@@ -75,16 +75,11 @@ model Order {
   state           String
   zipCode         String
 
-  // Truck Information
-  truckName       String
-  truckSize       String
-  truckType       String?
-  truckImage      String
-  truckImages     String[] @default([])
-  upgrades        Json?    // Selected upgrades with name and price
+  // Order Items (one-to-many)
+  items           OrderItem[]
 
-  // Pricing
-  price           Decimal  @db.Decimal(10, 2)
+  // Pricing (aggregated totals across all items)
+  subtotal        Decimal  @default(0) @db.Decimal(10, 2)
   tax             Decimal? @db.Decimal(10, 2)
   total           Decimal  @db.Decimal(10, 2)
 
@@ -100,4 +95,30 @@ model Order {
   updatedAt       DateTime @updatedAt
 
   @@map("orders")
+}
+
+model OrderItem {
+  id              String   @id @default(cuid())
+
+  // Parent order
+  orderId         String
+  order           Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  // Truck Information
+  truckName       String
+  truckSize       String
+  truckType       String?
+  truckImage      String
+  truckImages     String[] @default([])
+  upgrades        Json?    // Selected upgrades with name and price
+
+  // Pricing (per item)
+  quantity        Int      @default(1)
+  unitPrice       Decimal  @db.Decimal(10, 2)
+  upgradesTotal   Decimal  @db.Decimal(10, 2) @default(0)
+  itemTotal       Decimal  @db.Decimal(10, 2)
+
+  createdAt       DateTime @default(now())
+
+  @@map("order_items")
 }

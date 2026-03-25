@@ -4,7 +4,25 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { sendOrderConfirmationEmail, sendOrderNotificationToSales } from "@/lib/orderEmails";
 
-// Validation schema for order
+// Validation schema for a single order item (one trailer + its upgrades)
+const orderItemSchema = z.object({
+  truckName: z.string().min(1, "Truck name is required"),
+  truckSize: z.string().min(1, "Truck size is required"),
+  truckType: z.string().optional(),
+  truckImage: z.string().min(1, "Truck image is required"),
+  truckImages: z.array(z.string()).default([]),
+  upgrades: z.array(z.object({
+    id: z.string(),
+    name: z.string(),
+    price: z.number(),
+  })).default([]),
+  quantity: z.number().int().positive().default(1),
+  unitPrice: z.number().positive("Unit price must be positive"),
+  upgradesTotal: z.number().default(0),
+  itemTotal: z.number().positive("Item total must be positive"),
+});
+
+// Validation schema for the full order
 const orderSchema = z.object({
   // User Information
   firstName: z.string().min(1, "First name is required"),
@@ -16,26 +34,18 @@ const orderSchema = z.object({
   state: z.string().min(1, "State is required"),
   zipCode: z.string().min(1, "ZIP code is required"),
 
-  // Truck Information
-  truckName: z.string().min(1, "Truck name is required"),
-  truckSize: z.string().min(1, "Truck size is required"),
-  truckType: z.string().optional(),
-  truckImage: z.string().min(1, "Truck image is required"),
-  truckImages: z.array(z.string()).default([]),
-  upgrades: z.array(z.object({
-    id: z.string(),
-    name: z.string(),
-    price: z.number(),
-  })).default([]),
+  // Order Items
+  items: z.array(orderItemSchema).min(1, "At least one item is required"),
 
-  // Pricing
-  price: z.number().positive("Price must be positive"),
+  // Pricing (aggregated)
+  subtotal: z.number().positive("Subtotal must be positive"),
   total: z.number().positive("Total must be positive"),
 
   // Payment
   paymentMethod: z.string().min(1, "Payment method is required"),
 });
 
+export type OrderItemInput = z.infer<typeof orderItemSchema>;
 export type OrderInput = z.infer<typeof orderSchema>;
 
 export async function submitOrder(data: OrderInput) {
@@ -43,7 +53,7 @@ export async function submitOrder(data: OrderInput) {
     // Validate input
     const validated = orderSchema.parse(data);
 
-    // Create order in database
+    // Create order with items in a single transaction
     const order = await prisma.order.create({
       data: {
         // User Information
@@ -56,38 +66,58 @@ export async function submitOrder(data: OrderInput) {
         state: validated.state,
         zipCode: validated.zipCode,
 
-        // Truck Information
-        truckName: validated.truckName,
-        truckSize: validated.truckSize,
-        truckType: validated.truckType,
-        truckImage: validated.truckImage,
-        truckImages: validated.truckImages,
-        upgrades: validated.upgrades,
-
         // Pricing
-        price: validated.price,
+        subtotal: validated.subtotal,
         total: validated.total,
 
         // Payment
         paymentMethod: validated.paymentMethod,
         paymentStatus: "pending",
         status: "pending",
+
+        // Create all order items
+        items: {
+          create: validated.items.map((item) => ({
+            truckName: item.truckName,
+            truckSize: item.truckSize,
+            truckType: item.truckType,
+            truckImage: item.truckImage,
+            truckImages: item.truckImages,
+            upgrades: item.upgrades,
+            quantity: item.quantity,
+            unitPrice: item.unitPrice,
+            upgradesTotal: item.upgradesTotal,
+            itemTotal: item.itemTotal,
+          })),
+        },
+      },
+      include: {
+        items: true,
       },
     });
 
-    console.log("✅ Order created:", order.orderNumber);
+    console.log("✅ Order created:", order.orderNumber, `with ${order.items.length} item(s)`);
+
+    // Build items data for emails
+    const emailItems = validated.items.map((item) => ({
+      truckName: item.truckName,
+      truckSize: item.truckSize,
+      truckImage: item.truckImage,
+      truckImages: item.truckImages,
+      upgrades: item.upgrades,
+      quantity: item.quantity,
+      unitPrice: item.unitPrice,
+      upgradesTotal: item.upgradesTotal,
+      itemTotal: item.itemTotal,
+    }));
 
     // Send confirmation email to customer
     const customerEmailResult = await sendOrderConfirmationEmail({
       orderNumber: order.orderNumber,
       customerEmail: validated.email,
       customerName: `${validated.firstName} ${validated.lastName}`,
-      truckName: validated.truckName,
-      truckSize: validated.truckSize,
-      truckImage: validated.truckImage,
-      truckImages: validated.truckImages,
-      upgrades: validated.upgrades,
-      price: validated.price,
+      items: emailItems,
+      subtotal: validated.subtotal,
       total: validated.total,
       paymentMethod: validated.paymentMethod,
     });
@@ -107,12 +137,8 @@ export async function submitOrder(data: OrderInput) {
         phone: validated.phone,
         address: `${validated.address}, ${validated.city}, ${validated.state} ${validated.zipCode}`,
       },
-      truckName: validated.truckName,
-      truckSize: validated.truckSize,
-      truckImage: validated.truckImage,
-      truckImages: validated.truckImages,
-      upgrades: validated.upgrades,
-      price: validated.price,
+      items: emailItems,
+      subtotal: validated.subtotal,
       total: validated.total,
       paymentMethod: validated.paymentMethod,
     });

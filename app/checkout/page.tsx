@@ -123,28 +123,45 @@ export default function CheckoutPage() {
     setIsProcessing(true);
 
     try {
-      // Get cart item (assuming single item for now)
-      const item = cartItems[0];
-      if (!item) {
+      if (cartItems.length === 0) {
         throw new Error("No items in cart");
       }
-
-      const primaryImage = item.trailer.images.find((img) => img.isPrimary) || item.trailer.images[0];
 
       // Calculate totals
       const total = getCartTotal();
 
-      // Map selected upgrades to include name and price
-      const selectedUpgrades = item.selectedUpgrades.map(upgradeId => {
-        const upgrade = item.trailer.upgrades.find(u => u.id === upgradeId);
+      // Build order items from ALL cart items
+      const orderItems = cartItems.map((item) => {
+        const primaryImage =
+          item.trailer.images.find((img) => img.isPrimary) || item.trailer.images[0];
+
+        const selectedUpgrades = item.selectedUpgrades.map((upgradeId) => {
+          const upgrade = item.trailer.upgrades.find((u) => u.id === upgradeId);
+          return {
+            id: upgradeId,
+            name: upgrade?.name || "Unknown Upgrade",
+            price: upgrade?.price || 0,
+          };
+        });
+
+        const upgradesTotal = selectedUpgrades.reduce((sum, u) => sum + u.price, 0);
+        const itemTotal = (item.trailer.price + upgradesTotal) * item.quantity;
+
         return {
-          id: upgradeId,
-          name: upgrade?.name || 'Unknown Upgrade',
-          price: upgrade?.price || 0,
+          truckName: item.trailer.name,
+          truckSize: item.trailer.size || "Custom",
+          truckType: item.trailer.type,
+          truckImage: primaryImage.url,
+          truckImages: item.trailer.images.map((img) => img.url),
+          upgrades: selectedUpgrades,
+          quantity: item.quantity,
+          unitPrice: item.trailer.price,
+          upgradesTotal,
+          itemTotal,
         };
       });
 
-      // Submit order
+      // Submit order with all items
       const result = await submitOrder({
         // User Information
         firstName: billingInfo.firstName,
@@ -156,16 +173,11 @@ export default function CheckoutPage() {
         state: billingInfo.state,
         zipCode: billingInfo.zipCode,
 
-        // Truck Information
-        truckName: item.trailer.name,
-        truckSize: item.trailer.size || "Custom",
-        truckType: item.trailer.type,
-        truckImage: primaryImage.url,
-        truckImages: item.trailer.images.map(img => img.url),
-        upgrades: selectedUpgrades,
+        // All order items
+        items: orderItems,
 
         // Pricing
-        price: total,
+        subtotal: total,
         total: total,
 
         // Payment
