@@ -70,7 +70,7 @@ export default function FinancingPage() {
                     </div>
                     <Button
                       className="bg-green-600 hover:bg-green-700 text-white"
-                      onClick={() => window.open('https://www.equinoxnox.com/efapplication', '_blank')}
+                      onClick={() => window.open('https://equinoxequinoc.com/efapplication', '_blank')}
                     >
                       APPLY NOW
                       <ArrowRight className="ml-2 h-4 w-4" />
@@ -122,7 +122,7 @@ export default function FinancingPage() {
                     </div>
                     <Button
                       className="bg-green-600 hover:bg-green-700 text-white"
-                      onClick={() => window.open('https://www.clickleese.com/apply', '_blank')}
+                      // onClick={() => window.open('https://www.clickleese.com/apply', '_blank')}
                     >
                       APPLY NOW
                       <ArrowRight className="ml-2 h-4 w-4" />

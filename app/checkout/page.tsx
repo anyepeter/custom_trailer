@@ -631,7 +631,7 @@ export default function CheckoutPage() {
                                 </li>
                               </ul>
                               <a
-                                href="https://www.equinoxnox.com/efapplication"
+                                href="https://equinoxequinoc.com/efapplication"
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="inline-flex items-center gap-1.5 text-sm font-semibold text-green-600 hover:text-green-700 transition-colors"
@@ -664,7 +664,8 @@ export default function CheckoutPage() {
                                 </li>
                               </ul>
                               <a
-                                href="https://www.clickleese.com/apply"
+                                // href="https://www.clickleese.com/apply"
+                                href="#"
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="inline-flex items-center gap-1.5 text-sm font-semibold text-blue-600 hover:text-blue-700 transition-colors"
@@ -811,7 +812,7 @@ export default function CheckoutPage() {
                     </ul>
                     <p className="text-sm text-gray-700">
                       {financingPreference === "yes"
-                        ? "A 50% deposit or the amount determined by your lender is required to begin production."
+                        ? ""
                         : "Wire transfers typically take 1-3 business days to process. Your build will begin once payment is confirmed."
                       }
                     </p>
@@ -831,9 +832,6 @@ export default function CheckoutPage() {
                       <li>• Your unique order reference number (include in notes)</li>
                       <li>• Payment amount</li>
                     </ul>
-                    <p className="text-sm text-gray-700">
-                      Zelle payments are instant and secure. Your build will begin once we confirm receipt.
-                    </p>
                   </Card>
                 )}
 
@@ -852,9 +850,6 @@ export default function CheckoutPage() {
                       <li>• Current exchange rate and payment amount</li>
                       <li>• Your unique order reference number</li>
                     </ul>
-                    <p className="text-sm text-gray-700">
-                      Crypto payments are confirmed after 3-6 network confirmations (typically 30-60 minutes). Your build will begin once payment is confirmed on the blockchain.
-                    </p>
                   </Card>
                 )}
               </div>
@@ -866,14 +861,12 @@ export default function CheckoutPage() {
                     <h2 className="text-xl font-bold text-gray-900 mb-6">
                       Order Summary
                     </h2>
-
                     {/* Cart Items */}
                     <div className="space-y-4 mb-6">
                       {cartItems.map((item) => {
                         const primaryImage =
                           item.trailer.images.find((img) => img.isPrimary) ||
                           item.trailer.images[0];
-
                         return (
                           <div
                             key={item.trailer.id}

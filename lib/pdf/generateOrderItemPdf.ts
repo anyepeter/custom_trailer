@@ -542,7 +542,17 @@ export function orderItemPdfHTML(data: OrderItemPdfData): string {
             <div class="terms-section">
                 <h3 style="margin-bottom: 15px;">TERMS AND CONDITIONS:</h3>
                 <p style="text-align: justify; line-height: 1.6;">
-                    Custom Trailer Pros will provide up to (5) trailer designs at no cost, after which time a Design Fee will be added per design. These fees will be deducted from the total cost of the trailer once it is ordered. When a trailer is purchased from Custom Trailer Pros and is paid for with wire transfer, zelle, crypto, a 50% deposit is required before production of the trailer will begin. If financing is secured through a third party, down payment requirements will be set by the creditor. The production process is started as soon as the down payment is received and is therefore non-refundable. All production build times given are estimates. Custom Trailer Pros cannot be held responsible for production delays. Due to constant changes and updates with health and safety codes, Custom Trailer Pros cannot guarantee the trailer(s) will pass all inspections. We always recommend submitting the plans to the appropriate agencies for pre-inspection. The balance due is to be paid in full prior to the installation of gas-lines or appliances. Final payment is due no later than 7 days after the time of completion at the factory. Trailer cannot be picked up or delivered until the balance is paid in full. Failure to comply with any of these terms releases Custom Trailer Pros to take possession of the trailer and/or take legal action to collect payment.
+                    Custom Trailer Pro offers fully completed, pre-manufactured trucks ready for purchase and prompt delivery. Each vehicle is sold based on its current specifications and condition, which will be clearly communicated prior to purchase.
+
+To reserve a truck, a deposit may be required. For payments made via wire transfer, Zelle, or cryptocurrency, a 50% deposit is typically requested to secure the vehicle. If you choose to finance your purchase through a third-party lender, deposit and payment terms will follow the lender's requirements. Once an agreement is reached, trucks can be prepared for immediate shipping or pickup.
+
+The remaining balance is to be completed prior to pickup or delivery. Final payment is expected within 7 days of confirming the purchase agreement. We will always work with you to ensure the process is smooth and clearly communicated.
+
+While we strive to provide high-quality, ready-to-use trucks, requirements may vary depending on your location. We recommend checking with your local authorities regarding any specific regulations, inspections, or certifications that may apply.
+
+All trucks are sold in their current condition, and we encourage buyers to review all details.
+
+In the event that payment is not completed within the agreed timeframe, the reservation may be canceled and the truck made available to other buyers. Custom Trailer Pro reserves the right to take appropriate steps to recover any outstanding payments if necessary
                 </p>
             </div>
 
