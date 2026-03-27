@@ -13,7 +13,7 @@ const customTruckDesignSchema = z.object({
   email: z.string().email("Valid email is required"),
   phoneNumber: z.string().min(1, "Phone number is required"),
   address: z.string().min(1, "Address is required"),
-  zipcode: z.string().min(5, "Valid zip code is required"),
+  zipcode: z.string().min(1, "Zip code is required"),
   paymentMethods: z.string().min(1, "Payment method is required"),
 
   // Truck Configuration

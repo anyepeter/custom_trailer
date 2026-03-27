@@ -160,7 +160,9 @@ export default function ConfiguratorPage() {
         lastName: config.lastName || '',
         email: config.email || '',
         phoneNumber: config.phoneNumber || '',
+        address: config.address || '',
         zipcode: config.zipcode || '',
+        paymentMethods: config.paymentMethods || '',
         trailerSize: config.trailerSize || '',
         rangeHood: config.rangeHood || '',
         fireSuppressionSystem: config.fireSuppressionSystem || '',
@@ -174,6 +176,13 @@ export default function ConfiguratorPage() {
       console.log("Server action result:", result);
 
       if (!result.success) {
+        const details = (result as { details?: { field: string; message: string }[] }).details;
+        if (details && Array.isArray(details)) {
+          const fieldErrors: Record<string, string> = {};
+          details.forEach((d) => { fieldErrors[d.field] = d.message; });
+          setErrors(fieldErrors);
+          throw new Error(details.map(d => `${d.field}: ${d.message}`).join(', '));
+        }
         throw new Error(result.error || "Failed to submit configuration");
       }
 
