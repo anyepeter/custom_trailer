@@ -88,7 +88,7 @@ export default function Step5Contact({ config, updateConfig, pricing, errors }: 
           <div className="space-y-5">
             {/* Name Row */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
+              <div data-error={errors.firstName ? "true" : undefined}>
                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                   First Name <span className="text-red-500">*</span>
                 </label>

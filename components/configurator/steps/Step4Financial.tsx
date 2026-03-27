@@ -10,9 +10,10 @@ interface Step4FinancialProps {
   config: TrailerConfiguration;
   updateConfig: (updates: Partial<TrailerConfiguration>) => void;
   pricing: PricingBreakdown;
+  errors?: Record<string, string>;
 }
 
-export default function Step4Financial({ config, updateConfig, pricing }: Step4FinancialProps) {
+export default function Step4Financial({ config, updateConfig, pricing, errors = {} }: Step4FinancialProps) {
   // Check if selected budget matches estimated price
   const getBudgetMatch = () => {
     const budgetRanges: Record<string, [number, number]> = {
@@ -125,12 +126,19 @@ export default function Step4Financial({ config, updateConfig, pricing }: Step4F
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4 }}
       >
-        <div className="mb-4">
+        <div className="mb-4" data-error={errors.budget ? "true" : undefined}>
           <h3 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
             <PiggyBank className="h-5 w-5 text-green-600" />
             What&apos;s Your Budget?
+            <span className="text-red-500 text-sm">*</span>
           </h3>
           <p className="text-sm text-slate-500 mt-1">Select the range that works best for you</p>
+          {errors.budget && (
+            <p className="text-red-500 text-sm font-medium mt-2 flex items-center gap-1">
+              <span className="inline-block w-2 h-2 bg-red-500 rounded-full" />
+              {errors.budget}
+            </p>
+          )}
         </div>
 
         {/* Use Calculated Estimate Option */}
@@ -177,7 +185,10 @@ export default function Step4Financial({ config, updateConfig, pricing }: Step4F
           </div>
         </motion.button>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+        <div className={cn(
+          "grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3",
+          errors.budget && "ring-2 ring-red-300 rounded-2xl p-2"
+        )}>
           {BUDGET_OPTIONS.map((budget, index) => {
             const isSelected = config.budget === budget.value;
             return (
@@ -267,15 +278,25 @@ export default function Step4Financial({ config, updateConfig, pricing }: Step4F
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5 }}
       >
-        <div className="mb-4">
+        <div className="mb-4" data-error={errors.needFinancing ? "true" : undefined}>
           <h3 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
             <CreditCard className="h-5 w-5 text-green-600" />
             Need Financing?
+            <span className="text-red-500 text-sm">*</span>
           </h3>
           <p className="text-sm text-slate-500 mt-1">We offer flexible payment plans</p>
+          {errors.needFinancing && (
+            <p className="text-red-500 text-sm font-medium mt-2 flex items-center gap-1">
+              <span className="inline-block w-2 h-2 bg-red-500 rounded-full" />
+              {errors.needFinancing}
+            </p>
+          )}
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className={cn(
+          "grid grid-cols-1 sm:grid-cols-3 gap-4",
+          errors.needFinancing && "ring-2 ring-red-300 rounded-2xl p-2"
+        )}>
           {FINANCING_OPTIONS.map((option, index) => {
             const isSelected = config.needFinancing === option.value;
             return (

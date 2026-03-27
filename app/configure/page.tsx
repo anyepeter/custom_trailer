@@ -41,28 +41,68 @@ export default function ConfiguratorPage() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [currentStep]);
 
-  const validateContactStep = (): boolean => {
+  const validateCurrentStep = (): boolean => {
     const newErrors: Record<string, string> = {};
 
-    if (!config.firstName?.trim()) {
-      newErrors.firstName = "First name is required";
-    }
-    if (!config.lastName?.trim()) {
-      newErrors.lastName = "Last name is required";
-    }
-    if (!config.email?.trim()) {
-      newErrors.email = "Email is required";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(config.email)) {
-      newErrors.email = "Please enter a valid email";
-    }
-    if (!config.phoneNumber?.trim()) {
-      newErrors.phoneNumber = "Phone number is required";
-    }
-    if (!config.zipcode?.trim()) {
-      newErrors.zipcode = "Zip code is required";
-    }
-    if (!config.paymentMethods?.trim()) {
-      newErrors.paymentMethods = "Payment method is required";
+    switch (currentStep) {
+      case 1:
+        if (!config.trailerSize) {
+          newErrors.trailerSize = "Please select a trailer size to continue";
+        }
+        break;
+
+      case 2:
+        if (!config.rangeHood || config.rangeHood === "none") {
+          newErrors.rangeHood = "Please select a range hood option";
+        }
+        if (!config.fireSuppressionSystem || config.fireSuppressionSystem === "no") {
+          newErrors.fireSuppressionSystem = "Please select a fire suppression option";
+        }
+        break;
+
+      case 3:
+        if (!config.exteriorColor) {
+          newErrors.exteriorColor = "Please select an exterior color";
+        }
+        if (!config.interiorFinish) {
+          newErrors.interiorFinish = "Please select an interior finish";
+        }
+        break;
+
+      case 4:
+        if (!config.budget) {
+          newErrors.budget = "Please select a budget range";
+        }
+        if (!config.needFinancing) {
+          newErrors.needFinancing = "Please indicate if you need financing";
+        }
+        break;
+
+      case 5:
+        if (!config.firstName?.trim()) {
+          newErrors.firstName = "First name is required";
+        }
+        if (!config.lastName?.trim()) {
+          newErrors.lastName = "Last name is required";
+        }
+        if (!config.email?.trim()) {
+          newErrors.email = "Email is required";
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(config.email)) {
+          newErrors.email = "Please enter a valid email";
+        }
+        if (!config.phoneNumber?.trim()) {
+          newErrors.phoneNumber = "Phone number is required";
+        }
+        if (!config.address?.trim()) {
+          newErrors.address = "Address is required";
+        }
+        if (!config.zipcode?.trim()) {
+          newErrors.zipcode = "Zip code is required";
+        }
+        if (!config.paymentMethods?.trim()) {
+          newErrors.paymentMethods = "Payment method is required";
+        }
+        break;
     }
 
     setErrors(newErrors);
@@ -70,23 +110,29 @@ export default function ConfiguratorPage() {
   };
 
   const handleNext = async () => {
-    console.log("handleNext called, currentStep:", currentStep);
+    // Validate current step before proceeding
+    if (!validateCurrentStep()) {
+      // Scroll to the first error
+      setTimeout(() => {
+        const errorElement = document.querySelector('[data-error="true"]');
+        if (errorElement) {
+          errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 100);
+      return;
+    }
+
     if (currentStep === 5) {
-      // Final step - submit
-      console.log("Step 5 detected, validating contact info...");
-      if (!validateContactStep()) {
-        console.log("Validation failed, not submitting");
-        return;
-      }
-      console.log("Validation passed, calling handleSubmit...");
       await handleSubmit();
     } else {
+      setErrors({});
       setCurrentStep(currentStep + 1);
     }
   };
 
   const handlePrevious = () => {
     if (currentStep > 1) {
+      setErrors({});
       setCurrentStep(currentStep - 1);
     }
   };
@@ -94,6 +140,7 @@ export default function ConfiguratorPage() {
   const handleStepChange = (step: number) => {
     // Only allow going to completed steps or current step
     if (step <= currentStep || isStepValid(step - 1)) {
+      setErrors({});
       setCurrentStep(step);
     }
   };
@@ -228,13 +275,13 @@ export default function ConfiguratorPage() {
   const renderStep = () => {
     switch (currentStep) {
       case 1:
-        return <Step1Trailer config={config} updateConfig={updateConfig} />;
+        return <Step1Trailer config={config} updateConfig={updateConfig} errors={errors} />;
       case 2:
-        return <Step2Equipment config={config} updateConfig={updateConfig} />;
+        return <Step2Equipment config={config} updateConfig={updateConfig} errors={errors} />;
       case 3:
-        return <Step3Customization config={config} updateConfig={updateConfig} />;
+        return <Step3Customization config={config} updateConfig={updateConfig} errors={errors} />;
       case 4:
-        return <Step4Financial config={config} updateConfig={updateConfig} pricing={pricing} />;
+        return <Step4Financial config={config} updateConfig={updateConfig} pricing={pricing} errors={errors} />;
       case 5:
         return <Step5Contact config={config} updateConfig={updateConfig} pricing={pricing} errors={errors} />;
       default:

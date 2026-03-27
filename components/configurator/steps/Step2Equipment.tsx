@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 interface Step2EquipmentProps {
   config: TrailerConfiguration;
   updateConfig: (updates: Partial<TrailerConfiguration>) => void;
+  errors?: Record<string, string>;
 }
 
 interface EquipmentSelectorProps {
@@ -20,6 +21,7 @@ interface EquipmentSelectorProps {
   selectedValue: string;
   onChange: (value: string) => void;
   badge?: string;
+  error?: string;
 }
 
 function EquipmentSelector({
@@ -30,9 +32,13 @@ function EquipmentSelector({
   selectedValue,
   onChange,
   badge,
+  error,
 }: EquipmentSelectorProps) {
   return (
-    <Card className="p-4 bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700">
+    <Card className={cn(
+      "p-4 bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700",
+      error && "border-red-400 ring-2 ring-red-200"
+    )} data-error={error ? "true" : undefined}>
       <div className="flex items-start gap-3 mb-4">
         <div className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 flex-shrink-0">
           {icon}
@@ -47,6 +53,12 @@ function EquipmentSelector({
             )}
           </div>
           <p className="text-sm text-slate-500 dark:text-slate-400">{description}</p>
+          {error && (
+            <p className="text-red-500 text-xs font-medium mt-1 flex items-center gap-1">
+              <span className="inline-block w-1.5 h-1.5 bg-red-500 rounded-full" />
+              {error}
+            </p>
+          )}
         </div>
       </div>
 
@@ -129,7 +141,7 @@ const POPULAR_PACKAGES = [
   },
 ];
 
-export default function Step2Equipment({ config, updateConfig }: Step2EquipmentProps) {
+export default function Step2Equipment({ config, updateConfig, errors = {} }: Step2EquipmentProps) {
   const [showPackages, setShowPackages] = useState(true);
 
   const applyPackage = (pkg: typeof POPULAR_PACKAGES[0]) => {
@@ -258,6 +270,7 @@ export default function Step2Equipment({ config, updateConfig }: Step2EquipmentP
               selectedValue={config.rangeHood}
               onChange={(value) => updateConfig({ rangeHood: value })}
               badge="Required"
+              error={errors.rangeHood}
             />
 
             <EquipmentSelector
@@ -268,6 +281,7 @@ export default function Step2Equipment({ config, updateConfig }: Step2EquipmentP
               selectedValue={config.fireSuppressionSystem}
               onChange={(value) => updateConfig({ fireSuppressionSystem: value })}
               badge="Required"
+              error={errors.fireSuppressionSystem}
             />
           </div>
         </motion.div>

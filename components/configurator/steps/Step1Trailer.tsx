@@ -9,9 +9,10 @@ import { cn } from "@/lib/utils";
 interface Step1TrailerProps {
   config: TrailerConfiguration;
   updateConfig: (updates: Partial<TrailerConfiguration>) => void;
+  errors?: Record<string, string>;
 }
 
-export default function Step1Trailer({ config, updateConfig }: Step1TrailerProps) {
+export default function Step1Trailer({ config, updateConfig, errors = {} }: Step1TrailerProps) {
   return (
     <div className="space-y-8">
       {/* Hero Section */}
@@ -89,17 +90,27 @@ export default function Step1Trailer({ config, updateConfig }: Step1TrailerProps
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5 }}
       >
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between mb-4" data-error={errors.trailerSize ? "true" : undefined}>
           <div>
             <h3 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
               <Maximize2 className="h-5 w-5 text-blue-600" />
               Select Trailer Size
+              <span className="text-red-500 text-sm">*</span>
             </h3>
             <p className="text-sm text-slate-500 mt-1">Choose the size that fits your business needs</p>
+            {errors.trailerSize && (
+              <p className="text-red-500 text-sm font-medium mt-2 flex items-center gap-1">
+                <span className="inline-block w-2 h-2 bg-red-500 rounded-full" />
+                {errors.trailerSize}
+              </p>
+            )}
           </div>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+        <div className={cn(
+          "grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4",
+          errors.trailerSize && "ring-2 ring-red-300 rounded-2xl p-2"
+        )}>
           {TRAILER_SIZES.map((size, index) => {
             const isSelected = config.trailerSize === size.value;
             return (
