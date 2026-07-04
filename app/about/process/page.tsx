@@ -131,7 +131,7 @@ export default function ProcessPage() {
               <h2 className="text-2xl font-bold mb-4">Contact Us</h2>
               <div className="space-y-2 text-sm mb-6">
                 <p><strong>Address:</strong> Design and Sales Office: 10101 W 87th Street, Overland Park, KS 66212</p>
-                <p><strong>Phone:</strong> +1-501-216-2500</p>
+                <p><strong>Phone:</strong> +1-662-400-0864</p>
                 <p><strong>Email:</strong> sales@customtrailerspro.com</p>
                 <p className="mt-4 text-gray-400">Trailer Build Location: Columbia, TN</p>
               </div>

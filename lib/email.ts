@@ -416,7 +416,7 @@ function generateSalesNotificationEmailHTML(data: CustomTruckData): string {
       <p><strong>Custom Trailers Pro - Sales Team</strong></p>
       <p>
         📧 <a href="mailto:sales@customtrailerspro.com">sales@customtrailerspro.com</a> | 
-        📞 <a href="tel:+15012162500">+1 501 216 2500</a>
+        📞 <a href="tel:+16624000864">+1 662 400 0864</a>
       </p>
       <p style="margin-top: 15px; font-size: 12px; color: #6b7280;">
         This is an automated notification. Please do not reply to this email.
@@ -672,7 +672,7 @@ function generateCustomTruckEmailHTML(data: CustomTruckData): string {
       <p><strong>Custom Trailers Pro</strong></p>
       <p style="margin-top: 15px;">
         📧 <a href="mailto:sales@customtrailerspro.com" style="color: #2563eb; text-decoration: none;">sales@customtrailerspro.com</a><br>
-        📞 <a href="tel:+15012162500" style="color: #2563eb; text-decoration: none;">+1 501 216 2500</a><br>
+        📞 <a href="tel:+16624000864" style="color: #2563eb; text-decoration: none;">+1 662 400 0864</a><br>
         🌐 <a href="https://customtrailerspro.com/" style="color: #2563eb; text-decoration: none;">customtrailerspro.com</a>
       </p>
     </div>

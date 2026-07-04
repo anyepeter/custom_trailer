@@ -262,7 +262,7 @@ function generateUserEmailHTML(data: ContactFormData): string {
         <h3>Need Immediate Assistance?</h3>
         <p style="color: #6b7280; margin: 0 0 15px;">Feel free to reach out directly:</p>
         <div class="contact-methods">
-          <a href="tel:+15012162500" class="contact-method">📞 Call Us</a>
+          <a href="tel:+16624000864" class="contact-method">📞 Call Us</a>
           <a href="mailto:sales@customtrailerspro.com" class="contact-method">✉️ Email Us</a>
         </div>
       </div>
@@ -278,7 +278,7 @@ function generateUserEmailHTML(data: ContactFormData): string {
       <p><strong>Custom Trailer Pro</strong></p>
       <p>
         📧 <a href="mailto:sales@customtrailerspro.com">sales@customtrailerspro.com</a> |
-        📞 <a href="tel:+15012162500">+1 501 216-2500</a>
+        📞 <a href="tel:+16624000864">+1 662 400-0864</a>
       </p>
       <p style="margin-top: 15px; font-size: 12px;">
         10101 W 87th St, Suite 200<br>

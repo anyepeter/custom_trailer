@@ -300,7 +300,7 @@ function getCustomerEmailHTML(data: OrderConfirmationData): string {
             <p style="margin: 0 0 10px 0; color: #333; font-size: 16px; font-weight: 600;">Questions about your order?</p>
             <p style="margin: 0 0 15px 0; color: #666; font-size: 14px;">
                 Contact us at <a href="mailto:${SALES_EMAIL}" style="color: #0066b2; text-decoration: none;">${SALES_EMAIL}</a>
-                or call <a href="tel:+15012162500" style="color: #0066b2; text-decoration: none;">+1-501-216-2500</a>
+                or call <a href="tel:+16624000864" style="color: #0066b2; text-decoration: none;">+1-662-400-0864</a>
             </p>
             <div style="border-top: 1px solid #e0e0e0; padding-top: 20px; margin-top: 20px;">
                 <p style="margin: 0 0 5px 0; color: #999; font-size: 12px;">Custom Trailer Pros</p>

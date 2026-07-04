@@ -624,7 +624,7 @@ export async function generateOrderItemPdf(data: OrderItemPdfData): Promise<Buff
             <img src="${LOGO_BASE64}" alt="Logo" />
           </div>
           <div class="contact-section">
-            <div class="phone">P: +1-501-216-2500</div>
+            <div class="phone">P: +1-662-400-0864</div>
             <div class="website">www.customtrailerspro.com</div>
           </div>
         </div>

@@ -56,7 +56,7 @@ export default function StickyCTA() {
             >
               {/* WhatsApp */}
               <motion.a
-                href="https://wa.me/18005551234"
+                href="https://wa.me/16624000864"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="group relative"
@@ -72,7 +72,7 @@ export default function StickyCTA() {
 
               {/* Phone Call */}
               <motion.a
-                href="tel:+18005551234"
+                href="tel:+16624000864"
                 className="group relative"
                 data-analytics="cta-phone"
                 whileHover={{ scale: 1.05 }}

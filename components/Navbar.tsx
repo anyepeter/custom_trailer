@@ -72,12 +72,12 @@ export default function Navbar() {
           <div className="container mx-auto px-4">
             <div className="flex items-center justify-end gap-6 py-2 text-sm">
               <a
-                href="tel:+15012162500"
+                href="tel:+16624000864"
                 className="flex items-center gap-2 text-white/90 hover:text-white transition-colors"
-                aria-label="Call us at +1 501 216-2500"
+                aria-label="Call us at +1 662 400-0864"
               >
                 <Phone className="h-4 w-4" />
-                <span className="hidden sm:inline">+1 501 216-2500</span>
+                <span className="hidden sm:inline">+1 662 400-0864</span>
               </a>
               <a
                 href="mailto:sales@customtrailerspro.com"
@@ -190,11 +190,11 @@ export default function Navbar() {
                 </Link>
                 <div className="flex flex-col gap-3 pt-6 border-t border-gray-200">
                   <a
-                    href="tel:+15012162500"
+                    href="tel:+16624000864"
                     className="flex items-center gap-2 text-gray-600 hover:text-blue-600"
                   >
                     <Phone className="h-5 w-5" />
-                    +1 501 216-2500
+                    +1 662 400-0864
                   </a>
                   <a
                     href="mailto:sales@customtrailerspro.com"

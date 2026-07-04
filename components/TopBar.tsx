@@ -10,11 +10,11 @@ export default function TopBar() {
         <div className="flex items-center justify-between py-2 text-sm">
           {/* Phone */}
           <a
-            href="tel:+15012162500"
+            href="tel:+16624000864"
             className="flex items-center gap-2 text-gray-300 hover:text-white transition-colors"
           >
             <Phone className="h-4 w-4" />
-            <span>+1 501 216-2500</span>
+            <span>+1 662 400-0864</span>
           </a>
 
           {/* Social Icons */}
