@@ -4,13 +4,15 @@ import HeroVideo from '@/components/HeroVideo';
 import Footer from '@/components/Footer';
 import TrailerInteriorImage from '@/components/TrailerInteriorImage';
 import Link from 'next/link';
+import { getSiteSettings } from '@/lib/settings';
 
 export const metadata = {
   title: 'Our Process | Custom Trailer Pro',
   description: 'Learn about our step-by-step process for building your custom food truck or trailer. From design to delivery, we guide you every step of the way.',
 };
 
-export default function ProcessPage() {
+export default async function ProcessPage() {
+  const contact = await getSiteSettings();
   const features = [
     'Free designs with industry experts',
     'Built-to-order trailers made for your exact needs',
@@ -131,8 +133,8 @@ export default function ProcessPage() {
               <h2 className="text-2xl font-bold mb-4">Contact Us</h2>
               <div className="space-y-2 text-sm mb-6">
                 <p><strong>Address:</strong> Design and Sales Office: 10101 W 87th Street, Overland Park, KS 66212</p>
-                <p><strong>Phone:</strong> +1-662-400-0864</p>
-                <p><strong>Email:</strong> sales@customtrailerspro.com</p>
+                <p><strong>Phone:</strong> {contact.phone}</p>
+                <p><strong>Email:</strong> {contact.email}</p>
                 <p className="mt-4 text-gray-400">Trailer Build Location: Columbia, TN</p>
               </div>
               <Link

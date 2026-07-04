@@ -7,6 +7,17 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model SiteSetting {
+  id        String   @id @default("singleton")
+  phone     String   @default("+1 662 400-0864")
+  email     String   @default("sales@customtrailerspro.com")
+  whatsapp  String   @default("16624000864")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("site_settings")
+}
+
 model Truck {
   id                    String   @id @default(cuid())
   name                  String

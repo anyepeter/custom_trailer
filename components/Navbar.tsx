@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/sheet";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { useSiteContact } from "@/contexts/SettingsContext";
 import path from "path";
 
 const navLinks = [
@@ -24,6 +25,7 @@ const navLinks = [
 ];
 
 export default function Navbar() {
+  const contact = useSiteContact();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const pathname = usePathname();
@@ -72,20 +74,20 @@ export default function Navbar() {
           <div className="container mx-auto px-4">
             <div className="flex items-center justify-end gap-6 py-2 text-sm">
               <a
-                href="tel:+16624000864"
+                href={contact.phoneHref}
                 className="flex items-center gap-2 text-white/90 hover:text-white transition-colors"
-                aria-label="Call us at +1 662 400-0864"
+                aria-label={`Call us at ${contact.phone}`}
               >
                 <Phone className="h-4 w-4" />
-                <span className="hidden sm:inline">+1 662 400-0864</span>
+                <span className="hidden sm:inline">{contact.phone}</span>
               </a>
               <a
-                href="mailto:sales@customtrailerspro.com"
+                href={contact.emailHref}
                 className="flex items-center gap-2 text-white/90 hover:text-white transition-colors"
-                aria-label="Email us at sales@customtrailerspro.com"
+                aria-label={`Email us at ${contact.email}`}
               >
                 <Mail className="h-4 w-4" />
-                <span className="hidden sm:inline">sales@customtrailerspro.com</span>
+                <span className="hidden sm:inline">{contact.email}</span>
               </a>
               <a
                 href="https://www.facebook.com/share/1KcnccVYB2/?mibextid=wwXIfr"
@@ -190,18 +192,18 @@ export default function Navbar() {
                 </Link>
                 <div className="flex flex-col gap-3 pt-6 border-t border-gray-200">
                   <a
-                    href="tel:+16624000864"
+                    href={contact.phoneHref}
                     className="flex items-center gap-2 text-gray-600 hover:text-blue-600"
                   >
                     <Phone className="h-5 w-5" />
-                    +1 662 400-0864
+                    {contact.phone}
                   </a>
                   <a
-                    href="mailto:sales@customtrailerspro.com"
+                    href={contact.emailHref}
                     className="flex items-center gap-2 text-gray-600 hover:text-blue-600"
                   >
                     <Mail className="h-5 w-5" />
-                    sales@customtrailerspro.com
+                    {contact.email}
                   </a>
                   <a
                     href="https://www.facebook.com/share/1KcnccVYB2/?mibextid=wwXIfr"

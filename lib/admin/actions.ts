@@ -1,12 +1,22 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
-import { truckFormSchema, buildRequestUpdateSchema } from "./schemas";
-import type { TruckFormSchema, BuildRequestUpdateSchema } from "./schemas";
+import {
+  truckFormSchema,
+  buildRequestUpdateSchema,
+  siteSettingsSchema,
+} from "./schemas";
+import type {
+  TruckFormSchema,
+  BuildRequestUpdateSchema,
+  SiteSettingsSchema,
+} from "./schemas";
 import { uploadToCloudinary } from "@/lib/cloudinary";
+import { SITE_SETTINGS_ID, SITE_SETTINGS_TAG } from "@/lib/settings";
+import { DEFAULT_CONTACT_RAW } from "@/lib/site-contact";
 
 // ============================================================================
 // TRUCK ACTIONS
@@ -295,6 +305,74 @@ export async function getDashboardStatsAction() {
         pendingRequests: 0,
         completedRequests: 0,
       },
+    };
+  }
+}
+
+// ============================================================================
+// SITE SETTINGS ACTIONS (admin-editable contact info)
+// ============================================================================
+
+export async function getSiteSettingsAction() {
+  try {
+    const row = await prisma.siteSetting.findUnique({
+      where: { id: SITE_SETTINGS_ID },
+    });
+
+    return {
+      success: true,
+      data: row
+        ? { phone: row.phone, email: row.email, whatsapp: row.whatsapp }
+        : { ...DEFAULT_CONTACT_RAW },
+    };
+  } catch (error) {
+    console.error("Get site settings error:", error);
+
+    return {
+      success: false,
+      error: "Failed to load site settings",
+      data: { ...DEFAULT_CONTACT_RAW },
+    };
+  }
+}
+
+export async function updateSiteSettingsAction(data: SiteSettingsSchema) {
+  try {
+    const validated = siteSettingsSchema.parse(data);
+
+    const row = await prisma.siteSetting.upsert({
+      where: { id: SITE_SETTINGS_ID },
+      update: {
+        phone: validated.phone,
+        email: validated.email,
+        whatsapp: validated.whatsapp,
+      },
+      create: { id: SITE_SETTINGS_ID, ...validated },
+    });
+
+    // Contact info is read (cached) across the whole site, so bust the tag and
+    // the shared layout to reflect the change everywhere immediately.
+    revalidateTag(SITE_SETTINGS_TAG);
+    revalidatePath("/", "layout");
+
+    return {
+      success: true,
+      data: { phone: row.phone, email: row.email, whatsapp: row.whatsapp },
+      message: "Contact settings updated successfully",
+    };
+  } catch (error) {
+    console.error("Update site settings error:", error);
+
+    if (error instanceof Error) {
+      return {
+        success: false,
+        error: error.message,
+      };
+    }
+
+    return {
+      success: false,
+      error: "Failed to update site settings",
     };
   }
 }

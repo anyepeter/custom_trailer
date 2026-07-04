@@ -1,6 +1,8 @@
 import nodemailer from 'nodemailer';
 import { PAYMENT_METHOD_OPTIONS } from '@/types/configurator';
 import { customTruckDesignHTML, generatePdfFromHtml } from './pdf/generatePdf';
+import { getSiteSettings } from '@/lib/settings';
+import { DEFAULT_CONTACT, type SiteContact } from '@/lib/site-contact';
 
 // Email configuration from environment variables
 const SMTP_HOST = process.env.SMTP_HOST || 'smtp.gmail.com';
@@ -67,7 +69,7 @@ interface CustomTruckData {
   additionalInfo?: string;
 }
 
-function generateSalesNotificationEmailHTML(data: CustomTruckData): string {
+function generateSalesNotificationEmailHTML(data: CustomTruckData, contact: SiteContact = DEFAULT_CONTACT): string {
   const {
     firstName,
     lastName,
@@ -415,8 +417,8 @@ function generateSalesNotificationEmailHTML(data: CustomTruckData): string {
     <div class="footer">
       <p><strong>Custom Trailers Pro - Sales Team</strong></p>
       <p>
-        📧 <a href="mailto:sales@customtrailerspro.com">sales@customtrailerspro.com</a> | 
-        📞 <a href="tel:+16624000864">+1 662 400 0864</a>
+        📧 <a href="${contact.emailHref}">${contact.email}</a> |
+        📞 <a href="${contact.phoneHref}">${contact.phone}</a>
       </p>
       <p style="margin-top: 15px; font-size: 12px; color: #6b7280;">
         This is an automated notification. Please do not reply to this email.
@@ -430,7 +432,7 @@ function generateSalesNotificationEmailHTML(data: CustomTruckData): string {
 
 
 // Generate professional HTML email template
-function generateCustomTruckEmailHTML(data: CustomTruckData): string {
+function generateCustomTruckEmailHTML(data: CustomTruckData, contact: SiteContact = DEFAULT_CONTACT): string {
   const {
     firstName,
     lastName,
@@ -671,8 +673,8 @@ function generateCustomTruckEmailHTML(data: CustomTruckData): string {
     <div class="footer">
       <p><strong>Custom Trailers Pro</strong></p>
       <p style="margin-top: 15px;">
-        📧 <a href="mailto:sales@customtrailerspro.com" style="color: #2563eb; text-decoration: none;">sales@customtrailerspro.com</a><br>
-        📞 <a href="tel:+16624000864" style="color: #2563eb; text-decoration: none;">+1 662 400 0864</a><br>
+        📧 <a href="${contact.emailHref}" style="color: #2563eb; text-decoration: none;">${contact.email}</a><br>
+        📞 <a href="${contact.phoneHref}" style="color: #2563eb; text-decoration: none;">${contact.phone}</a><br>
         🌐 <a href="https://customtrailerspro.com/" style="color: #2563eb; text-decoration: none;">customtrailerspro.com</a>
       </p>
     </div>
@@ -690,8 +692,9 @@ export async function sendCustomTruckDesignEmail(data: CustomTruckData) {
 
     // Step 1: Generate HTML email content
     console.log('[Email Service] Step 1: Generating HTML email content...');
-    const htmlContent = generateCustomTruckEmailHTML(data);
-    const htmlSalesContent = generateSalesNotificationEmailHTML(data);
+    const contact = await getSiteSettings();
+    const htmlContent = generateCustomTruckEmailHTML(data, contact);
+    const htmlSalesContent = generateSalesNotificationEmailHTML(data, contact);
     console.log('[Email Service] HTML content generated successfully');
 
     // Step 2: Generate PDF with the actual user data
@@ -700,7 +703,7 @@ export async function sendCustomTruckDesignEmail(data: CustomTruckData) {
 
     let pdfBuffer: Buffer;
     try {
-      const pdfData = await generatePdfFromHtml(customTruckDesignHTML(data));
+      const pdfData = await generatePdfFromHtml(customTruckDesignHTML(data), contact);
       pdfBuffer = Buffer.from(pdfData);
       console.log('[Email Service] PDF generated successfully. Size:', pdfBuffer.length, 'bytes');
       console.log('[Email Service] PDF buffer type:', typeof pdfBuffer, 'Is Buffer:', Buffer.isBuffer(pdfBuffer));

@@ -8,6 +8,7 @@ import {
   PlusCircle,
   List,
   FileText,
+  Settings,
   ChevronRight,
   X,
 } from "lucide-react";
@@ -34,6 +35,11 @@ const navigation = [
     name: "Build Submissions",
     href: "/admin/build-requests",
     icon: FileText,
+  },
+  {
+    name: "Settings",
+    href: "/admin/settings",
+    icon: Settings,
   },
 ];
 

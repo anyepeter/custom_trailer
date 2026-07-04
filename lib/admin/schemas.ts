@@ -54,3 +54,24 @@ export const buildRequestUpdateSchema = z.object({
 });
 
 export type BuildRequestUpdateSchema = z.infer<typeof buildRequestUpdateSchema>;
+
+// Site Settings Schema (admin-editable contact info)
+export const siteSettingsSchema = z.object({
+  phone: z
+    .string()
+    .trim()
+    .min(3, "Phone number is required")
+    .max(40, "Phone number is too long"),
+  email: z
+    .string()
+    .trim()
+    .email("Enter a valid email address")
+    .max(120, "Email is too long"),
+  whatsapp: z
+    .string()
+    .trim()
+    .min(3, "WhatsApp number is required")
+    .max(40, "WhatsApp number is too long"),
+});
+
+export type SiteSettingsSchema = z.infer<typeof siteSettingsSchema>;

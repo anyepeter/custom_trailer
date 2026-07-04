@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Mail, Phone, MapPin, Facebook, Instagram, Twitter, Linkedin, ArrowRight, Youtube } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useSiteContact } from "@/contexts/SettingsContext";
 
 const footerLinks = {
   products: [
@@ -37,6 +38,7 @@ const socialLinks = [
 ];
 
 export default function Footer() {
+  const contact = useSiteContact();
   const [email, setEmail] = useState("");
   const [subscribed, setSubscribed] = useState(false);
 
@@ -164,8 +166,8 @@ export default function Footer() {
               <Phone className="h-5 w-5 text-blue-500 flex-shrink-0 mt-1" />
               <div>
                 <div className="text-white font-semibold mb-1">Call Us</div>
-                <a href="tel:+16624000864" className="hover:text-white transition-colors">
-                  +1-662-400-0864
+                <a href={contact.phoneHref} className="hover:text-white transition-colors">
+                  {contact.phone}
                 </a>
                 <div className="text-sm text-gray-500">Mon-Fri, 9am-6pm EST</div>
               </div>
@@ -176,10 +178,10 @@ export default function Footer() {
               <div>
                 <div className="text-white font-semibold mb-1">Email Us</div>
                 <a
-                  href="mailto:sales@customtrailerspro.com"
+                  href={contact.emailHref}
                   className="hover:text-white transition-colors"
                 >
-                  sales@customtrailerspro.com
+                  {contact.email}
                 </a>
                 <div className="text-sm text-gray-500">24-hour response time</div>
               </div>

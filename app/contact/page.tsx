@@ -2,13 +2,16 @@ import { PhoneIcon, EnvelopeIcon, MapPinIcon } from '@heroicons/react/24/outline
 import ContactForm from './components/ContactForm';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import { getSiteSettings } from '@/lib/settings';
 
 export const metadata = {
   title: 'Contact Us | Custom Trailer Pro',
   description: 'Get in touch with Custom Trailer Pro. We\'re here to help you design your perfect custom food truck or trailer.',
 };
 
-export default function ContactPage() {
+export default async function ContactPage() {
+  const contact = await getSiteSettings();
+
   return (
     <>
       <Navbar />
@@ -38,7 +41,7 @@ export default function ContactPage() {
 
                 {/* Phone */}
                 <a
-                  href="tel:+16624000864"
+                  href={contact.phoneHref}
                   className="block p-4 rounded-lg bg-white border border-gray-200 hover:border-blue-500 hover:shadow-md transition-all"
                 >
                   <div className="flex items-center gap-3">
@@ -50,7 +53,7 @@ export default function ContactPage() {
                         Phone
                       </h3>
                       <p className="text-lg font-semibold text-gray-900">
-                      +1 662 400-0864
+                      {contact.phone}
                       </p>
                     </div>
                   </div>
@@ -58,7 +61,7 @@ export default function ContactPage() {
 
                 {/* Email */}
                 <a
-                  href="mailto:sales@customtrailerpros.com"
+                  href={contact.emailHref}
                   className="block p-4 rounded-lg bg-white border border-gray-200 hover:border-blue-500 hover:shadow-md transition-all"
                 >
                   <div className="flex items-center gap-3">
@@ -70,7 +73,7 @@ export default function ContactPage() {
                         Email
                       </h3>
                       <p className="text-sm font-semibold text-gray-900 break-words">
-                        sales@customtrailerpros.com
+                        {contact.email}
                       </p>
                     </div>
                   </div>

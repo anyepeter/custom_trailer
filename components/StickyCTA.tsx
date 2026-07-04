@@ -5,8 +5,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import { MessageCircle, Phone, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useSiteContact } from "@/contexts/SettingsContext";
 
 export default function StickyCTA() {
+  const contact = useSiteContact();
   const [isVisible, setIsVisible] = useState(false);
   const [showContactMenu, setShowContactMenu] = useState(false);
 
@@ -56,7 +58,7 @@ export default function StickyCTA() {
             >
               {/* WhatsApp */}
               <motion.a
-                href="https://wa.me/16624000864"
+                href={contact.whatsappHref}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="group relative"
@@ -72,7 +74,7 @@ export default function StickyCTA() {
 
               {/* Phone Call */}
               <motion.a
-                href="tel:+16624000864"
+                href={contact.phoneHref}
                 className="group relative"
                 data-analytics="cta-phone"
                 whileHover={{ scale: 1.05 }}

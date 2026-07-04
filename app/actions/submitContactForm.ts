@@ -1,6 +1,8 @@
 'use server';
 
 import nodemailer from 'nodemailer';
+import { getSiteSettings } from '@/lib/settings';
+import { DEFAULT_CONTACT, type SiteContact } from '@/lib/site-contact';
 
 // Email configuration
 const SMTP_HOST = process.env.SMTP_HOST || 'smtp.gmail.com';
@@ -30,7 +32,7 @@ interface ContactFormData {
 }
 
 // User acknowledgment email template
-function generateUserEmailHTML(data: ContactFormData): string {
+function generateUserEmailHTML(data: ContactFormData, contact: SiteContact = DEFAULT_CONTACT): string {
   const { fullName, email, phone, message, preferredContact } = data;
 
   const contactMethodLabel = {
@@ -262,8 +264,8 @@ function generateUserEmailHTML(data: ContactFormData): string {
         <h3>Need Immediate Assistance?</h3>
         <p style="color: #6b7280; margin: 0 0 15px;">Feel free to reach out directly:</p>
         <div class="contact-methods">
-          <a href="tel:+16624000864" class="contact-method">📞 Call Us</a>
-          <a href="mailto:sales@customtrailerspro.com" class="contact-method">✉️ Email Us</a>
+          <a href="${contact.phoneHref}" class="contact-method">📞 Call Us</a>
+          <a href="${contact.emailHref}" class="contact-method">✉️ Email Us</a>
         </div>
       </div>
 
@@ -277,8 +279,8 @@ function generateUserEmailHTML(data: ContactFormData): string {
     <div class="footer">
       <p><strong>Custom Trailer Pro</strong></p>
       <p>
-        📧 <a href="mailto:sales@customtrailerspro.com">sales@customtrailerspro.com</a> |
-        📞 <a href="tel:+16624000864">+1 662 400-0864</a>
+        📧 <a href="${contact.emailHref}">${contact.email}</a> |
+        📞 <a href="${contact.phoneHref}">${contact.phone}</a>
       </p>
       <p style="margin-top: 15px; font-size: 12px;">
         10101 W 87th St, Suite 200<br>
@@ -549,7 +551,8 @@ function generateSalesEmailHTML(data: ContactFormData): string {
 export async function submitContactForm(data: ContactFormData) {
   try {
     // Generate email templates
-    const userEmailHTML = generateUserEmailHTML(data);
+    const contact = await getSiteSettings();
+    const userEmailHTML = generateUserEmailHTML(data, contact);
     const salesEmailHTML = generateSalesEmailHTML(data);
 
     // Send email to user

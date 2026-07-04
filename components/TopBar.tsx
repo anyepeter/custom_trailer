@@ -2,19 +2,22 @@
 
 import { Phone } from "lucide-react";
 import { Facebook, Instagram, Twitter, Linkedin } from "lucide-react";
+import { useSiteContact } from "@/contexts/SettingsContext";
 
 export default function TopBar() {
+  const contact = useSiteContact();
+
   return (
     <div className="bg-gray-800 border-b border-gray-700">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between py-2 text-sm">
           {/* Phone */}
           <a
-            href="tel:+16624000864"
+            href={contact.phoneHref}
             className="flex items-center gap-2 text-gray-300 hover:text-white transition-colors"
           >
             <Phone className="h-4 w-4" />
-            <span>+1 662 400-0864</span>
+            <span>{contact.phone}</span>
           </a>
 
           {/* Social Icons */}

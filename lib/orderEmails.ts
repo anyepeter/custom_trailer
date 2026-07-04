@@ -1,5 +1,7 @@
 import nodemailer from 'nodemailer';
 import { generateOrderItemPdf } from './pdf/generateOrderItemPdf';
+import { getSiteSettings } from '@/lib/settings';
+import { DEFAULT_CONTACT, type SiteContact } from '@/lib/site-contact';
 
 // Email configuration
 const SMTP_HOST = process.env.SMTP_HOST || 'smtp.gmail.com';
@@ -215,7 +217,7 @@ function renderFinancingHTML(financing: FinancingData, style: 'customer' | 'sale
 }
 
 // Customer Order Confirmation Email Template
-function getCustomerEmailHTML(data: OrderConfirmationData): string {
+function getCustomerEmailHTML(data: OrderConfirmationData, contact: SiteContact = DEFAULT_CONTACT): string {
   const itemsHTML = data.items
     .map((item, index) => renderItemHTML(item, index, data.items.length))
     .join('');
@@ -299,8 +301,8 @@ function getCustomerEmailHTML(data: OrderConfirmationData): string {
         <div style="background-color: #f8f9fa; padding: 30px; text-align: center; border-top: 1px solid #e0e0e0;">
             <p style="margin: 0 0 10px 0; color: #333; font-size: 16px; font-weight: 600;">Questions about your order?</p>
             <p style="margin: 0 0 15px 0; color: #666; font-size: 14px;">
-                Contact us at <a href="mailto:${SALES_EMAIL}" style="color: #0066b2; text-decoration: none;">${SALES_EMAIL}</a>
-                or call <a href="tel:+16624000864" style="color: #0066b2; text-decoration: none;">+1-662-400-0864</a>
+                Contact us at <a href="${contact.emailHref}" style="color: #0066b2; text-decoration: none;">${contact.email}</a>
+                or call <a href="${contact.phoneHref}" style="color: #0066b2; text-decoration: none;">${contact.phone}</a>
             </p>
             <div style="border-top: 1px solid #e0e0e0; padding-top: 20px; margin-top: 20px;">
                 <p style="margin: 0 0 5px 0; color: #999; font-size: 12px;">Custom Trailer Pros</p>
@@ -475,7 +477,8 @@ async function generateOrderPdfAttachments(data: {
 // Send order confirmation email to customer
 export async function sendOrderConfirmationEmail(data: OrderConfirmationData) {
   try {
-    const html = getCustomerEmailHTML(data);
+    const contact = await getSiteSettings();
+    const html = getCustomerEmailHTML(data, contact);
 
     // Generate PDF attachments for each item
     console.log('[Order Email] Generating PDF attachments for customer email...');

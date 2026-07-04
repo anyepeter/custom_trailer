@@ -2,6 +2,7 @@ import { CustomTruckDesignInput } from '@/app/actions/submitCustomTruckDesign';
 import { PAYMENT_METHOD_OPTIONS } from '@/types/configurator';
 import { getBrowserInstance } from '@/lib/puppeteer';
 import { LOGO_BASE64 } from './logoBase64';
+import { DEFAULT_CONTACT, type SiteContact } from '@/lib/site-contact';
 
 export function customTruckDesignHTML(data: CustomTruckDesignInput) {
       const paymentMethodLabel = PAYMENT_METHOD_OPTIONS.find(
@@ -738,7 +739,7 @@ export function customTruckDesignHTML(data: CustomTruckDesignInput) {
   }
 
 
-export async function generatePdfFromHtml(htmlContent: string) {
+export async function generatePdfFromHtml(htmlContent: string, contact: SiteContact = DEFAULT_CONTACT) {
   // Launch browser using chrome-aws-lambda for serverless compatibility
   const browser = await getBrowserInstance();
 
@@ -792,7 +793,7 @@ export async function generatePdfFromHtml(htmlContent: string) {
             <img src="${LOGO_BASE64}" alt="Logo" />
           </div>
           <div class="contact-section">
-            <div class="phone">P: +1-662-400-0864</div>
+            <div class="phone">P: ${contact.phone}</div>
             <div class="website">www.customtrailerspro.com</div>
           </div>
         </div>
