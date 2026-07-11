@@ -8,15 +8,18 @@ import {
   truckFormSchema,
   buildRequestUpdateSchema,
   siteSettingsSchema,
+  orderUpdateSchema,
 } from "./schemas";
 import type {
   TruckFormSchema,
   BuildRequestUpdateSchema,
   SiteSettingsSchema,
+  OrderUpdateSchema,
 } from "./schemas";
 import { uploadToCloudinary } from "@/lib/cloudinary";
 import { SITE_SETTINGS_ID, SITE_SETTINGS_TAG } from "@/lib/settings";
 import { DEFAULT_CONTACT_RAW } from "@/lib/site-contact";
+import type { AdminOrder } from "./order-types";
 
 // ============================================================================
 // TRUCK ACTIONS
@@ -277,11 +280,20 @@ export async function getAllTrucksAction() {
 
 export async function getDashboardStatsAction() {
   try {
-    const [truckCount, buildRequestCount, pendingRequests, completedRequests] = await Promise.all([
+    const [
+      truckCount,
+      buildRequestCount,
+      pendingRequests,
+      completedRequests,
+      orderCount,
+      pendingOrders,
+    ] = await Promise.all([
       prisma.truck.count(),
       prisma.buildRequest.count(),
       prisma.buildRequest.count({ where: { status: "pending" } }),
       prisma.buildRequest.count({ where: { status: "completed" } }),
+      prisma.order.count(),
+      prisma.order.count({ where: { status: "pending" } }),
     ]);
 
     return {
@@ -291,6 +303,8 @@ export async function getDashboardStatsAction() {
         buildRequestCount,
         pendingRequests,
         completedRequests,
+        orderCount,
+        pendingOrders,
       },
     };
   } catch (error) {
@@ -304,6 +318,8 @@ export async function getDashboardStatsAction() {
         buildRequestCount: 0,
         pendingRequests: 0,
         completedRequests: 0,
+        orderCount: 0,
+        pendingOrders: 0,
       },
     };
   }
@@ -374,6 +390,150 @@ export async function updateSiteSettingsAction(data: SiteSettingsSchema) {
       success: false,
       error: "Failed to update site settings",
     };
+  }
+}
+
+// ============================================================================
+// ORDER ACTIONS
+// ============================================================================
+
+function serializeOrder(
+  order: Prisma.OrderGetPayload<{ include: { items: true } }>
+): AdminOrder {
+  return {
+    id: order.id,
+    orderNumber: order.orderNumber,
+    firstName: order.firstName,
+    lastName: order.lastName,
+    email: order.email,
+    phone: order.phone,
+    address: order.address,
+    city: order.city,
+    state: order.state,
+    zipCode: order.zipCode,
+    subtotal: Number(order.subtotal),
+    tax: order.tax != null ? Number(order.tax) : null,
+    total: Number(order.total),
+    paymentMethod: order.paymentMethod,
+    paymentStatus: order.paymentStatus,
+    status: order.status,
+    financingPreference: order.financingPreference ?? null,
+    financingTerm: order.financingTerm ?? null,
+    financingMonthlyEstimate:
+      order.financingMonthlyEstimate != null
+        ? Number(order.financingMonthlyEstimate)
+        : null,
+    notes: order.notes ?? null,
+    createdAt: order.createdAt.toISOString(),
+    updatedAt: order.updatedAt.toISOString(),
+    items: order.items.map((item) => ({
+      id: item.id,
+      truckName: item.truckName,
+      truckSize: item.truckSize,
+      truckType: item.truckType ?? null,
+      truckImage: item.truckImage,
+      truckImages: item.truckImages,
+      upgrades: Array.isArray(item.upgrades)
+        ? (item.upgrades as unknown as AdminOrder["items"][number]["upgrades"])
+        : [],
+      quantity: item.quantity,
+      unitPrice: Number(item.unitPrice),
+      upgradesTotal: Number(item.upgradesTotal),
+      itemTotal: Number(item.itemTotal),
+    })),
+  };
+}
+
+export async function getAllOrdersAction(filters?: {
+  status?: string;
+  search?: string;
+}) {
+  try {
+    const where: Prisma.OrderWhereInput = {};
+
+    if (filters?.status && filters.status !== "all") {
+      where.status = filters.status;
+    }
+
+    if (filters?.search) {
+      where.OR = [
+        { firstName: { contains: filters.search, mode: "insensitive" } },
+        { lastName: { contains: filters.search, mode: "insensitive" } },
+        { email: { contains: filters.search, mode: "insensitive" } },
+        { orderNumber: { contains: filters.search, mode: "insensitive" } },
+      ];
+    }
+
+    const orders = await prisma.order.findMany({
+      where,
+      orderBy: { createdAt: "desc" },
+      include: { items: true },
+    });
+
+    return {
+      success: true,
+      data: orders.map(serializeOrder),
+    };
+  } catch (error) {
+    console.error("Get orders error:", error);
+
+    return {
+      success: false,
+      error: "Failed to fetch orders",
+      data: [] as AdminOrder[],
+    };
+  }
+}
+
+export async function getOrderByIdAction(id: string) {
+  try {
+    const order = await prisma.order.findUnique({
+      where: { id },
+      include: { items: true },
+    });
+
+    if (!order) {
+      return { success: false, error: "Order not found" };
+    }
+
+    return { success: true, data: serializeOrder(order) };
+  } catch (error) {
+    console.error("Get order error:", error);
+
+    return { success: false, error: "Failed to fetch order" };
+  }
+}
+
+export async function updateOrderAction(id: string, data: OrderUpdateSchema) {
+  try {
+    const validated = orderUpdateSchema.parse(data);
+
+    const order = await prisma.order.update({
+      where: { id },
+      data: {
+        status: validated.status,
+        paymentStatus: validated.paymentStatus,
+        notes: validated.notes,
+      },
+      include: { items: true },
+    });
+
+    revalidatePath("/admin/orders");
+    revalidatePath("/admin");
+
+    return {
+      success: true,
+      data: serializeOrder(order),
+      message: "Order updated successfully",
+    };
+  } catch (error) {
+    console.error("Update order error:", error);
+
+    if (error instanceof Error) {
+      return { success: false, error: error.message };
+    }
+
+    return { success: false, error: "Failed to update order" };
   }
 }
 

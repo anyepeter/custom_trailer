@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Truck, FileText, Clock, CheckCircle, ArrowRight } from "lucide-react";
+import { Truck, FileText, Clock, CheckCircle, ArrowRight, ShoppingCart } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { getDashboardStatsAction } from "@/lib/admin/actions";
@@ -13,6 +13,8 @@ export default function AdminDashboard() {
     buildRequestCount: 0,
     pendingRequests: 0,
     completedRequests: 0,
+    orderCount: 0,
+    pendingOrders: 0,
   });
   const [loading, setLoading] = useState(true);
 
@@ -33,6 +35,22 @@ export default function AdminDashboard() {
   }, []);
 
   const stats = [
+    {
+      title: "Total Orders",
+      value: data.orderCount,
+      description: "Placed at checkout",
+      icon: ShoppingCart,
+      href: "/admin/orders",
+      color: "text-emerald-600 bg-emerald-100",
+    },
+    {
+      title: "Pending Orders",
+      value: data.pendingOrders,
+      description: "Awaiting processing",
+      icon: Clock,
+      href: "/admin/orders?status=pending",
+      color: "text-orange-600 bg-orange-100",
+    },
     {
       title: "Total Trucks",
       value: data.truckCount,
@@ -122,6 +140,12 @@ export default function AdminDashboard() {
             <CardDescription className="text-sm">Common tasks and shortcuts</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3 p-4 sm:p-6 pt-0">
+            <Link href="/admin/orders">
+              <Button className="w-full justify-start text-sm" variant="outline">
+                <ShoppingCart className="mr-2 h-4 w-4" />
+                View Orders
+              </Button>
+            </Link>
             <Link href="/admin/trucks/create">
               <Button className="w-full justify-start text-sm" variant="outline">
                 <Truck className="mr-2 h-4 w-4" />

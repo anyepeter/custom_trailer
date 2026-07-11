@@ -2,7 +2,12 @@
 
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { sendOrderConfirmationEmail, sendOrderNotificationToSales } from "@/lib/orderEmails";
+import {
+  sendOrderConfirmationEmail,
+  sendOrderNotificationToSales,
+  generateOrderPdfAttachments,
+  type OrderPdfAttachment,
+} from "@/lib/orderEmails";
 
 // Validation schema for a single order item (one trailer + its upgrades)
 const orderItemSchema = z.object({
@@ -128,19 +133,42 @@ export async function submitOrder(data: OrderInput) {
       monthlyEstimate: validated.financingMonthlyEstimate,
     } : undefined;
 
+    const customerAddress = `${validated.address}, ${validated.city}, ${validated.state} ${validated.zipCode}`;
+    const customerName = `${validated.firstName} ${validated.lastName}`;
+
+    // Generate the per-item PDFs ONCE and reuse for both emails. Doing this
+    // per-email meant two heavy puppeteer runs per order, which could exceed
+    // serverless time limits and silently drop the second (sales) email.
+    let pdfAttachments: OrderPdfAttachment[];
+    try {
+      pdfAttachments = await generateOrderPdfAttachments({
+        orderNumber: order.orderNumber,
+        customerName,
+        customerEmail: validated.email,
+        customerPhone: validated.phone,
+        customerAddress,
+        items: emailItems,
+        paymentMethod: validated.paymentMethod,
+        financing: financingData,
+      });
+    } catch (pdfError) {
+      console.error("❌ Order PDF generation failed; sending emails without attachments:", pdfError);
+      pdfAttachments = [];
+    }
+
     // Send confirmation email to customer
     const customerEmailResult = await sendOrderConfirmationEmail({
       orderNumber: order.orderNumber,
       customerEmail: validated.email,
-      customerName: `${validated.firstName} ${validated.lastName}`,
+      customerName,
       customerPhone: validated.phone,
-      customerAddress: `${validated.address}, ${validated.city}, ${validated.state} ${validated.zipCode}`,
+      customerAddress,
       items: emailItems,
       subtotal: validated.subtotal,
       total: validated.total,
       paymentMethod: validated.paymentMethod,
       financing: financingData,
-    });
+    }, pdfAttachments);
 
     if (!customerEmailResult.success) {
       console.error("❌ Customer email failed:", customerEmailResult.error);
@@ -152,22 +180,22 @@ export async function submitOrder(data: OrderInput) {
     const salesEmailResult = await sendOrderNotificationToSales({
       orderNumber: order.orderNumber,
       customerInfo: {
-        name: `${validated.firstName} ${validated.lastName}`,
+        name: customerName,
         email: validated.email,
         phone: validated.phone,
-        address: `${validated.address}, ${validated.city}, ${validated.state} ${validated.zipCode}`,
+        address: customerAddress,
       },
       items: emailItems,
       subtotal: validated.subtotal,
       total: validated.total,
       paymentMethod: validated.paymentMethod,
       financing: financingData,
-    });
+    }, pdfAttachments);
 
     if (!salesEmailResult.success) {
-      console.error("❌ Sales team email failed:", salesEmailResult.error);
+      console.error(`❌ Sales team email FAILED for order ${order.orderNumber}:`, salesEmailResult.error);
     } else {
-      console.log("✅ Sales team notification email sent");
+      console.log(`✅ Sales team notification email sent for order ${order.orderNumber}`);
     }
 
     return {

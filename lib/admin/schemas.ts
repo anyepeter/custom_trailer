@@ -75,3 +75,18 @@ export const siteSettingsSchema = z.object({
 });
 
 export type SiteSettingsSchema = z.infer<typeof siteSettingsSchema>;
+
+// Order Update Schema (admin order management)
+export const orderUpdateSchema = z.object({
+  status: z.enum([
+    "pending",
+    "confirmed",
+    "in_production",
+    "completed",
+    "cancelled",
+  ]),
+  paymentStatus: z.enum(["pending", "deposit_paid", "paid", "refunded"]),
+  notes: z.string().optional(),
+});
+
+export type OrderUpdateSchema = z.infer<typeof orderUpdateSchema>;

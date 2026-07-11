@@ -8,6 +8,7 @@ import {
   PlusCircle,
   List,
   FileText,
+  ShoppingCart,
   Settings,
   ChevronRight,
   X,
@@ -20,6 +21,11 @@ const navigation = [
     name: "Dashboard",
     href: "/admin",
     icon: LayoutDashboard,
+  },
+  {
+    name: "Orders",
+    href: "/admin/orders",
+    icon: ShoppingCart,
   },
   {
     name: "Create Truck",

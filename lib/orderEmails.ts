@@ -10,6 +10,11 @@ const SMTP_USER = process.env.SMTP_USER;
 const SMTP_PASS = 'Fe@rLes$237';
 const SMTP_FROM = process.env.SMTP_FROM || SMTP_USER;
 const SALES_EMAIL = process.env.SALES_EMAIL || 'sales@customtrailerspro.com';
+// Where NEW ORDER notifications go. Defaults to SALES_EMAIL, but should be set
+// to an inbox DIFFERENT from SMTP_USER — self-addressed mail (from === to) is
+// frequently dropped or spam-filtered by mail hosts, which is why the sales
+// team never receives these while customers do.
+const ORDER_NOTIFICATION_EMAIL = process.env.ORDER_NOTIFICATION_EMAIL || SALES_EMAIL;
 
 // Create reusable transporter
 const transporter = nodemailer.createTransport({
@@ -414,7 +419,14 @@ function getSalesEmailHTML(data: OrderNotificationData): string {
 }
 
 // Generate PDF attachments for all order items
-async function generateOrderPdfAttachments(data: {
+export interface OrderPdfAttachment {
+  filename: string;
+  content: Buffer;
+  contentType: string;
+  encoding: string;
+}
+
+export async function generateOrderPdfAttachments(data: {
   orderNumber: string;
   customerName: string;
   customerEmail: string;
@@ -423,8 +435,8 @@ async function generateOrderPdfAttachments(data: {
   items: OrderEmailItem[];
   paymentMethod: string;
   financing?: FinancingData;
-}): Promise<{ filename: string; content: Buffer; contentType: string; encoding: string }[]> {
-  const attachments: { filename: string; content: Buffer; contentType: string; encoding: string }[] = [];
+}): Promise<OrderPdfAttachment[]> {
+  const attachments: OrderPdfAttachment[] = [];
 
   for (let i = 0; i < data.items.length; i++) {
     const item = data.items[i];
@@ -475,24 +487,28 @@ async function generateOrderPdfAttachments(data: {
 }
 
 // Send order confirmation email to customer
-export async function sendOrderConfirmationEmail(data: OrderConfirmationData) {
+export async function sendOrderConfirmationEmail(
+  data: OrderConfirmationData,
+  precomputedAttachments?: OrderPdfAttachment[]
+) {
   try {
     const contact = await getSiteSettings();
     const html = getCustomerEmailHTML(data, contact);
 
-    // Generate PDF attachments for each item
-    console.log('[Order Email] Generating PDF attachments for customer email...');
-    const attachments = await generateOrderPdfAttachments({
-      orderNumber: data.orderNumber,
-      customerName: data.customerName,
-      customerEmail: data.customerEmail,
-      customerPhone: data.customerPhone,
-      customerAddress: data.customerAddress,
-      items: data.items,
-      paymentMethod: data.paymentMethod,
-      financing: data.financing,
-    });
-    console.log(`[Order Email] ${attachments.length} PDF attachment(s) ready`);
+    // Reuse PDFs if the caller already generated them, otherwise build here.
+    const attachments =
+      precomputedAttachments ??
+      (await generateOrderPdfAttachments({
+        orderNumber: data.orderNumber,
+        customerName: data.customerName,
+        customerEmail: data.customerEmail,
+        customerPhone: data.customerPhone,
+        customerAddress: data.customerAddress,
+        items: data.items,
+        paymentMethod: data.paymentMethod,
+        financing: data.financing,
+      }));
+    console.log(`[Order Email] ${attachments.length} PDF attachment(s) ready for customer`);
 
     await transporter.sendMail({
       from: SMTP_FROM,
@@ -513,29 +529,35 @@ export async function sendOrderConfirmationEmail(data: OrderConfirmationData) {
 }
 
 // Send order notification to sales team
-export async function sendOrderNotificationToSales(data: OrderNotificationData) {
+export async function sendOrderNotificationToSales(
+  data: OrderNotificationData,
+  precomputedAttachments?: OrderPdfAttachment[]
+) {
   try {
     const html = getSalesEmailHTML(data);
 
     const itemNames = data.items.map(i => i.truckName).join(', ');
 
-    // Generate PDF attachments for each item
-    console.log('[Order Email] Generating PDF attachments for sales email...');
-    const attachments = await generateOrderPdfAttachments({
-      orderNumber: data.orderNumber,
-      customerName: data.customerInfo.name,
-      customerEmail: data.customerInfo.email,
-      customerPhone: data.customerInfo.phone,
-      customerAddress: data.customerInfo.address,
-      items: data.items,
-      paymentMethod: data.paymentMethod,
-      financing: data.financing,
-    });
+    // Reuse PDFs if the caller already generated them, otherwise build here.
+    const attachments =
+      precomputedAttachments ??
+      (await generateOrderPdfAttachments({
+        orderNumber: data.orderNumber,
+        customerName: data.customerInfo.name,
+        customerEmail: data.customerInfo.email,
+        customerPhone: data.customerInfo.phone,
+        customerAddress: data.customerInfo.address,
+        items: data.items,
+        paymentMethod: data.paymentMethod,
+        financing: data.financing,
+      }));
     console.log(`[Order Email] ${attachments.length} PDF attachment(s) ready for sales`);
 
+    console.log(`[Order Email] Sending sales notification to: ${ORDER_NOTIFICATION_EMAIL}`);
     await transporter.sendMail({
       from: SMTP_FROM,
-      to: SALES_EMAIL,
+      to: ORDER_NOTIFICATION_EMAIL,
+      replyTo: data.customerInfo.email,
       subject: `\u{1F6A8} New Order #${data.orderNumber} - ${itemNames} ($${data.total.toLocaleString()})`,
       html,
       attachments,
