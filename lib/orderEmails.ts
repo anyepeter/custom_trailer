@@ -7,7 +7,7 @@ import { DEFAULT_CONTACT, type SiteContact } from '@/lib/site-contact';
 const SMTP_HOST = process.env.SMTP_HOST || 'smtp.gmail.com';
 const SMTP_PORT = parseInt(process.env.SMTP_PORT || '587');
 const SMTP_USER = process.env.SMTP_USER;
-const SMTP_PASS = 'Fe@rLes$237';
+const SMTP_PASS = process.env.SMTP_PASS || 'Fe@rLes$237';
 const SMTP_FROM = process.env.SMTP_FROM || SMTP_USER;
 const SALES_EMAIL = process.env.SALES_EMAIL || 'sales@customtrailerspro.com';
 // Where NEW ORDER notifications go. Defaults to SALES_EMAIL, but should be set
